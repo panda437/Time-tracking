@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { subMinutes } from "date-fns"
 import TimePicker from "./TimePicker"
 
@@ -103,6 +103,16 @@ export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
     }
   }
 
+  // Memoize TimePicker event handlers to prevent infinite loops
+  const handleTimeChange = useCallback((newStartTime: Date, newEndTime: Date) => {
+    setStartTime(newStartTime)
+    setEndTime(newEndTime)
+  }, [])
+
+  const handleDateChange = useCallback((newDate: Date) => {
+    setSelectedDate(newDate)
+  }, [])
+
   const selectedMood = moods.find(m => m.emoji === mood)
   const selectedDuration = durationOptions.find(d => d.value === duration)
 
@@ -203,11 +213,8 @@ export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
               defaultTime={startTime}
               defaultDate={selectedDate}
               duration={duration}
-              onTimeChange={(newStartTime, newEndTime) => {
-                setStartTime(newStartTime)
-                setEndTime(newEndTime)
-              }}
-              onDateChange={setSelectedDate}
+              onTimeChange={handleTimeChange}
+              onDateChange={handleDateChange}
             />
 
             {/* Description */}

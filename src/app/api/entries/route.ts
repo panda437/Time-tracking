@@ -66,6 +66,29 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
+    console.log("Request body:", body)
+    console.log("Session user ID:", session.user.id)
+    
+    // Check if user exists in database, create if not
+    let user = await prisma.user.findUnique({
+      where: { id: session.user.id }
+    })
+    
+    if (!user) {
+      console.log("User doesn't exist, creating...")
+      // Create user record if it doesn't exist
+      user = await prisma.user.create({
+        data: {
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.name || '',
+          password: '' // Empty since this is OAuth/session based
+        }
+      })
+      console.log("User created successfully")
+    }
+    console.log("User exists in DB:", !!user)
+    
     const { activity, description, duration, startTime, category, mood, tags } = body
 
     if (!activity || !duration || !startTime) {
@@ -93,6 +116,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(entry)
   } catch (error) {
-    return NextResponse.json({ error: "Failed to create entry" }, { status: 500 })
+    console.error("Error creating entry:", error)
+    return NextResponse.json({ 
+      error: "Failed to create entry", 
+      details: error instanceof Error ? error.message : "Unknown error" 
+    }, { status: 500 })
   }
 }

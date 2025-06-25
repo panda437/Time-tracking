@@ -81,7 +81,7 @@ export default function TimePicker({
     
     setStartTime(snappedStartTime)
     onTimeChange(snappedStartTime, endTime)
-  }, [sliderPosition, selectedDate, duration, onTimeChange])
+  }, [sliderPosition, selectedDate, duration])
 
   // Handle mouse/touch events for slider
   const handleSliderStart = (e: React.MouseEvent | React.TouchEvent) => {
