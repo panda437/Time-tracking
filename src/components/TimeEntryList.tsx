@@ -35,6 +35,7 @@ export default function TimeEntryList({ entries, onEntryUpdated, onEntryDeleted 
       activity: entry.activity,
       description: entry.description,
       duration: entry.duration,
+      startTime: entry.startTime,
       category: entry.category,
       mood: entry.mood,
     })
@@ -133,6 +134,12 @@ export default function TimeEntryList({ entries, onEntryUpdated, onEntryDeleted 
                 rows={2}
               />
               <div className="flex space-x-4">
+                <input
+                  type="datetime-local"
+                  value={editForm.startTime ? new Date(editForm.startTime).toISOString().slice(0, 16) : ""}
+                  onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
                 <select
                   value={editForm.duration || ""}
                   onChange={(e) => setEditForm({ ...editForm, duration: Number(e.target.value) })}
@@ -146,6 +153,8 @@ export default function TimeEntryList({ entries, onEntryUpdated, onEntryDeleted 
                   <option value={120}>2 hours</option>
                   <option value={180}>3 hours</option>
                 </select>
+              </div>
+              <div className="flex space-x-4">
                 <select
                   value={editForm.category || ""}
                   onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
@@ -158,6 +167,21 @@ export default function TimeEntryList({ entries, onEntryUpdated, onEntryDeleted 
                   <option value="social">Social</option>
                   <option value="entertainment">Entertainment</option>
                   <option value="other">Other</option>
+                </select>
+                <select
+                  value={editForm.mood || ""}
+                  onChange={(e) => setEditForm({ ...editForm, mood: e.target.value || undefined })}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="">No mood</option>
+                  <option value="😊">😊 Happy</option>
+                  <option value="😌">😌 Calm</option>
+                  <option value="🤔">🤔 Thoughtful</option>
+                  <option value="😴">😴 Tired</option>
+                  <option value="😤">😤 Frustrated</option>
+                  <option value="🎯">🎯 Focused</option>
+                  <option value="⚡">⚡ Energetic</option>
+                  <option value="😐">😐 Neutral</option>
                 </select>
               </div>
               <div className="flex space-x-2">

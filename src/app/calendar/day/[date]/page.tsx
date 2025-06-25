@@ -6,7 +6,8 @@ import { useEffect, useState } from "react"
 import { format, parseISO, isValid } from "date-fns"
 import Link from "next/link"
 import Header from "@/components/Header"
-import { Calendar, ArrowLeft, Clock, Tag, Smile } from "lucide-react"
+import AddTaskGapModal from "@/components/AddTaskGapModal"
+import { Calendar, ArrowLeft, Clock, Tag, Smile, Edit2, Trash2, Plus } from "lucide-react"
 
 interface TimeEntry {
   id: string
@@ -17,7 +18,7 @@ interface TimeEntry {
   endTime: string
   category: string
   mood?: string
-  tags: string[]
+  tags: string
 }
 
 interface DayViewPageProps {
@@ -30,6 +31,9 @@ export default function DayViewPage({ params }: DayViewPageProps) {
   const [date, setDate] = useState<string>("")
   const [entries, setEntries] = useState<TimeEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [showGapModal, setShowGapModal] = useState(false)
+  const [gapStartTime, setGapStartTime] = useState<Date>(new Date())
+  const [gapEndTime, setGapEndTime] = useState<Date>(new Date())
 
   useEffect(() => {
     async function getParams() {
@@ -106,6 +110,17 @@ export default function DayViewPage({ params }: DayViewPageProps) {
     return breakdown
   }
 
+  const handleAddTaskInGap = (startTime: Date, endTime: Date) => {
+    setGapStartTime(startTime)
+    setGapEndTime(endTime)
+    setShowGapModal(true)
+  }
+
+  const handleTaskAdded = (newTask: any) => {
+    // Refresh the entries to include the new task
+    fetchDayEntries()
+  }
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -143,7 +158,7 @@ export default function DayViewPage({ params }: DayViewPageProps) {
     <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB]">
       <Header user={session.user} />
       
-      <main className="max-w-4xl mx-auto py-6 px-4">
+      <main className="max-w-4xl mx-auto py-6 px-4 pb-32 md:pb-6">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-6">
@@ -195,66 +210,145 @@ export default function DayViewPage({ params }: DayViewPageProps) {
           </div>
         </div>
 
-        {/* Activities List */}
+          {/* Timeline View */}
         {entries.length > 0 ? (
           <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-            <div className="px-8 py-6 border-b border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-900">All Activities</h2>
+            <div className="px-6 py-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-900">Timeline</h2>
+              <p className="text-sm text-gray-600 mt-1">Your day's journey, moment by moment</p>
             </div>
             
-            <div className="p-8">
-              <div className="space-y-4">
-                {entries
-                  .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
-                  .map((entry) => {
-                    const colors = getCategoryColor(entry.category)
-                    return (
-                      <div key={entry.id} className={`p-6 rounded-2xl border-2 ${colors.bg} ${colors.border} hover:shadow-md transition-shadow`}>
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                              {entry.activity}
-                            </h3>
-                            {entry.description && (
-                              <p className="text-gray-600 mb-3">
-                                {entry.description}
-                              </p>
-                            )}
-                          </div>
-                          <div className={`px-3 py-1 rounded-full text-sm font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
-                            {entry.category}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-6 text-sm text-gray-500">
-                          <div className="flex items-center space-x-2">
-                            <Clock className="h-4 w-4" />
-                            <span>{formatTime(entry.startTime)} - {formatTime(entry.endTime)}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Tag className="h-4 w-4" />
-                            <span>{formatDuration(entry.duration)}</span>
-                          </div>
-                          {entry.mood && (
-                            <div className="flex items-center space-x-2">
-                              <Smile className="h-4 w-4" />
-                              <span>{entry.mood}</span>
+            <div className="p-6">
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#FF385C] via-[#00A699] to-[#FC642D]"></div>
+                
+                {/* Timeline entries */}
+                <div className="space-y-0">
+                  {entries
+                    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+                    .map((entry, index, sortedEntries) => {
+                      const colors = getCategoryColor(entry.category)
+                      const entryStartTime = new Date(entry.startTime)
+                      const entryEndTime = new Date(entry.endTime)
+                      
+                      // Calculate gap from previous entry (in pixels: 1 inch = 96px, so 1 hour = 96px)
+                      let gapHeight = 0
+                      let gapMinutes = 0
+                      let prevEndTime: Date | null = null
+                      if (index > 0) {
+                        prevEndTime = new Date(sortedEntries[index - 1].endTime)
+                        gapMinutes = (entryStartTime.getTime() - prevEndTime.getTime()) / (1000 * 60)
+                        gapHeight = Math.max(0, (gapMinutes / 60) * 96) // 96px per hour
+                      }
+                      
+                      return (
+                        <div key={entry.id}>
+                          {/* Gap spacer with add task option */}
+                          {gapHeight > 0 && (
+                            <div 
+                              style={{ height: `${Math.min(gapHeight, 288)}px` }} // Max 3 hours gap
+                              className="relative flex items-center justify-center"
+                            >
+                              {gapMinutes >= 120 && prevEndTime ? ( // 2+ hours gap
+                                <div className="flex items-center space-x-4">
+                                  <div className="bg-white px-3 py-2 rounded-full text-sm text-gray-500 border border-gray-200 shadow-sm">
+                                    {formatDuration(gapMinutes)} gap
+                                  </div>
+                                  <button
+                                    onClick={() => handleAddTaskInGap(prevEndTime!, entryStartTime)}
+                                    className="group bg-[#FF385C] hover:bg-[#E31C5F] text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95"
+                                    title="Add task for this time gap"
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                  </button>
+                                  <div className="text-xs text-gray-400 hidden md:block">
+                                    What happened here?
+                                  </div>
+                                </div>
+                              ) : gapHeight > 48 ? (
+                                <div className="absolute left-6 bg-white px-2 py-1 rounded-full text-xs text-gray-400 border border-gray-200">
+                                  {formatDuration(gapMinutes)} break
+                                </div>
+                              ) : null}
                             </div>
                           )}
-                        </div>
+                          
+                          {/* Timeline entry */}
+                          <div className="relative flex items-start space-x-6 pb-6">
+                            {/* Timeline dot */}
+                            <div className="relative z-10 flex-shrink-0">
+                              <div className={`w-6 h-6 rounded-full border-4 border-white shadow-lg ${colors.bg.replace('50', '500')}`}>
+                                <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+                                  {entry.mood && (
+                                    <span className="text-xs">{entry.mood}</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-xs font-medium text-gray-500">
+                                {formatTime(entry.startTime)}
+                              </div>
+                            </div>
 
-                        {entry.tags && entry.tags.length > 0 && (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {entry.tags.map((tag, index) => (
-                              <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                                #{tag}
-                              </span>
-                            ))}
+                            {/* Entry card */}
+                            <div className={`flex-1 p-4 rounded-2xl border-2 ${colors.bg} ${colors.border} hover:shadow-lg transition-all group`}>
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1">
+                                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                                    {entry.activity}
+                                  </h3>
+                                  {entry.description && (
+                                    <p className="text-gray-600 text-sm mb-2">
+                                      {entry.description}
+                                    </p>
+                                  )}
+                                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                    <span className="flex items-center space-x-1">
+                                      <Clock className="h-3 w-3" />
+                                      <span>{formatDuration(entry.duration)}</span>
+                                    </span>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors.bg} ${colors.text}`}>
+                                      {entry.category}
+                                    </span>
+                                    <span className="text-xs">
+                                      {formatTime(entry.startTime)} - {formatTime(entry.endTime)}
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                {/* Action buttons */}
+                                <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <button className="p-2 hover:bg-white/50 rounded-lg transition-colors">
+                                    <Edit2 className="h-4 w-4 text-gray-600 hover:text-[#FF385C]" />
+                                  </button>
+                                  <button className="p-2 hover:bg-white/50 rounded-lg transition-colors">
+                                    <Trash2 className="h-4 w-4 text-gray-600 hover:text-red-500" />
+                                  </button>
+                                </div>
+                              </div>
+                              
+                              {(() => {
+                                try {
+                                  const parsedTags = entry.tags ? JSON.parse(entry.tags) : []
+                                  return parsedTags.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 mt-2">
+                                      {parsedTags.map((tag: string, tagIndex: number) => (
+                                        <span key={tagIndex} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                                          #{tag}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )
+                                } catch {
+                                  return null
+                                }
+                              })()}
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    )
-                  })}
+                        </div>
+                      )
+                    })}
+                </div>
               </div>
             </div>
           </div>
@@ -278,6 +372,15 @@ export default function DayViewPage({ params }: DayViewPageProps) {
           </div>
         )}
       </main>
+      
+      {/* Add Task Gap Modal */}
+      <AddTaskGapModal
+        isOpen={showGapModal}
+        onClose={() => setShowGapModal(false)}
+        startTime={gapStartTime}
+        endTime={gapEndTime}
+        onTaskAdded={handleTaskAdded}
+      />
     </div>
   )
 }

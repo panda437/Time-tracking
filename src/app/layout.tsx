@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { Providers } from "./providers"
+import GoogleAnalytics from "@/components/GoogleAnalytics"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,6 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB] min-h-screen`}
       >
+        <GoogleAnalytics />
         <Providers>
           <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA]/50 via-transparent to-[#EBEBEB]/30">
             {children}

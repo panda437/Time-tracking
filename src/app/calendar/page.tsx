@@ -97,32 +97,36 @@ export default function CalendarPage() {
     <div className="min-h-screen bg-gray-50">
       <Header user={session.user} />
       
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32 md:pb-8">
+        <div className="space-y-4 sm:space-y-6">
           {/* Header */}
-          <div className="bg-white overflow-hidden shadow rounded-lg mb-6">
+          <div className="bg-white overflow-hidden shadow-lg rounded-2xl">
             <div className="px-4 py-5 sm:p-6">
-              <div className="flex items-center justify-between mb-4">
+              {/* Mobile-friendly header layout */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-4">
                 <div className="flex items-center space-x-3">
-                  <Calendar className="h-6 w-6 text-indigo-600" />
-                  <h1 className="text-2xl font-bold text-gray-900">Calendar View</h1>
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center">
+                    <Calendar className="h-5 w-5 text-white" />
+                  </div>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Calendar</h1>
                 </div>
                 
-                <div className="flex items-center space-x-4">
+                {/* Month navigation - centered on mobile */}
+                <div className="flex items-center justify-center sm:justify-end space-x-4">
                   <button
                     onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
-                    className="p-2 text-gray-400 hover:text-gray-600"
+                    className="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all active:scale-95"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
                   
-                  <h2 className="text-lg font-medium text-gray-900">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900 min-w-[140px] text-center">
                     {format(currentDate, 'MMMM yyyy')}
                   </h2>
                   
                   <button
                     onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
-                    className="p-2 text-gray-400 hover:text-gray-600"
+                    className="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all active:scale-95"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
@@ -165,19 +169,19 @@ export default function CalendarPage() {
           </div>
 
           {/* Calendar Grid */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-6">
+          <div className="bg-white overflow-hidden shadow-lg rounded-2xl">
+            <div className="p-3 sm:p-6">
               {/* Days of week header */}
-              <div className="grid grid-cols-7 gap-1 mb-4">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-3 sm:mb-4">
                 {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                  <div key={day} className="p-2 text-center text-sm font-medium text-gray-500">
+                  <div key={day} className="p-2 text-center text-xs sm:text-sm font-semibold text-gray-600 bg-gray-50 rounded-lg">
                     {day}
                   </div>
                 ))}
               </div>
 
               {/* Calendar days */}
-              <div className="grid grid-cols-7 gap-1">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2">
                 {monthDays.map(date => {
                   const dayData = getDayData(date)
                   const isCurrentMonth = isSameMonth(date, currentDate)
@@ -187,10 +191,10 @@ export default function CalendarPage() {
                     <div
                       key={date.toISOString()}
                       className={`
-                        min-h-[100px] p-2 border border-gray-200 rounded-lg cursor-pointer transition-colors
-                        ${isCurrentMonth ? 'bg-white' : 'bg-gray-50'}
-                        ${isTodayDate ? 'ring-2 ring-indigo-500' : ''}
-                        ${dayData ? 'hover:bg-blue-50' : ''}
+                        aspect-square min-h-[60px] sm:min-h-[100px] p-1 sm:p-3 border-2 rounded-xl cursor-pointer transition-all duration-200
+                        ${isCurrentMonth ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-100'}
+                        ${isTodayDate ? 'ring-2 ring-[#FF385C] border-[#FF385C]' : ''}
+                        ${dayData ? 'hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 hover:shadow-lg active:scale-95' : 'hover:bg-gray-100'}
                       `}
                       onMouseEnter={(e) => {
                         if (dayData && dayData.entries.length > 0) {
@@ -208,6 +212,9 @@ export default function CalendarPage() {
                       onMouseLeave={() => {
                         setHoveredDay(null)
                       }}
+                      onClick={() => {
+                        router.push(`/calendar/day/${format(date, 'yyyy-MM-dd')}`)
+                      }}
                     >
                       <div className={`
                         text-sm font-medium mb-1
@@ -218,21 +225,24 @@ export default function CalendarPage() {
                       </div>
                       
                       {dayData && (
-                        <div className="space-y-1">
-                          <div className="text-xs text-gray-600">
-                            {formatDuration(dayData.totalDuration)}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {dayData.entries.length} activities
-                          </div>
-                          <div className="flex flex-wrap gap-1">
-                            {dayData.categories.slice(0, 3).map(category => (
-                              <div
-                                key={category}
-                                className="w-2 h-2 rounded-full bg-indigo-400"
-                                title={category}
-                              />
-                            ))}
+                        <div className="flex items-center justify-center mt-1">
+                          <div className="flex space-x-1">
+                            {dayData.entries.length <= 2 ? (
+                              // Show individual dots for 1-2 activities
+                              Array.from({ length: dayData.entries.length }, (_, i) => (
+                                <div
+                                  key={i}
+                                  className="w-1.5 h-1.5 rounded-full bg-[#FF385C]"
+                                />
+                              ))
+                            ) : (
+                              // Show 2 dots + number for 3+ activities
+                              <>
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#FF385C]" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#FF385C]" />
+                                <span className="text-[10px] font-medium text-[#FF385C] ml-1">+{dayData.entries.length - 2}</span>
+                              </>
+                            )}
                           </div>
                         </div>
                       )}

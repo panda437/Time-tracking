@@ -3,10 +3,12 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import TimeEntryForm from "@/components/TimeEntryForm"
 import TimeEntryList from "@/components/TimeEntryList"
 import WeeklyOverview from "@/components/WeeklyOverview"
 import Header from "@/components/Header"
+import OnboardingModal from "@/components/OnboardingModal"
 
 interface TimeEntry {
   id: string
@@ -28,6 +30,8 @@ export default function Dashboard() {
   const router = useRouter()
   const [entries, setEntries] = useState<TimeEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [userGoals, setUserGoals] = useState<string[]>([])
 
   useEffect(() => {
     if (status === "loading") return
@@ -38,7 +42,50 @@ export default function Dashboard() {
     }
 
     fetchEntries()
+    checkUserGoals()
   }, [session, status, router])
+
+  const checkUserGoals = async () => {
+    try {
+      const response = await fetch("/api/goals")
+      if (response.ok) {
+        const goals = await response.json()
+        setUserGoals(goals.map((g: any) => g.goal))
+        // Show onboarding if user has no goals and no entries
+        if (goals.length === 0) {
+          // Check if user has any entries to determine if they're truly new
+          const entriesResponse = await fetch("/api/entries")
+          if (entriesResponse.ok) {
+            const allEntries = await entriesResponse.json()
+            if (allEntries.length === 0) {
+              setShowOnboarding(true)
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch user goals:", error)
+    }
+  }
+
+  const handleSaveGoals = async (goals: string[]) => {
+    try {
+      const response = await fetch("/api/goals", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ goals }),
+      })
+      
+      if (response.ok) {
+        setUserGoals(goals)
+        setShowOnboarding(false)
+      }
+    } catch (error) {
+      console.error("Failed to save goals:", error)
+    }
+  }
 
   const fetchEntries = async () => {
     try {
@@ -152,11 +199,14 @@ export default function Dashboard() {
         </div>
       </div>
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 md:pb-16">
         <div className="space-y-12">
           {/* Quick Add Section - Hero CTA */}
           <div className="-mt-8 relative z-10">
-            <TimeEntryForm onEntryAdded={handleEntryAdded} />
+            <TimeEntryForm 
+              onEntryAdded={handleEntryAdded} 
+              showExpandedByDefault={entries.length === 0 && userGoals.length === 0}
+            />
           </div>
 
           {/* Weekly Story Section */}
@@ -211,6 +261,35 @@ export default function Dashboard() {
             </div>
           </div>
 
+{/* Pomodoro Timer Section */}
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden animate-slide-up">
+            <div className="bg-gradient-to-r from-[#FF385C] to-[#E31C5F] px-8 py-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-semibold text-white mb-2">
+                    Pomodoro Timer
+                  </h2>
+                  <p className="text-white/80">
+                    Enhance focus with structured intervals
+                  </p>
+                </div>
+                <div className="hidden md:block">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <span className="text-2xl">⏳</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-8 text-center">
+              <Link 
+                href="/pomodoro"
+                className="inline-flex items-center px-6 py-3 bg-[#FF385C] text-white text-lg rounded-xl hover:bg-[#E31C5F] transition-colors"
+              >
+                Start your session →
+              </Link>
+            </div>
+          </div>
+
           {/* Inspirational Footer */}
           <div className="text-center py-12">
             <div className="inline-flex items-center space-x-2 bg-white rounded-full px-6 py-3 shadow-lg border border-gray-100">
@@ -222,6 +301,13 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+      
+      {/* Onboarding Modal */}
+      <OnboardingModal 
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onSaveGoals={handleSaveGoals}
+      />
     </div>
   )
 }

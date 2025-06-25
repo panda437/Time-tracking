@@ -137,9 +137,9 @@ export default function Header({ user }: HeaderProps) {
         </div>
       </div>
       
-      {/* Mobile Navigation */}
-      <div className="md:hidden border-t border-gray-100 bg-white">
-        <nav className="flex justify-around py-2">
+      {/* Mobile Navigation - Fixed at very bottom */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 border-t border-gray-100 bg-white/95 backdrop-blur-sm z-50 pb-safe">
+        <nav className="flex justify-around py-4 px-2 safe-area-inset-bottom">
           {navigation.map((item) => {
             const isActive = pathname === item.href
             const Icon = item.icon
@@ -149,7 +149,7 @@ export default function Header({ user }: HeaderProps) {
                 key={item.name}
                 href={item.href}
                 className={`
-                  flex flex-col items-center py-2 px-3 rounded-xl transition-smooth
+                  flex flex-col items-center py-2 px-4 rounded-xl transition-smooth
                   ${
                     isActive
                       ? 'text-[#FF385C] bg-[#FF385C]/8'
@@ -157,11 +157,25 @@ export default function Header({ user }: HeaderProps) {
                   }
                 `}
               >
-                <Icon className="h-5 w-5 mb-1" />
+                <Icon className="h-6 w-6 mb-1" />
                 <span className="text-xs font-medium">{item.name}</span>
               </Link>
             )
           })}
+          <Link
+            href="/pomodoro"
+            className={`
+              flex flex-col items-center py-2 px-4 rounded-xl transition-smooth
+              ${
+                pathname === '/pomodoro'
+                  ? 'text-[#FF385C] bg-[#FF385C]/8'
+                  : 'text-[#767676] hover:text-[#222222]'
+              }
+            `}
+          >
+            <span className="text-xl mb-1">⏳</span>
+            <span className="text-xs font-medium">Focus</span>
+          </Link>
         </nav>
       </div>
     </header>

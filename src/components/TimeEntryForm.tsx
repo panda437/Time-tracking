@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react"
 import { subMinutes } from "date-fns"
 import TimePicker from "./TimePicker"
+import { trackTimeEntry, trackFormInteraction } from "./GoogleAnalytics"
 
 interface TimeEntry {
   id: string
@@ -21,6 +22,7 @@ interface TimeEntry {
 
 interface TimeEntryFormProps {
   onEntryAdded: (entry: TimeEntry) => void
+  showExpandedByDefault?: boolean
 }
 
 const categories = [
@@ -46,17 +48,18 @@ const durationOptions = [
   { value: 180, label: "3 hours", description: "Deep work" },
 ]
 
-export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
+export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = false }: TimeEntryFormProps) {
   const [activity, setActivity] = useState("")
   const [description, setDescription] = useState("")
   const [duration, setDuration] = useState(30)
   const [category, setCategory] = useState("work")
   const [mood, setMood] = useState("")
   const [loading, setLoading] = useState(false)
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(showExpandedByDefault)
   const [startTime, setStartTime] = useState<Date>(new Date())
   const [endTime, setEndTime] = useState<Date>(new Date())
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -87,12 +90,21 @@ export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
         const newEntry = await response.json()
         onEntryAdded(newEntry)
         
+        // Track the time entry creation
+        trackTimeEntry('create', category, duration)
+        trackFormInteraction('submit', 'time_entry_form')
+        
+        // Show success message
+        setShowSuccess(true)
+        setTimeout(() => setShowSuccess(false), 5000)
+        
         // Reset form
         setActivity("")
         setDescription("")
         setDuration(30)
         setCategory("work")
         setMood("")
+        setIsExpanded(false) // Collapse form after success
       } else {
         console.error("Failed to create entry")
       }
@@ -192,7 +204,7 @@ export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center space-x-2 px-4 py-2 rounded-full bg-[#F7F7F7] hover:bg-[#EBEBEB] transition-smooth"
+            className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#F7F7F7] via-white to-[#F7F7F7] hover:from-[#EBEBEB] hover:via-[#F0F0F0] hover:to-[#EBEBEB] transition-smooth shadow-sm hover:shadow-md border border-gray-100"
           >
             <span className="text-sm font-medium text-[#767676]">
               {isExpanded ? 'Less' : 'More'}
@@ -321,6 +333,36 @@ export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
           }`}></div>
         </div>
       </form>
+
+      {/* Success Message */}
+      {showSuccess && (
+        <div className="absolute inset-x-0 top-full mt-4 mx-8 p-6 bg-gradient-to-r from-[#00A699] to-[#009B8E] text-white rounded-2xl shadow-xl border border-[#00A699]/20 animate-slide-up">
+          <div className="flex items-start space-x-4">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                <span className="text-xl">✨</span>
+              </div>
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg mb-1">
+                Beautiful! Your moment is captured ✓
+              </h3>
+              <p className="text-white/90 text-sm mb-3">
+                "{activity}" has been added to your story. {selectedMood ? `Love that ${selectedMood.name.toLowerCase()} energy! ` : ''}
+              </p>
+              <p className="text-white/80 text-sm">
+                💡 <span className="font-medium">Keep the momentum going!</span> What else made your day meaningful?
+              </p>
+            </div>
+            <button 
+              onClick={() => setShowSuccess(false)}
+              className="flex-shrink-0 p-1 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <span className="text-white/70 hover:text-white text-sm">✕</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
