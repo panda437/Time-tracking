@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { subMinutes } from "date-fns"
+import TimePicker from "./TimePicker"
 
 interface TimeEntry {
   id: string
@@ -53,13 +54,19 @@ export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
   const [mood, setMood] = useState("")
   const [loading, setLoading] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [startTime, setStartTime] = useState<Date>(new Date())
+  const [endTime, setEndTime] = useState<Date>(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const startTime = subMinutes(new Date(), duration).toISOString()
+      // Use the selected start time from TimePicker, or fallback to calculated time
+      const submissionStartTime = isExpanded 
+        ? startTime.toISOString() 
+        : subMinutes(new Date(), duration).toISOString()
       
       const response = await fetch("/api/entries", {
         method: "POST",
@@ -70,7 +77,7 @@ export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
           activity,
           description,
           duration,
-          startTime,
+          startTime: submissionStartTime,
           category,
           mood: mood || null,
         }),
@@ -191,6 +198,18 @@ export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
         {/* Expanded Details */}
         {isExpanded && (
           <div className="space-y-6 animate-slide-up">
+            {/* Time Picker */}
+            <TimePicker
+              defaultTime={startTime}
+              defaultDate={selectedDate}
+              duration={duration}
+              onTimeChange={(newStartTime, newEndTime) => {
+                setStartTime(newStartTime)
+                setEndTime(newEndTime)
+              }}
+              onDateChange={setSelectedDate}
+            />
+
             {/* Description */}
             <div className="space-y-3">
               <label className="block text-base font-medium text-[#222222]">
