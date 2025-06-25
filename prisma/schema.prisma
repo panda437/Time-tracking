@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  timezone  String   @default("UTC")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  entries   TimeEntry[]
+  
+  @@map("users")
+}
+
+model TimeEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  activity    String   @db.VarChar(255)
+  description String?  @db.Text
+  duration    Int      // in minutes
+  startTime   DateTime @db.Timestamptz
+  endTime     DateTime @db.Timestamptz
+  date        DateTime @db.Date // for easy calendar queries
+  category    String   @default("general") @db.VarChar(50)
+  mood        String?  @db.VarChar(10) // emoji or mood indicator
+  tags        String[] @default([]) // for flexible categorization
+  createdAt   DateTime @default(now()) @db.Timestamptz
+  updatedAt   DateTime @updatedAt @db.Timestamptz
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Indexes for performance
+  @@index([userId, date]) // Fast calendar queries per user
+  @@index([userId, startTime]) // Fast time-based queries
+  @@index([userId, category]) // Fast category filtering
+  @@index([date]) // General date queries
+  @@map("time_entries")
+}
