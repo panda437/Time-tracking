@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday } from "date-fns"
 import Header from "@/components/Header"
+import DayHoverTooltip from "@/components/DayHoverTooltip"
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react"
 
 interface CalendarDay {
@@ -35,6 +36,7 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [calendarData, setCalendarData] = useState<CalendarData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [hoveredDay, setHoveredDay] = useState<{ date: Date; entries: any[]; position: { x: number; y: number } } | null>(null)
 
   useEffect(() => {
     if (status === "loading") return
@@ -185,11 +187,27 @@ export default function CalendarPage() {
                     <div
                       key={date.toISOString()}
                       className={`
-                        min-h-[100px] p-2 border border-gray-200 rounded-lg
+                        min-h-[100px] p-2 border border-gray-200 rounded-lg cursor-pointer transition-colors
                         ${isCurrentMonth ? 'bg-white' : 'bg-gray-50'}
                         ${isTodayDate ? 'ring-2 ring-indigo-500' : ''}
                         ${dayData ? 'hover:bg-blue-50' : ''}
                       `}
+                      onMouseEnter={(e) => {
+                        if (dayData && dayData.entries.length > 0) {
+                          const rect = e.currentTarget.getBoundingClientRect()
+                          setHoveredDay({
+                            date,
+                            entries: dayData.entries,
+                            position: {
+                              x: rect.left + rect.width / 2,
+                              y: rect.top - 10
+                            }
+                          })
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        setHoveredDay(null)
+                      }}
                     >
                       <div className={`
                         text-sm font-medium mb-1
@@ -226,6 +244,16 @@ export default function CalendarPage() {
           </div>
         </div>
       </main>
+      
+      {/* Hover Tooltip */}
+      {hoveredDay && (
+        <DayHoverTooltip
+          date={hoveredDay.date}
+          entries={hoveredDay.entries}
+          isVisible={true}
+          position={hoveredDay.position}
+        />
+      )}
     </div>
   )
 }

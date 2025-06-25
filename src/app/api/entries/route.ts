@@ -13,13 +13,19 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const period = searchParams.get("period") || "week"
+  const dateParam = searchParams.get("date")
   
   let startDate: Date
   let endDate: Date
   
   const now = new Date()
   
-  if (period === "today") {
+  // If specific date is provided, fetch entries for that day
+  if (dateParam) {
+    const targetDate = new Date(dateParam)
+    startDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate())
+    endDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate() + 1)
+  } else if (period === "today") {
     startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
   } else if (period === "week") {

@@ -18,7 +18,7 @@ interface TimeEntry {
   date: string
   category: string
   mood?: string
-  tags: string
+  tags: string[]
   createdAt: string
   updatedAt: string
 }

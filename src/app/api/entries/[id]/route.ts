@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma"
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions)
   
@@ -14,6 +14,7 @@ export async function PUT(
   }
 
   try {
+    const { id } = await params
     const body = await request.json()
     const { activity, description, duration, startTime, category, mood, tags } = body
 
@@ -23,7 +24,7 @@ export async function PUT(
 
     const entry = await prisma.timeEntry.update({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id // Ensure user can only update their own entries
       },
       data: {
@@ -47,7 +48,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions)
   
@@ -56,9 +57,10 @@ export async function DELETE(
   }
 
   try {
+    const { id } = await params
     await prisma.timeEntry.delete({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id // Ensure user can only delete their own entries
       }
     })
