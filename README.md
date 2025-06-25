@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TimeTrack - Personal Time Tracking App
 
-## Getting Started
+A beautiful, simple time tracking application built with Next.js 14, Prisma, Supabase, and NextAuth.js.
 
-First, run the development server:
+## ✨ Features
+
+- **Simple Time Entry**: Just ask "What did you do in the last half hour?" 
+- **Smart Analytics**: Weekly overviews with category breakdowns and mood tracking
+- **Calendar-Ready**: Optimized database structure for future calendar views
+- **Multi-User**: Secure authentication with email/password
+- **Beautiful UI**: Modern interface built with Tailwind CSS
+- **Real-time Updates**: Instant CRUD operations for all time entries
+
+## 🚀 Quick Deploy
+
+### Deploy to Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR-USERNAME/time-track)
+
+1. Click the deploy button above
+2. Connect your GitHub account
+3. Set up environment variables (see below)
+4. Deploy!
+
+### Environment Variables
+
+Set these in your Vercel dashboard or `.env.local`:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Database - Your Supabase PostgreSQL URL
+DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.fcuemkozcgmvvapmnyls.supabase.co:5432/postgres"
+
+# NextAuth - Generate a strong secret
+NEXTAUTH_URL="https://your-domain.vercel.app"
+NEXTAUTH_SECRET="your-long-random-secret-key"
+
+# App Settings
+APP_URL="https://your-domain.vercel.app"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠 Local Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/YOUR-USERNAME/time-track.git
+   cd time-track
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-## Learn More
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your actual values
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+4. **Set up the database**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📊 Database Schema
 
-## Deploy on Vercel
+The app uses a PostgreSQL database with optimized schema:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Users**: Secure user accounts with timezone support
+- **TimeEntries**: Time tracking with categories, moods, and tags
+- **Indexes**: Optimized for calendar queries and fast filtering
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Key Features:
+- User isolation (each user only sees their data)
+- Date field for fast calendar queries
+- Flexible tagging system
+- Mood tracking for wellness insights
+- Category-based organization
+
+## 🎯 Usage
+
+1. **Sign up** with your email and password
+2. **Add time entries** by describing what you did
+3. **Review your week** with beautiful analytics
+4. **Edit or delete** entries as needed
+5. **Track patterns** with mood and category insights
+
+## 🔧 Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS
+- **Backend**: Next.js API Routes, Prisma ORM
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: NextAuth.js
+- **Deployment**: Vercel
+- **Icons**: Lucide React
+
+## 🔐 Security
+
+- Secure authentication with bcrypt password hashing
+- API route protection with session validation
+- User data isolation at database level
+- Environment variable protection
+- CSRF protection through NextAuth.js
+
+## 📱 Future Features
+
+- 📅 Calendar view for time entries
+- 📊 Advanced analytics and insights
+- 🏷️ Custom tags and categories
+- 📤 Data export (CSV, PDF)
+- ⏰ Automatic time tracking
+- 🎯 Goal setting and tracking
+- 📱 Mobile app (React Native)
+
+## 🤝 Contributing
+
+Feel free to open issues and pull requests!
+
+## 📄 License
+
+MIT License - feel free to use this for your own projects!
