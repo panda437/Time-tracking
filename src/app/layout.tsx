@@ -15,8 +15,63 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "TimeTrack - Personal Time Tracker",
-  description: "Track your time and see how you spend your days",
+  metadataBase: new URL('https://time-track.vercel.app'),
+  title: "TimeTrack - Personal Time Tracking Made Beautiful",
+  description: "Transform how you understand your time with TimeTrack. Beautiful, intuitive time tracking with mood insights, calendar views, and Pomodoro timer. Track your life's story, one moment at a time.",
+  keywords: "time tracking, productivity, personal time tracker, mood tracking, calendar, pomodoro timer, time management, daily habits, life tracking",
+  authors: [{ name: "TimeTrack" }],
+  creator: "TimeTrack",
+  publisher: "TimeTrack",
+  robots: "index, follow",
+  
+  // Open Graph
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://time-track.vercel.app",
+    title: "TimeTrack - Personal Time Tracking Made Beautiful",
+    description: "Transform how you understand your time with TimeTrack. Beautiful, intuitive time tracking with mood insights, calendar views, and Pomodoro timer.",
+    siteName: "TimeTrack",
+    images: [
+      {
+        url: "/time.jpg",
+        width: 1200,
+        height: 630,
+        alt: "TimeTrack - Personal Time Tracking App",
+      },
+    ],
+  },
+  
+  // Twitter
+  twitter: {
+    card: "summary_large_image",
+    title: "TimeTrack - Personal Time Tracking Made Beautiful",
+    description: "Transform how you understand your time with beautiful, intuitive time tracking.",
+    images: ["/time.jpg"],
+    creator: "@timetrack",
+  },
+  
+  // Icons
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  
+  // Manifest
+  manifest: "/manifest.json",
+  
+  // Verification
+  verification: {
+    google: "google-site-verification-id", // You can add this later
+  },
+  
+  // App-specific
+  category: "productivity",
 }
 
 export default function RootLayout({
