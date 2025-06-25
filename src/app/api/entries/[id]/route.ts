@@ -35,7 +35,7 @@ export async function PUT(
         date: date,
         category: category || "general",
         mood: mood || null,
-        tags: tags || []
+        tags: JSON.stringify(tags || [])
       }
     })
 

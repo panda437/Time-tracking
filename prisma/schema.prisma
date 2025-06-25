@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -24,17 +24,17 @@ model User {
 model TimeEntry {
   id          String   @id @default(cuid())
   userId      String
-  activity    String   @db.VarChar(255)
-  description String?  @db.Text
+  activity    String
+  description String?
   duration    Int      // in minutes
-  startTime   DateTime @db.Timestamptz
-  endTime     DateTime @db.Timestamptz
-  date        DateTime @db.Date // for easy calendar queries
-  category    String   @default("general") @db.VarChar(50)
-  mood        String?  @db.VarChar(10) // emoji or mood indicator
-  tags        String[] @default([]) // for flexible categorization
-  createdAt   DateTime @default(now()) @db.Timestamptz
-  updatedAt   DateTime @updatedAt @db.Timestamptz
+  startTime   DateTime
+  endTime     DateTime
+  date        DateTime // for easy calendar queries
+  category    String   @default("general")
+  mood        String?  // emoji or mood indicator
+  tags        String   @default("") // for flexible categorization (JSON string)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
