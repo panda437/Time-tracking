@@ -1,9 +1,10 @@
 "use client"
 
 import { signOut } from "next-auth/react"
-import { Clock, LogOut, User, Calendar, BarChart3 } from "lucide-react"
+import { Clock, LogOut, User, Calendar, BarChart3, Heart } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useState } from "react"
 
 interface User {
   name?: string | null
@@ -16,24 +17,44 @@ interface HeaderProps {
 
 export default function Header({ user }: HeaderProps) {
   const pathname = usePathname()
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
   
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
-    { name: 'Calendar', href: '/calendar', icon: Calendar },
+    { name: 'Dashboard', href: '/dashboard', icon: BarChart3, description: 'Your time overview' },
+    { name: 'Calendar', href: '/calendar', icon: Calendar, description: 'Monthly view' },
   ]
 
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return "Good morning"
+    if (hour < 17) return "Good afternoon"
+    return "Good evening"
+  }
+
+  const firstName = user.name?.split(' ')[0] || user.email?.split('@')[0] || 'there'
+
   return (
-    <header className="bg-white shadow">
+    <header className="bg-white border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-6">
+        <div className="flex justify-between items-center h-20">
+          {/* Brand & Navigation */}
           <div className="flex items-center space-x-8">
-            <div className="flex items-center">
-              <Clock className="h-8 w-8 text-indigo-600" />
-              <h1 className="ml-3 text-2xl font-bold text-gray-900">TimeTrack</h1>
-            </div>
+            {/* Logo with heart */}
+            <Link href="/dashboard" className="flex items-center group transition-smooth hover:scale-105">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF385C] to-[#E31C5F] flex items-center justify-center shadow-lg transition-smooth group-hover:shadow-xl">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
+                <Heart className="absolute -top-1 -right-1 h-4 w-4 text-[#FF385C] fill-current animate-pulse-warm" />
+              </div>
+              <div className="ml-3">
+                <h1 className="text-2xl font-semibold text-[#222222] tracking-tight">TimeTrack</h1>
+                <p className="text-xs text-[#767676] -mt-1">Your life, beautifully tracked</p>
+              </div>
+            </Link>
             
             {/* Navigation */}
-            <nav className="flex space-x-4">
+            <nav className="hidden md:flex space-x-2">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
                 const Icon = item.icon
@@ -43,39 +64,105 @@ export default function Header({ user }: HeaderProps) {
                     key={item.name}
                     href={item.href}
                     className={`
-                      inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors
+                      group relative inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-medium transition-smooth
                       ${
                         isActive
-                          ? 'bg-indigo-100 text-indigo-700'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                          ? 'bg-[#FF385C]/8 text-[#FF385C] shadow-sm'
+                          : 'text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7]'
                       }
                     `}
                   >
-                    <Icon className="h-4 w-4 mr-2" />
-                    {item.name}
+                    <Icon className={`h-4 w-4 mr-2.5 transition-smooth ${
+                      isActive ? 'text-[#FF385C]' : 'text-[#767676] group-hover:text-[#222222]'
+                    }`} />
+                    <span>{item.name}</span>
+                    {isActive && (
+                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-[#FF385C] rounded-full animate-scale-in" />
+                    )}
                   </Link>
                 )
               })}
             </nav>
           </div>
           
+          {/* User Profile */}
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <User className="h-5 w-5 text-gray-400" />
-              <span className="text-sm text-gray-700">
-                {user.name || user.email}
-              </span>
+            {/* Greeting */}
+            <div className="hidden sm:block text-right">
+              <p className="text-sm font-medium text-[#222222]">{getGreeting()}, {firstName}!</p>
+              <p className="text-xs text-[#767676]">Ready to track your day?</p>
             </div>
             
-            <button
-              onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign out
-            </button>
+            {/* Profile Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                className="flex items-center space-x-3 p-2 rounded-2xl transition-smooth hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#FF385C]/20"
+              >
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00A699] to-[#009B8E] flex items-center justify-center shadow-md transition-smooth hover:shadow-lg">
+                  <span className="text-white font-semibold text-sm">
+                    {firstName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="hidden md:block text-left">
+                  <p className="text-sm font-medium text-[#222222] leading-tight">{firstName}</p>
+                  <p className="text-xs text-[#767676] leading-tight">{user.email}</p>
+                </div>
+              </button>
+              
+              {/* Dropdown Menu */}
+              {isProfileOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 animate-scale-in">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <p className="text-sm font-semibold text-[#222222]">{user.name || firstName}</p>
+                    <p className="text-xs text-[#767676]">{user.email}</p>
+                  </div>
+                  
+                  <div className="py-2">
+                    <button
+                      onClick={() => {
+                        signOut({ callbackUrl: "/auth/signin" })
+                        setIsProfileOpen(false)
+                      }}
+                      className="w-full flex items-center px-4 py-2.5 text-sm text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] transition-smooth"
+                    >
+                      <LogOut className="h-4 w-4 mr-3" />
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+      </div>
+      
+      {/* Mobile Navigation */}
+      <div className="md:hidden border-t border-gray-100 bg-white">
+        <nav className="flex justify-around py-2">
+          {navigation.map((item) => {
+            const isActive = pathname === item.href
+            const Icon = item.icon
+            
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`
+                  flex flex-col items-center py-2 px-3 rounded-xl transition-smooth
+                  ${
+                    isActive
+                      ? 'text-[#FF385C] bg-[#FF385C]/8'
+                      : 'text-[#767676] hover:text-[#222222]'
+                  }
+                `}
+              >
+                <Icon className="h-5 w-5 mb-1" />
+                <span className="text-xs font-medium">{item.name}</span>
+              </Link>
+            )
+          })}
+        </nav>
       </div>
     </header>
   )

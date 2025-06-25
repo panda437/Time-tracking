@@ -24,12 +24,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB] min-h-screen`}
       >
         <Providers>
-          {children}
+          <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA]/50 via-transparent to-[#EBEBEB]/30">
+            {children}
+          </div>
         </Providers>
       </body>
     </html>

@@ -26,7 +26,24 @@ const categories = [
   "work", "personal", "health", "education", "social", "entertainment", "other"
 ]
 
-const moods = ["😊", "😐", "😔", "😴", "🤯", "🔥"]
+const moods = [
+  { emoji: "😊", name: "Happy", color: "from-yellow-400 to-orange-400" },
+  { emoji: "🔥", name: "Energized", color: "from-red-400 to-pink-400" },
+  { emoji: "😌", name: "Calm", color: "from-green-400 to-teal-400" },
+  { emoji: "🤔", name: "Focused", color: "from-blue-400 to-indigo-400" },
+  { emoji: "😴", name: "Tired", color: "from-gray-400 to-slate-400" },
+  { emoji: "😤", name: "Frustrated", color: "from-orange-400 to-red-400" },
+]
+
+const durationOptions = [
+  { value: 15, label: "15 min", description: "Quick task" },
+  { value: 30, label: "30 min", description: "Half hour" },
+  { value: 45, label: "45 min", description: "Medium session" },
+  { value: 60, label: "1 hour", description: "Full hour" },
+  { value: 90, label: "1.5 hours", description: "Extended time" },
+  { value: 120, label: "2 hours", description: "Long session" },
+  { value: 180, label: "3 hours", description: "Deep work" },
+]
 
 export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
   const [activity, setActivity] = useState("")
@@ -35,6 +52,7 @@ export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
   const [category, setCategory] = useState("work")
   const [mood, setMood] = useState("")
   const [loading, setLoading] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,110 +96,205 @@ export default function TimeEntryForm({ onEntryAdded }: TimeEntryFormProps) {
     }
   }
 
+  const selectedMood = moods.find(m => m.emoji === mood)
+  const selectedDuration = durationOptions.find(d => d.value === duration)
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="activity" className="block text-sm font-medium text-gray-700">
-            What did you do? *
-          </label>
-          <input
-            type="text"
-            id="activity"
-            required
-            value={activity}
-            onChange={(e) => setActivity(e.target.value)}
-            placeholder="e.g., Worked on project presentation"
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
+    <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden animate-slide-up">
+      {/* Header with conversational tone */}
+      <div className="bg-gradient-to-r from-[#FF385C] to-[#E31C5F] px-8 py-6">
+        <div className="flex items-center space-x-3">
+          <div className="w-3 h-3 bg-white/30 rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-white/20 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+          <div className="w-2 h-2 bg-white/20 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
         </div>
-
-        <div>
-          <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
-            How long? (minutes) *
-          </label>
-          <select
-            id="duration"
-            value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            <option value={15}>15 minutes</option>
-            <option value={30}>30 minutes</option>
-            <option value={45}>45 minutes</option>
-            <option value={60}>1 hour</option>
-            <option value={90}>1.5 hours</option>
-            <option value={120}>2 hours</option>
-            <option value={180}>3 hours</option>
-          </select>
-        </div>
+        <h2 className="text-2xl font-semibold text-white mt-2 mb-1">
+          What did you just accomplish?
+        </h2>
+        <p className="text-white/80 text-sm">
+          Let's capture this moment in your journey ✨
+        </p>
       </div>
 
-      <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-          Additional details (optional)
-        </label>
-        <textarea
-          id="description"
-          rows={2}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Any additional context or notes..."
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-            Category
+      <form onSubmit={handleSubmit} className="p-8 space-y-8">
+        {/* Main Activity Input */}
+        <div className="space-y-3">
+          <label className="block text-lg font-medium text-[#222222]">
+            Tell me about it...
           </label>
-          <select
-            id="category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <input
+              type="text"
+              required
+              value={activity}
+              onChange={(e) => setActivity(e.target.value)}
+              placeholder="e.g., Brainstormed ideas for the new app design"
+              className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-smooth placeholder-gray-400 bg-[#FAFAFA] focus:bg-white"
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+              <div className={`w-3 h-3 rounded-full transition-smooth ${
+                activity ? 'bg-[#00A699]' : 'bg-gray-300'
+              }`}></div>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            How was it?
+        {/* Duration Selection */}
+        <div className="space-y-4">
+          <label className="block text-lg font-medium text-[#222222]">
+            How much time did this take?
           </label>
-          <div className="mt-1 flex space-x-2">
-            {moods.map((moodOption) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {durationOptions.map((option) => (
               <button
-                key={moodOption}
+                key={option.value}
                 type="button"
-                onClick={() => setMood(mood === moodOption ? "" : moodOption)}
-                className={`text-2xl p-2 rounded-md border ${
-                  mood === moodOption
-                    ? "border-indigo-500 bg-indigo-50"
-                    : "border-gray-300 hover:bg-gray-50"
+                onClick={() => setDuration(option.value)}
+                className={`p-4 rounded-2xl border-2 transition-bounce text-center ${
+                  duration === option.value
+                    ? 'border-[#FF385C] bg-[#FF385C]/8 shadow-md'
+                    : 'border-gray-200 hover:border-[#FF385C]/50 hover:bg-[#FF385C]/5'
                 }`}
               >
-                {moodOption}
+                <div className={`font-semibold ${
+                  duration === option.value ? 'text-[#FF385C]' : 'text-[#222222]'
+                }`}>
+                  {option.label}
+                </div>
+                <div className="text-xs text-[#767676] mt-1">
+                  {option.description}
+                </div>
               </button>
             ))}
           </div>
         </div>
-      </div>
 
-      <div>
-        <button
-          type="submit"
-          disabled={loading || !activity}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-        >
-          {loading ? "Saving..." : "Add Time Entry"}
-        </button>
-      </div>
-    </form>
+        {/* Quick Details Toggle */}
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-medium text-[#222222]">Want to add more details?</span>
+          <button
+            type="button"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center space-x-2 px-4 py-2 rounded-full bg-[#F7F7F7] hover:bg-[#EBEBEB] transition-smooth"
+          >
+            <span className="text-sm font-medium text-[#767676]">
+              {isExpanded ? 'Less' : 'More'}
+            </span>
+            <div className={`transform transition-smooth ${
+              isExpanded ? 'rotate-180' : ''
+            }`}>
+              ↓
+            </div>
+          </button>
+        </div>
+
+        {/* Expanded Details */}
+        {isExpanded && (
+          <div className="space-y-6 animate-slide-up">
+            {/* Description */}
+            <div className="space-y-3">
+              <label className="block text-base font-medium text-[#222222]">
+                Any additional thoughts?
+              </label>
+              <textarea
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Share any context, challenges, or wins..."
+                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-smooth placeholder-gray-400 bg-[#FAFAFA] focus:bg-white resize-none"
+              />
+            </div>
+
+            {/* Category */}
+            <div className="space-y-3">
+              <label className="block text-base font-medium text-[#222222]">
+                What area of life was this?
+              </label>
+              <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCategory(cat)}
+                    className={`p-3 rounded-xl border-2 transition-bounce text-sm font-medium capitalize ${
+                      category === cat
+                        ? 'border-[#00A699] bg-[#00A699]/8 text-[#00A699]'
+                        : 'border-gray-200 text-[#767676] hover:border-[#00A699]/50 hover:bg-[#00A699]/5'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Mood */}
+            <div className="space-y-3">
+              <label className="block text-base font-medium text-[#222222]">
+                How are you feeling about it?
+              </label>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                {moods.map((moodOption) => (
+                  <button
+                    key={moodOption.emoji}
+                    type="button"
+                    onClick={() => setMood(mood === moodOption.emoji ? "" : moodOption.emoji)}
+                    className={`p-4 rounded-2xl border-2 transition-bounce text-center group ${
+                      mood === moodOption.emoji
+                        ? 'border-[#FC642D] bg-gradient-to-br ' + moodOption.color + ' shadow-lg'
+                        : 'border-gray-200 hover:border-[#FC642D]/50 bg-white hover:shadow-md'
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">{moodOption.emoji}</div>
+                    <div className={`text-xs font-medium ${
+                      mood === moodOption.emoji ? 'text-white' : 'text-[#767676] group-hover:text-[#222222]'
+                    }`}>
+                      {moodOption.name}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Submit Button */}
+        <div className="pt-4">
+          <button
+            type="submit"
+            disabled={loading || !activity}
+            className={`w-full py-4 px-6 rounded-2xl font-semibold text-lg transition-smooth shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
+              loading
+                ? 'bg-gray-400 text-white'
+                : 'bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+            }`}
+          >
+            {loading ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <span>Saving your moment...</span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center space-x-2">
+                <span>✨ Capture this time</span>
+              </div>
+            )}
+          </button>
+        </div>
+
+        {/* Progress indicator */}
+        <div className="flex justify-center space-x-2 pt-2">
+          <div className={`w-2 h-2 rounded-full transition-smooth ${
+            activity ? 'bg-[#FF385C]' : 'bg-gray-300'
+          }`}></div>
+          <div className={`w-2 h-2 rounded-full transition-smooth ${
+            duration ? 'bg-[#FF385C]' : 'bg-gray-300'
+          }`}></div>
+          <div className={`w-2 h-2 rounded-full transition-smooth ${
+            (description || category || mood) && isExpanded ? 'bg-[#FF385C]' : 'bg-gray-300'
+          }`}></div>
+        </div>
+      </form>
+    </div>
   )
 }

@@ -1,26 +1,225 @@
+@import url('https://fonts.googleapis.com/css2?family=Circular:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+/* Airbnb Design System - Warm, Human-Centered */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Airbnb Core Colors */
+  --color-rausch: #FF385C;
+  --color-rausch-light: #FF5A75;
+  --color-babu: #00A699;
+  --color-arches: #FC642D;
+  --color-hof: #484848;
+  --color-foggy: #767676;
+  --color-snow: #FFFFFF;
+  --color-charcoal: #222222;
+  --color-offset: #EBEBEB;
+  --color-tint: #F7F7F7;
+  --color-wash: #FAFAFA;
+  
+  /* Emotional Gradients */
+  --gradient-warm: linear-gradient(135deg, #FF385C 0%, #E31C5F 100%);
+  --gradient-calm: linear-gradient(135deg, #00A699 0%, #009B8E 100%);
+  --gradient-energy: linear-gradient(135deg, #FC642D 0%, #E8590C 100%);
+  --gradient-subtle: linear-gradient(135deg, #F7F7F7 0%, #EBEBEB 100%);
+  
+  /* Shadows - Inspired by real-world lighting */
+  --shadow-card: 0 2px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-hover: 0 8px 28px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-focus: 0 0 0 2px rgba(255, 56, 92, 0.2);
+  --shadow-button: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-button-hover: 0 4px 14px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.08);
+  
+  /* Radii - Friendly and approachable */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  
+  /* Transitions - Smooth and delightful */
+  --transition-smooth: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --transition-gentle: all 0.15s ease-out;
+  
+  /* Spacing rhythm */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: 'Circular', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--color-charcoal);
+  background: var(--color-snow);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Delightful Animations */
+@keyframes slide-up-gentle {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-gentle {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-warm {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 56, 92, 0.3);
+  }
+  50% { 
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(255, 56, 92, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+/* Utility classes for delightful interactions */
+.animate-slide-up {
+  animation: slide-up-gentle 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-fade-in {
+  animation: fade-in-gentle 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-pulse-warm {
+  animation: pulse-warm 2s infinite;
+}
+
+.transition-smooth {
+  transition: var(--transition-smooth);
+}
+
+.transition-bounce {
+  transition: var(--transition-bounce);
+}
+
+.transition-gentle {
+  transition: var(--transition-gentle);
+}
+
+/* Beautiful focus states */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Loading shimmer effect */
+.shimmer {
+  background: linear-gradient(90deg, var(--color-tint) 25%, var(--color-offset) 50%, var(--color-tint) 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Custom scrollbar - subtle and elegant */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-tint);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-offset);
+  border-radius: 3px;
+  transition: var(--transition-gentle);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-foggy);
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(255, 56, 92, 0.15);
+  color: var(--color-charcoal);
+}
+
+/* Form input enhancements */
+input, textarea, select {
+  transition: var(--transition-smooth);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-color: var(--color-rausch);
+}
+
+/* Button base styles */
+button {
+  transition: var(--transition-smooth);
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: var(--transition-smooth);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
 }
