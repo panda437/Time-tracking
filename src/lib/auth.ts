@@ -81,6 +81,22 @@ export const authOptions: NextAuthOptions = {
       }
       return true
     },
+    async jwt({ token, user, account }) {
+      // When user signs in, get their database ID
+      if (account && user) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: user.email! }
+          })
+          if (dbUser) {
+            token.sub = dbUser.id // Set the database user ID as the token subject
+          }
+        } catch (error) {
+          console.error("Error fetching user from database:", error)
+        }
+      }
+      return token
+    },
     async redirect({ url, baseUrl }) {
       // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`
@@ -92,7 +108,7 @@ export const authOptions: NextAuthOptions = {
       ...session,
       user: {
         ...session.user,
-        id: token.sub,
+        id: token.sub, // This will now be the database user ID
       },
     }),
   },
