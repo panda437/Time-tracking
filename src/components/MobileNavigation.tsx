@@ -2,12 +2,18 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, BarChart3 } from "lucide-react"
+import { Calendar, BarChart3, LucideIcon } from "lucide-react"
+
+interface NavigationItem {
+  name: string
+  href: string
+  icon: LucideIcon | string
+}
 
 export default function MobileNavigation() {
   const pathname = usePathname()
   
-  const navigation = [
+  const navigation: NavigationItem[] = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Calendar', href: '/calendar', icon: Calendar },
     { name: 'Focus', href: '/pomodoro', icon: '⏳' },
@@ -18,7 +24,14 @@ export default function MobileNavigation() {
       <nav className="flex justify-around py-4 px-2 safe-area-inset-bottom">
         {navigation.map((item) => {
           const isActive = pathname === item.href
-          const Icon = typeof item.icon === 'string' ? null : item.icon
+          
+          const renderIcon = () => {
+            if (typeof item.icon === 'string') {
+              return <span className="text-xl mb-1">{item.icon}</span>
+            }
+            const IconComponent = item.icon as LucideIcon
+            return <IconComponent className="h-6 w-6 mb-1" />
+          }
           
           return (
             <Link
@@ -33,11 +46,7 @@ export default function MobileNavigation() {
                 }
               `}
             >
-              {Icon ? (
-                <Icon className="h-6 w-6 mb-1" />
-              ) : (
-                <span className="text-xl mb-1">{item.icon}</span>
-              )}
+              {renderIcon()}
               <span className="text-xs font-medium">{item.name}</span>
             </Link>
           )
