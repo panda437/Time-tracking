@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday } from "date-fns"
 import Header from "@/components/Header"
+import MobileNavigation from "@/components/MobileNavigation"
 import DayHoverTooltip from "@/components/DayHoverTooltip"
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react"
 
@@ -264,6 +265,9 @@ export default function CalendarPage() {
           position={hoveredDay.position}
         />
       )}
+      
+      {/* Mobile Navigation */}
+      <MobileNavigation />
     </div>
   )
 }

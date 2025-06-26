@@ -7,6 +7,7 @@ import { format, parseISO, isValid } from "date-fns"
 import Link from "next/link"
 import Header from "@/components/Header"
 import AddTaskGapModal from "@/components/AddTaskGapModal"
+import MobileNavigation from "@/components/MobileNavigation"
 import { Calendar, ArrowLeft, Clock, Tag, Smile, Edit2, Trash2, Plus } from "lucide-react"
 
 interface TimeEntry {
@@ -316,12 +317,18 @@ export default function DayViewPage({ params }: DayViewPageProps) {
                                   </div>
                                 </div>
                                 
-                                {/* Action buttons */}
-                                <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <button className="p-2 hover:bg-white/50 rounded-lg transition-colors">
+                                {/* Action buttons - visible on mobile, hover on desktop */}
+                                <div className="flex space-x-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                  <button 
+                                    className="p-2 hover:bg-white/50 rounded-lg transition-colors" 
+                                    title="Edit activity"
+                                  >
                                     <Edit2 className="h-4 w-4 text-gray-600 hover:text-[#FF385C]" />
                                   </button>
-                                  <button className="p-2 hover:bg-white/50 rounded-lg transition-colors">
+                                  <button 
+                                    className="p-2 hover:bg-white/50 rounded-lg transition-colors" 
+                                    title="Delete activity"
+                                  >
                                     <Trash2 className="h-4 w-4 text-gray-600 hover:text-red-500" />
                                   </button>
                                 </div>
@@ -381,6 +388,9 @@ export default function DayViewPage({ params }: DayViewPageProps) {
         endTime={gapEndTime}
         onTaskAdded={handleTaskAdded}
       />
+      
+      {/* Mobile Navigation */}
+      <MobileNavigation />
     </div>
   )
 }

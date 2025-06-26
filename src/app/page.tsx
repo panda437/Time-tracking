@@ -1,14 +1,37 @@
-import { Metadata } from "next"
+"use client"
+
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Clock, Calendar, BarChart3, Timer, Smile, Zap } from "lucide-react"
 
-export const metadata: Metadata = {
-  title: "TimeTrack - Personal Time Tracking Made Beautiful | Track Your Life Story",
-  description: "Transform how you understand your time with TimeTrack. Beautiful, intuitive time tracking with mood insights, calendar views, and Pomodoro timer. Start tracking your life's story, one moment at a time.",
-  keywords: "time tracking app, personal productivity, time management, mood tracking, calendar view, pomodoro timer, life tracking, daily habits, productivity app, time tracker",
-}
-
 export default function Home() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (mounted && status === "authenticated") {
+      router.push("/dashboard")
+    }
+  }, [mounted, status, router])
+
+  // Show loading only if not mounted yet or if session is actually loading
+  if (!mounted || (status === "loading" && mounted)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#FF385C]/20 border-t-[#FF385C] rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB]">
       {/* Header */}

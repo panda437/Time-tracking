@@ -36,24 +36,24 @@ export default function Header({ user }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16 md:h-20">
           {/* Brand & Navigation */}
           <div className="flex items-center space-x-8">
             {/* Logo with heart */}
             <Link href="/dashboard" className="flex items-center group transition-smooth hover:scale-105">
               <div className="relative">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF385C] to-[#E31C5F] flex items-center justify-center shadow-lg transition-smooth group-hover:shadow-xl">
-                  <Clock className="h-6 w-6 text-white" />
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-[#FF385C] to-[#E31C5F] flex items-center justify-center shadow-lg transition-smooth group-hover:shadow-xl">
+                  <Clock className="h-5 w-5 md:h-6 md:w-6 text-white" />
                 </div>
-                <Heart className="absolute -top-1 -right-1 h-4 w-4 text-[#FF385C] fill-current animate-pulse-warm" />
+                <Heart className="absolute -top-1 -right-1 h-3 w-3 md:h-4 md:w-4 text-[#FF385C] fill-current animate-pulse-warm" />
               </div>
-              <div className="ml-3">
-                <h1 className="text-2xl font-semibold text-[#222222] tracking-tight">TimeTrack</h1>
-                <p className="text-xs text-[#767676] -mt-1">Your life, beautifully tracked</p>
+              <div className="ml-2 md:ml-3">
+                <h1 className="text-lg md:text-2xl font-semibold text-[#222222] tracking-tight">TimeTrack</h1>
+                <p className="text-xs text-[#767676] -mt-1 hidden md:block">Your life, beautifully tracked</p>
               </div>
             </Link>
             
-            {/* Navigation */}
+            {/* Navigation - Desktop Only */}
             <nav className="hidden md:flex space-x-2">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
@@ -82,13 +82,31 @@ export default function Header({ user }: HeaderProps) {
                   </Link>
                 )
               })}
+              {/* Add Pomodoro to desktop nav */}
+              <Link
+                href="/pomodoro"
+                className={`
+                  group relative inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-medium transition-smooth
+                  ${
+                    pathname === '/pomodoro'
+                      ? 'bg-[#FF385C]/8 text-[#FF385C] shadow-sm'
+                      : 'text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7]'
+                  }
+                `}
+              >
+                <span className="text-lg mr-2.5">⏳</span>
+                <span>Focus</span>
+                {pathname === '/pomodoro' && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-[#FF385C] rounded-full animate-scale-in" />
+                )}
+              </Link>
             </nav>
           </div>
           
           {/* User Profile */}
-          <div className="flex items-center space-x-4">
-            {/* Greeting */}
-            <div className="hidden sm:block text-right">
+          <div className="flex items-center space-x-2 md:space-x-4">
+            {/* Greeting - Desktop Only */}
+            <div className="hidden lg:block text-right">
               <p className="text-sm font-medium text-[#222222]">{getGreeting()}, {firstName}!</p>
               <p className="text-xs text-[#767676]">Ready to track your day?</p>
             </div>
@@ -97,9 +115,9 @@ export default function Header({ user }: HeaderProps) {
             <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center space-x-3 p-2 rounded-2xl transition-smooth hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#FF385C]/20"
+                className="flex items-center space-x-2 md:space-x-3 p-1.5 md:p-2 rounded-2xl transition-smooth hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#FF385C]/20"
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00A699] to-[#009B8E] flex items-center justify-center shadow-md transition-smooth hover:shadow-lg">
+                <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-[#00A699] to-[#009B8E] flex items-center justify-center shadow-md transition-smooth hover:shadow-lg">
                   <span className="text-white font-semibold text-sm">
                     {firstName.charAt(0).toUpperCase()}
                   </span>
@@ -112,7 +130,7 @@ export default function Header({ user }: HeaderProps) {
               
               {/* Dropdown Menu */}
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 animate-scale-in">
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 animate-scale-in z-50">
                   <div className="px-4 py-3 border-b border-gray-100">
                     <p className="text-sm font-semibold text-[#222222]">{user.name || firstName}</p>
                     <p className="text-xs text-[#767676]">{user.email}</p>
@@ -135,48 +153,6 @@ export default function Header({ user }: HeaderProps) {
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Mobile Navigation - Fixed at very bottom */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 border-t border-gray-100 bg-white/95 backdrop-blur-sm z-50 pb-safe">
-        <nav className="flex justify-around py-4 px-2 safe-area-inset-bottom">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href
-            const Icon = item.icon
-            
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`
-                  flex flex-col items-center py-2 px-4 rounded-xl transition-smooth
-                  ${
-                    isActive
-                      ? 'text-[#FF385C] bg-[#FF385C]/8'
-                      : 'text-[#767676] hover:text-[#222222]'
-                  }
-                `}
-              >
-                <Icon className="h-6 w-6 mb-1" />
-                <span className="text-xs font-medium">{item.name}</span>
-              </Link>
-            )
-          })}
-          <Link
-            href="/pomodoro"
-            className={`
-              flex flex-col items-center py-2 px-4 rounded-xl transition-smooth
-              ${
-                pathname === '/pomodoro'
-                  ? 'text-[#FF385C] bg-[#FF385C]/8'
-                  : 'text-[#767676] hover:text-[#222222]'
-              }
-            `}
-          >
-            <span className="text-xl mb-1">⏳</span>
-            <span className="text-xs font-medium">Focus</span>
-          </Link>
-        </nav>
       </div>
     </header>
   )

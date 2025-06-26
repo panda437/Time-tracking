@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
 import { Play, Pause, RotateCcw, Coffee } from "lucide-react"
 import Header from "@/components/Header"
+import MobileNavigation from "@/components/MobileNavigation"
 import { trackPomodoro } from "@/components/GoogleAnalytics"
 
 type PomodoroState = 'idle' | 'running' | 'paused' | 'break'
@@ -318,6 +319,9 @@ export default function PomodoroPage() {
           </div>
         </div>
       </main>
+      
+      {/* Mobile Navigation */}
+      <MobileNavigation />
     </div>
   )
 }

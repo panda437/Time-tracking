@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
+import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "./prisma"
 import bcrypt from "bcryptjs"
@@ -7,6 +8,10 @@ import bcrypt from "bcryptjs"
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -52,6 +57,38 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin"
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google") {
+        try {
+          // Check if user exists in database
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email! }
+          })
+          
+          if (!existingUser) {
+            // Create new user for Google OAuth
+            await prisma.user.create({
+              data: {
+                email: user.email!,
+                name: user.name || "",
+                password: "", // No password for OAuth users
+              }
+            })
+          }
+        } catch (error) {
+          console.error("Error creating user:", error)
+          return false
+        }
+      }
+      return true
+    },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url
+      return `${baseUrl}/dashboard`
+    },
     session: ({ session, token }) => ({
       ...session,
       user: {

@@ -9,6 +9,7 @@ import TimeEntryList from "@/components/TimeEntryList"
 import WeeklyOverview from "@/components/WeeklyOverview"
 import Header from "@/components/Header"
 import OnboardingModal from "@/components/OnboardingModal"
+import MobileNavigation from "@/components/MobileNavigation"
 
 interface TimeEntry {
   id: string
@@ -308,6 +309,9 @@ export default function Dashboard() {
         onClose={() => setShowOnboarding(false)}
         onSaveGoals={handleSaveGoals}
       />
+
+      {/* Mobile Navigation */}
+      <MobileNavigation />
     </div>
   )
 }
