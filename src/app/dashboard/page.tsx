@@ -37,13 +37,15 @@ export default function Dashboard() {
   useEffect(() => {
     if (status === "loading") return
     
-    if (!session) {
+    if (status === "unauthenticated") {
       router.push("/auth/signin")
       return
     }
 
-    fetchEntries()
-    checkUserGoals()
+    if (session) {
+      fetchEntries()
+      checkUserGoals()
+    }
   }, [session, status, router])
 
   const checkUserGoals = async () => {

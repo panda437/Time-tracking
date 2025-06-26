@@ -15,6 +15,8 @@ export default function SignIn() {
 
   // Redirect if already signed in
   useEffect(() => {
+    if (status === "loading") return
+    
     if (status === "authenticated" && session) {
       router.push("/dashboard")
     }

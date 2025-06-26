@@ -1,12 +1,10 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "./prisma"
 import bcrypt from "bcryptjs"
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -75,6 +73,7 @@ export const authOptions: NextAuthOptions = {
               }
             })
           }
+          return true
         } catch (error) {
           console.error("Error creating user:", error)
           return false
