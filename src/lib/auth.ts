@@ -1,7 +1,8 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
-import { prisma } from "./prisma"
+import connectDB from "./prisma"
+import { User } from "./models"
 import bcrypt from "bcryptjs"
 
 export const authOptions: NextAuthOptions = {
@@ -21,13 +22,13 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
-          }
+        await connectDB()
+
+        const user = await User.findOne({
+          email: credentials.email
         })
 
-        if (!user) {
+        if (!user || !user.password) {
           return null
         }
 
@@ -41,7 +42,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: user.id,
+          id: user._id.toString(),
           email: user.email,
           name: user.name,
         }
@@ -58,19 +59,17 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
         try {
+          await connectDB()
+          
           // Check if user exists in database
-          const existingUser = await prisma.user.findUnique({
-            where: { email: user.email! }
-          })
+          const existingUser = await User.findOne({ email: user.email! })
           
           if (!existingUser) {
-            // Create new user for Google OAuth
-            await prisma.user.create({
-              data: {
-                email: user.email!,
-                name: user.name || "",
-                password: "", // No password for OAuth users
-              }
+            // Create new user for Google OAuth - don't include password field
+            await User.create({
+              email: user.email!,
+              name: user.name || "",
+              // No password field for OAuth users
             })
           }
           return true
@@ -85,11 +84,11 @@ export const authOptions: NextAuthOptions = {
       // When user signs in, get their database ID
       if (account && user) {
         try {
-          const dbUser = await prisma.user.findUnique({
-            where: { email: user.email! }
-          })
+          await connectDB()
+          
+          const dbUser = await User.findOne({ email: user.email! })
           if (dbUser) {
-            token.sub = dbUser.id // Set the database user ID as the token subject
+            token.sub = dbUser._id.toString() // Set the database user ID as the token subject
           }
         } catch (error) {
           console.error("Error fetching user from database:", error)

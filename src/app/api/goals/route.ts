@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import connectDB from "@/lib/prisma"
+import { UserGoal } from "@/lib/models"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -11,18 +12,16 @@ export async function GET() {
   }
 
   try {
-    const goals = await prisma.userGoal.findMany({
-      where: {
-        userId: session.user.id,
-        isActive: true
-      },
-      orderBy: {
-        createdAt: 'asc'
-      }
-    })
+    await connectDB()
+    
+    const goals = await UserGoal.find({
+      userId: session.user.id,
+      isActive: true
+    }).sort({ createdAt: 1 })
 
     return NextResponse.json(goals)
   } catch (error) {
+    console.error("Error fetching goals:", error)
     return NextResponse.json({ error: "Failed to fetch goals" }, { status: 500 })
   }
 }
@@ -35,6 +34,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    await connectDB()
+    
     const body = await request.json()
     const { goals } = body
 
@@ -43,30 +44,25 @@ export async function POST(request: NextRequest) {
     }
 
     // First, deactivate all existing goals
-    await prisma.userGoal.updateMany({
-      where: {
-        userId: session.user.id
-      },
-      data: {
-        isActive: false
-      }
-    })
+    await UserGoal.updateMany(
+      { userId: session.user.id },
+      { isActive: false }
+    )
 
     // Then create new goals
     const createdGoals = await Promise.all(
       goals.map(goal => 
-        prisma.userGoal.create({
-          data: {
-            userId: session.user.id,
-            goal: goal,
-            isActive: true
-          }
+        UserGoal.create({
+          userId: session.user.id,
+          goal: goal,
+          isActive: true
         })
       )
     )
 
     return NextResponse.json(createdGoals)
   } catch (error) {
+    console.error("Error saving goals:", error)
     return NextResponse.json({ error: "Failed to save goals" }, { status: 500 })
   }
 }

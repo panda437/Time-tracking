@@ -20,7 +20,12 @@ interface DayHoverTooltipProps {
   position: { x: number; y: number }
 }
 
-export default function DayHoverTooltip({ date, entries, isVisible, position }: DayHoverTooltipProps) {
+interface DayHoverTooltipPropsExtended extends DayHoverTooltipProps {
+  onMouseEnter?: () => void
+  onMouseLeave?: () => void
+}
+
+export default function DayHoverTooltip({ date, entries, isVisible, position, onMouseEnter, onMouseLeave }: DayHoverTooltipPropsExtended) {
   if (!isVisible || entries.length === 0) return null
 
   const formatDuration = (minutes: number) => {
@@ -55,6 +60,8 @@ export default function DayHoverTooltip({ date, entries, isVisible, position }: 
         left: Math.min(position.x, window.innerWidth - 350),
         top: Math.min(position.y, window.innerHeight - 400),
       }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">

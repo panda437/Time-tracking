@@ -42,7 +42,7 @@ export default function Dashboard() {
       return
     }
 
-    if (session) {
+    if (status === "authenticated" && session) {
       fetchEntries()
       checkUserGoals()
     }

@@ -1,7 +1,7 @@
 "use client"
 
 import { signOut } from "next-auth/react"
-import { Clock, LogOut, User, Calendar, BarChart3, Heart } from "lucide-react"
+import { Clock, LogOut, User, Calendar, BarChart3, Heart, HelpCircle } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
@@ -137,6 +137,16 @@ export default function Header({ user }: HeaderProps) {
                   </div>
                   
                   <div className="py-2">
+                    <button
+                      onClick={() => {
+                        window.location.href = 'mailto:asifkabeer1@gmail.com'
+                        setIsProfileOpen(false)
+                      }}
+                      className="w-full flex items-center px-4 py-2.5 text-sm text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] transition-smooth"
+                    >
+                      <HelpCircle className="h-4 w-4 mr-3" />
+                      Support
+                    </button>
                     <button
                       onClick={() => {
                         signOut({ callbackUrl: "/auth/signin" })

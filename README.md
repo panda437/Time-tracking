@@ -1,6 +1,6 @@
 # TimeTrack - Personal Time Tracking App
 
-A beautiful, simple time tracking application built with Next.js 14, Prisma, Supabase, and NextAuth.js.
+A beautiful, simple time tracking application built with Next.js 14, Prisma, and NextAuth.js.
 
 ## ✨ Features
 
@@ -27,8 +27,8 @@ A beautiful, simple time tracking application built with Next.js 14, Prisma, Sup
 Set these in your Vercel dashboard or `.env.local`:
 
 ```bash
-# Database - Your Supabase PostgreSQL URL
-DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.fcuemkozcgmvvapmnyls.supabase.co:5432/postgres"
+# Database - Your PostgreSQL URL
+DATABASE_URL="your-postgresql-connection-string"
 
 # NextAuth - Generate a strong secret
 NEXTAUTH_URL="https://your-domain.vercel.app"
@@ -59,8 +59,14 @@ APP_URL="https://your-domain.vercel.app"
 
 4. **Set up the database**
    ```bash
+   # Generate Prisma client
    npx prisma generate
+   
+   # For development - push schema to database
    npx prisma db push
+   
+   # For production - use migrations
+   npx prisma migrate deploy
    ```
 
 5. **Run the development server**
@@ -83,6 +89,27 @@ The app uses a PostgreSQL database with optimized schema:
 - Mood tracking for wellness insights
 - Category-based organization
 
+### 🗄️ Database Migration Steps
+
+For **development** (schema changes without history):
+```bash
+npx prisma db push
+```
+
+For **production** (proper migrations with history):
+```bash
+# Create a new migration
+npx prisma migrate dev --name describe_your_change
+
+# Deploy migrations to production
+npx prisma migrate deploy
+
+# Reset database (development only - destroys data!)
+npx prisma migrate reset
+```
+
+**Important**: Always use `prisma migrate deploy` in production environments, never `db push`.
+
 ## 🎯 Usage
 
 1. **Sign up** with your email and password
@@ -95,7 +122,7 @@ The app uses a PostgreSQL database with optimized schema:
 
 - **Frontend**: Next.js 14 (App Router), React, Tailwind CSS
 - **Backend**: Next.js API Routes, Prisma ORM
-- **Database**: Supabase (PostgreSQL)
+- **Database**: PostgreSQL
 - **Authentication**: NextAuth.js
 - **Deployment**: Vercel
 - **Icons**: Lucide React

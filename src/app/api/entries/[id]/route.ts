@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import connectDB from "@/lib/prisma"
+import { TimeEntry } from "@/lib/models"
 
 export async function PUT(
   request: NextRequest,
@@ -14,6 +15,8 @@ export async function PUT(
   }
 
   try {
+    await connectDB()
+    
     const { id } = await params
     const body = await request.json()
     const { activity, description, duration, startTime, category, mood, tags } = body
@@ -22,12 +25,12 @@ export async function PUT(
     const end = new Date(start.getTime() + duration * 60 * 1000)
     const date = new Date(start.getFullYear(), start.getMonth(), start.getDate())
 
-    const entry = await prisma.timeEntry.update({
-      where: {
-        id: id,
+    const entry = await TimeEntry.findOneAndUpdate(
+      {
+        _id: id,
         userId: session.user.id // Ensure user can only update their own entries
       },
-      data: {
+      {
         activity,
         description: description || "",
         duration: parseInt(duration),
@@ -37,11 +40,17 @@ export async function PUT(
         category: category || "general",
         mood: mood || null,
         tags: JSON.stringify(tags || [])
-      }
-    })
+      },
+      { new: true }
+    )
+
+    if (!entry) {
+      return NextResponse.json({ error: "Entry not found" }, { status: 404 })
+    }
 
     return NextResponse.json(entry)
   } catch (error) {
+    console.error("Error updating entry:", error)
     return NextResponse.json({ error: "Failed to update entry" }, { status: 500 })
   }
 }
@@ -57,16 +66,21 @@ export async function DELETE(
   }
 
   try {
+    await connectDB()
+    
     const { id } = await params
-    await prisma.timeEntry.delete({
-      where: {
-        id: id,
-        userId: session.user.id // Ensure user can only delete their own entries
-      }
+    const deletedEntry = await TimeEntry.findOneAndDelete({
+      _id: id,
+      userId: session.user.id // Ensure user can only delete their own entries
     })
+
+    if (!deletedEntry) {
+      return NextResponse.json({ error: "Entry not found" }, { status: 404 })
+    }
 
     return NextResponse.json({ message: "Entry deleted" })
   } catch (error) {
+    console.error("Error deleting entry:", error)
     return NextResponse.json({ error: "Failed to delete entry" }, { status: 500 })
   }
 }

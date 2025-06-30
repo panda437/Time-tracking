@@ -192,7 +192,7 @@ export default function CalendarPage() {
                     <div
                       key={date.toISOString()}
                       className={`
-                        aspect-square min-h-[60px] sm:min-h-[100px] p-1 sm:p-3 border-2 rounded-xl cursor-pointer transition-all duration-200
+                        aspect-square min-h-[60px] sm:min-h-[80px] lg:min-h-[90px] p-1 sm:p-2 lg:p-3 border-2 rounded-xl cursor-pointer transition-all duration-200 relative overflow-hidden
                         ${isCurrentMonth ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-100'}
                         ${isTodayDate ? 'ring-2 ring-[#FF385C] border-[#FF385C]' : ''}
                         ${dayData ? 'hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 hover:shadow-lg active:scale-95' : 'hover:bg-gray-100'}
@@ -204,8 +204,8 @@ export default function CalendarPage() {
                             date,
                             entries: dayData.entries,
                             position: {
-                              x: rect.left + rect.width / 2,
-                              y: rect.top - 10
+                              x: rect.right - 5,
+                              y: rect.top
                             }
                           })
                         }
@@ -226,26 +226,56 @@ export default function CalendarPage() {
                       </div>
                       
                       {dayData && (
-                        <div className="flex items-center justify-center mt-1">
-                          <div className="flex space-x-1">
-                            {dayData.entries.length <= 2 ? (
-                              // Show individual dots for 1-2 activities
-                              Array.from({ length: dayData.entries.length }, (_, i) => (
-                                <div
+                        <>
+                          {/* Desktop: Categories only */}
+                          <div className="hidden lg:flex flex-col items-start space-y-1 mt-1 w-full">
+                            <div className="flex flex-wrap gap-1 w-full">
+                              {[...new Set(dayData.categories)].slice(0, 2).map((category, i) => (
+                                <span
                                   key={i}
-                                  className="w-1.5 h-1.5 rounded-full bg-[#FF385C]"
-                                />
-                              ))
-                            ) : (
-                              // Show 2 dots + number for 3+ activities
-                              <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#FF385C]" />
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#FF385C]" />
-                                <span className="text-[10px] font-medium text-[#FF385C] ml-1">+{dayData.entries.length - 2}</span>
-                              </>
-                            )}
+                                  className={`px-1 py-0.5 rounded text-[9px] font-medium truncate max-w-full ${
+                                    category === 'work' ? 'bg-blue-100 text-blue-800' :
+                                    category === 'personal' ? 'bg-green-100 text-green-800' :
+                                    category === 'health' ? 'bg-red-100 text-red-800' :
+                                    category === 'education' ? 'bg-purple-100 text-purple-800' :
+                                    category === 'social' ? 'bg-yellow-100 text-yellow-800' :
+                                    category === 'entertainment' ? 'bg-pink-100 text-pink-800' :
+                                    'bg-gray-100 text-gray-800'
+                                  }`}
+                                >
+                                  {category}
+                                </span>
+                              ))}
+                              {[...new Set(dayData.categories)].length > 2 && (
+                                <span className="text-[9px] text-gray-500 font-medium">
+                                  +{[...new Set(dayData.categories)].length - 2}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                          
+                          {/* Mobile: Activity dots only */}
+                          <div className="lg:hidden flex items-center justify-center mt-1">
+                            <div className="flex space-x-1">
+                              {dayData.entries.length <= 2 ? (
+                                // Show individual dots for 1-2 activities
+                                Array.from({ length: dayData.entries.length }, (_, i) => (
+                                  <div
+                                    key={i}
+                                    className="w-1.5 h-1.5 rounded-full bg-[#FF385C]"
+                                  />
+                                ))
+                              ) : (
+                                // Show 2 dots + number for 3+ activities
+                                <>
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#FF385C]" />
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#FF385C]" />
+                                  <span className="text-[10px] font-medium text-[#FF385C] ml-1">+{dayData.entries.length - 2}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </>
                       )}
                     </div>
                   )
@@ -263,6 +293,12 @@ export default function CalendarPage() {
           entries={hoveredDay.entries}
           isVisible={true}
           position={hoveredDay.position}
+          onMouseEnter={() => {
+            // Keep tooltip visible when hovering over it
+          }}
+          onMouseLeave={() => {
+            setHoveredDay(null)
+          }}
         />
       )}
       

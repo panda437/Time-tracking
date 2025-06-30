@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import connectDB from "@/lib/prisma"
+import { TimeEntry, User } from "@/lib/models"
 import { subMinutes, startOfWeek, endOfWeek } from "date-fns"
 
 export async function GET(request: NextRequest) {
@@ -38,21 +39,19 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const entries = await prisma.timeEntry.findMany({
-      where: {
-        userId: session.user.id,
-        startTime: {
-          gte: startDate,
-          lte: endDate
-        }
-      },
-      orderBy: {
-        startTime: "desc"
+    await connectDB()
+    
+    const entries = await TimeEntry.find({
+      userId: session.user.id,
+      startTime: {
+        $gte: startDate,
+        $lte: endDate
       }
-    })
+    }).sort({ startTime: -1 })
 
     return NextResponse.json(entries)
   } catch (error) {
+    console.error("Error fetching entries:", error)
     return NextResponse.json({ error: "Failed to fetch entries" }, { status: 500 })
   }
 }
@@ -65,25 +64,23 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    await connectDB()
+    
     const body = await request.json()
     console.log("Request body:", body)
     console.log("Session user ID:", session.user.id)
     
     // Check if user exists in database, create if not
-    let user = await prisma.user.findUnique({
-      where: { id: session.user.id }
-    })
+    let user = await User.findOne({ _id: session.user.id })
     
     if (!user) {
       console.log("User doesn't exist, creating...")
       // Create user record if it doesn't exist
-      user = await prisma.user.create({
-        data: {
-          id: session.user.id,
-          email: session.user.email || '',
-          name: session.user.name || '',
-          password: '' // Empty since this is OAuth/session based
-        }
+      user = await User.create({
+        _id: session.user.id,
+        email: session.user.email || '',
+        name: session.user.name || '',
+        password: '' // Empty since this is OAuth/session based
       })
       console.log("User created successfully")
     }
@@ -99,19 +96,17 @@ export async function POST(request: NextRequest) {
     const end = new Date(start.getTime() + duration * 60 * 1000)
     const date = new Date(start.getFullYear(), start.getMonth(), start.getDate())
 
-    const entry = await prisma.timeEntry.create({
-      data: {
-        userId: session.user.id,
-        activity,
-        description: description || "",
-        duration: parseInt(duration),
-        startTime: start,
-        endTime: end,
-        date: date,
-        category: category || "general",
-        mood: mood || null,
-        tags: JSON.stringify(tags || [])
-      }
+    const entry = await TimeEntry.create({
+      userId: session.user.id,
+      activity,
+      description: description || "",
+      duration: parseInt(duration),
+      startTime: start,
+      endTime: end,
+      date: date,
+      category: category || "general",
+      mood: mood || null,
+      tags: JSON.stringify(tags || [])
     })
 
     return NextResponse.json(entry)

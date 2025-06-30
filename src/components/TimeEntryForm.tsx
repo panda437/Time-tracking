@@ -60,6 +60,7 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
   const [endTime, setEndTime] = useState<Date>(new Date())
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [showSuccess, setShowSuccess] = useState(false)
+  const [isMinimalView, setIsMinimalView] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -132,11 +133,32 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
     <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden animate-slide-up">
       {/* Header with conversational tone */}
       <div className="bg-gradient-to-r from-[#FF385C] to-[#E31C5F] px-8 py-6">
-        <div className="flex items-center space-x-3">
-          <div className="w-3 h-3 bg-white/30 rounded-full animate-pulse"></div>
-          <div className="w-2 h-2 bg-white/20 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-          <div className="w-2 h-2 bg-white/20 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-3 h-3 bg-white/30 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-white/20 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+            <div className="w-2 h-2 bg-white/20 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+          </div>
+          
+          {/* Minimal View Toggle */}
+          <div className="flex items-center space-x-3">
+            <span className="text-white/80 text-sm">Minimal</span>
+            <button
+              type="button"
+              onClick={() => setIsMinimalView(!isMinimalView)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/20 ${
+                isMinimalView ? 'bg-white/30' : 'bg-white/10'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  isMinimalView ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
         </div>
+        
         <h2 className="text-2xl font-semibold text-white mt-2 mb-1">
           What did you just accomplish?
         </h2>
@@ -145,58 +167,166 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-8 space-y-8">
-        {/* Main Activity Input */}
-        <div className="space-y-3">
-          <label className="block text-lg font-medium text-[#222222]">
-            Tell me about it...
-          </label>
-          <div className="relative">
+      <form onSubmit={handleSubmit} className={isMinimalView ? "p-4 space-y-3" : "p-8 space-y-8"}>
+        {isMinimalView ? (
+          /* Minimal View Layout */
+          <div className="space-y-2">
+            {/* Activity Input - Compact */}
             <input
               type="text"
               required
               value={activity}
               onChange={(e) => setActivity(e.target.value)}
-              placeholder="e.g., Brainstormed ideas for the new app design"
-              className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-smooth placeholder-gray-400 bg-[#FAFAFA] focus:bg-white"
+              placeholder="What did you accomplish?"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all placeholder-gray-400"
             />
-            <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-              <div className={`w-3 h-3 rounded-full transition-smooth ${
-                activity ? 'bg-[#00A699]' : 'bg-gray-300'
-              }`}></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Duration Selection */}
-        <div className="space-y-4">
-          <label className="block text-lg font-medium text-[#222222]">
-            How much time did this take?
-          </label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {durationOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setDuration(option.value)}
-                className={`p-4 rounded-2xl border-2 transition-bounce text-center ${
-                  duration === option.value
-                    ? 'border-[#FF385C] bg-[#FF385C]/8 shadow-md'
-                    : 'border-gray-200 hover:border-[#FF385C]/50 hover:bg-[#FF385C]/5'
-                }`}
-              >
-                <div className={`font-semibold ${
-                  duration === option.value ? 'text-[#FF385C]' : 'text-[#222222]'
-                }`}>
+            
+            {/* Duration Selection - Compact Buttons */}
+            <div className="grid grid-cols-4 gap-1">
+              {durationOptions.slice(0, 4).map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    setDuration(option.value)
+                    // Track GA event
+                    if (typeof window !== 'undefined' && window.gtag) {
+                      window.gtag('event', 'minimal_duration_select', {
+                        event_category: 'form_interaction',
+                        event_label: option.label
+                      })
+                    }
+                  }}
+                  className={`px-1 py-1 text-xs border rounded max-h-10 transition-all ${
+                    duration === option.value
+                      ? 'border-[#FF385C] bg-[#FF385C]/10 text-[#FF385C]'
+                      : 'border-gray-300 text-gray-700 hover:border-[#FF385C]/50'
+                  }`}
+                >
                   {option.label}
-                </div>
-                <div className="text-xs text-[#767676] mt-1">
-                  {option.description}
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
+            </div>
+            
+            {/* Category Selection - Compact Buttons */}
+            <div className="grid grid-cols-4 gap-1">
+              {categories.slice(0, 4).map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => {
+                    setCategory(cat)
+                    // Track GA event
+                    if (typeof window !== 'undefined' && window.gtag) {
+                      window.gtag('event', 'minimal_category_select', {
+                        event_category: 'form_interaction',
+                        event_label: cat
+                      })
+                    }
+                  }}
+                  className={`px-1 py-1 text-xs border rounded max-h-10 capitalize transition-all ${
+                    category === cat
+                      ? 'border-[#00A699] bg-[#00A699]/10 text-[#00A699]'
+                      : 'border-gray-300 text-gray-700 hover:border-[#00A699]/50'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+            
+            {/* Mood Selection - Compact */}
+            <div className="flex space-x-1">
+              {moods.map((moodOption) => (
+                <button
+                  key={moodOption.emoji}
+                  type="button"
+                  onClick={() => {
+                    setMood(mood === moodOption.emoji ? "" : moodOption.emoji)
+                    // Track GA event
+                    if (typeof window !== 'undefined' && window.gtag) {
+                      window.gtag('event', 'minimal_mood_select', {
+                        event_category: 'form_interaction',
+                        event_label: moodOption.name
+                      })
+                    }
+                  }}
+                  className={`p-1 rounded border transition-all text-sm max-h-10 ${
+                    mood === moodOption.emoji
+                      ? 'border-[#FC642D] bg-[#FC642D]/10'
+                      : 'border-gray-300 hover:border-[#FC642D]/50'
+                  }`}
+                >
+                  {moodOption.emoji}
+                </button>
+              ))}
+            </div>
+            
+            {/* Description - Compact */}
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Additional notes..."
+              rows={2}
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all placeholder-gray-400 resize-none"
+            />
           </div>
-        </div>
+        ) : (
+          /* Regular View Layout */
+          <>
+            {/* Main Activity Input */}
+            <div className="space-y-3">
+              <label className="block text-lg font-medium text-[#222222]">
+                Tell me about it...
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={activity}
+                  onChange={(e) => setActivity(e.target.value)}
+                  placeholder="e.g., Brainstormed ideas for the new app design"
+                  className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-smooth placeholder-gray-400 bg-[#FAFAFA] focus:bg-white"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                  <div className={`w-3 h-3 rounded-full transition-smooth ${
+                    activity ? 'bg-[#00A699]' : 'bg-gray-300'
+                  }`}></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Duration Selection */}
+            <div className="space-y-4">
+              <label className="block text-lg font-medium text-[#222222]">
+                How much time did this take?
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {durationOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setDuration(option.value)}
+                    className={`p-4 rounded-2xl border-2 transition-bounce text-center ${
+                      duration === option.value
+                        ? 'border-[#FF385C] bg-[#FF385C]/8 shadow-md'
+                        : 'border-gray-200 hover:border-[#FF385C]/50 hover:bg-[#FF385C]/5'
+                    }`}
+                  >
+                    <div className={`font-semibold ${
+                      duration === option.value ? 'text-[#FF385C]' : 'text-[#222222]'
+                    }`}>
+                      {option.label}
+                    </div>
+                    <div className="text-xs text-[#767676] mt-1">
+                      {option.description}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Quick Details Toggle */}
         <div className="flex items-center justify-between">

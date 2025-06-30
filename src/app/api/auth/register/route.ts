@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import connectDB from "@/lib/prisma"
+import { User } from "@/lib/models"
 import bcrypt from "bcryptjs"
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB()
+    
     const body = await request.json()
     const { email, password, name } = body
 
@@ -12,9 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    })
+    const existingUser = await User.findOne({ email })
 
     if (existingUser) {
       return NextResponse.json({ error: "User already exists" }, { status: 400 })
@@ -24,19 +25,18 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 12)
 
     // Create user
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name: name || null
-      }
+    const user = await User.create({
+      email,
+      password: hashedPassword,
+      name: name || null
     })
 
     // Remove password from response
-    const { password: _, ...userWithoutPassword } = user
+    const { password: _, ...userWithoutPassword } = user.toObject()
 
     return NextResponse.json(userWithoutPassword, { status: 201 })
   } catch (error) {
+    console.error("Error creating user:", error)
     return NextResponse.json({ error: "Failed to create user" }, { status: 500 })
   }
 }

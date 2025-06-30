@@ -73,12 +73,7 @@ export default function Home() {
               >
                 Start Tracking Free
               </Link>
-              <Link 
-                href="#features"
-                className="px-8 py-4 bg-white text-[#222222] text-lg font-semibold rounded-2xl border-2 border-gray-200 hover:border-[#FF385C] hover:shadow-lg transition-all"
-              >
-                See Features
-              </Link>
+             
             </div>
           </div>
         </div>
@@ -154,22 +149,61 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-[#FF385C] to-[#E31C5F]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to Transform Your Time?
-          </h2>
-          <p className="text-xl text-white/90 mb-8">
-            Join thousands of people who've discovered the power of beautiful time tracking.
-            Start your journey today – it's completely free.
-          </p>
-          <Link 
-            href="/auth/signin"
-            className="inline-flex items-center px-8 py-4 bg-white text-[#FF385C] text-lg font-semibold rounded-2xl hover:shadow-xl transition-all hover:scale-105"
-          >
-            Start Your Story Today →
-          </Link>
+      {/* Personal Story Section */}
+      <section className="py-24 bg-gradient-to-br from-gray-50 to-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 p-8 md:p-12 border border-gray-100">
+            <div className="space-y-6">
+              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#FF385C]/10 to-[#E31C5F]/10 rounded-full">
+                <span className="text-[#FF385C] font-semibold text-sm">MY STORY</span>
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl font-bold text-[#222222] leading-tight">
+                Hi, I'm Asif
+              </h2>
+              
+              <div className="space-y-4 text-lg text-[#767676] leading-relaxed max-w-2xl">
+                <p>
+                  During my college years, I found myself constantly overwhelmed and scattered. 
+                  I'd start my day with good intentions, but by evening, I couldn't account for 
+                  where my time had gone.
+                </p>
+                
+                <p>
+                  That's when I discovered the power of time tracking. What started as a simple 
+                  habit <b>transformed</b> how I approached my days. I began to see patterns, understand 
+                  my energy levels, and most importantly – stay grounded in the present moment.
+                </p>
+                <p>
+                  Hopefully, you feel that when you use it and it helps you as much as it helped me.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-6 border-t border-gray-100">
+                <div className="flex items-center space-x-4 mb-4 sm:mb-0">
+                  <div className="relative">
+                    <img 
+                      src="/Asif.jpg" 
+                      alt="Asif Kabeer"
+                      className="w-12 h-12 rounded-full object-cover object-bottom shadow-lg ring-2 ring-white"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-full border-2 border-white"></div>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-[#222222]">Asif Kabeer</p>
+                    <p className="text-sm text-[#767676]">Founder, TimeTrack</p>
+                  </div>
+                </div>
+                
+                <Link 
+                  href="/auth/signin"
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white font-semibold rounded-xl hover:shadow-lg transition-all hover:scale-105"
+                >
+                  Start Your Journey →
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

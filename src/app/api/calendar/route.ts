@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import connectDB from "@/lib/prisma"
+import { TimeEntry, ITimeEntry } from "@/lib/models"
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format } from "date-fns"
 
 export async function GET(request: NextRequest) {
@@ -29,20 +30,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    await connectDB()
+    
     // Get entries for the period
-    const entries = await prisma.timeEntry.findMany({
-      where: {
-        userId: session.user.id,
-        date: {
-          gte: startDate,
-          lte: endDate
-        }
-      },
-      orderBy: [
-        { date: "asc" },
-        { startTime: "asc" }
-      ]
-    })
+    const entries = await TimeEntry.find({
+      userId: session.user.id,
+      date: {
+        $gte: startDate,
+        $lte: endDate
+      }
+    }).sort({ date: 1, startTime: 1 })
 
     // Group entries by date for calendar display
     const groupedByDate = entries.reduce((acc, entry) => {
@@ -52,7 +49,7 @@ export async function GET(request: NextRequest) {
           date: dateKey,
           entries: [],
           totalDuration: 0,
-          categories: new Set()
+          categories: new Set<string>()
         }
       }
       
@@ -63,14 +60,23 @@ export async function GET(request: NextRequest) {
       return acc
     }, {} as Record<string, {
       date: string
-      entries: any[]
+      entries: ITimeEntry[]
       totalDuration: number
       categories: Set<string>
     }>)
 
     // Convert categories Set to Array for JSON serialization
-    const calendarData = Object.values(groupedByDate).map(day => ({
-      ...day,
+    type GroupedDayType = {
+      date: string
+      entries: ITimeEntry[]
+      totalDuration: number
+      categories: Set<string>
+    }
+    
+    const calendarData = (Object.values(groupedByDate) as GroupedDayType[]).map(day => ({
+      date: day.date,
+      entries: day.entries,
+      totalDuration: day.totalDuration,
       categories: Array.from(day.categories)
     }))
 
