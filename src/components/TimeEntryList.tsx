@@ -116,8 +116,8 @@ export default function TimeEntryList({ entries, onEntryUpdated, onEntryDeleted 
 
   return (
     <div className="space-y-4">
-      {entries.map((entry) => (
-        <div key={entry.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+      {entries.map((entry, index) => (
+        <div key={entry.id || `entry-${index}`} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
           {editingId === entry.id ? (
             <div className="space-y-3">
               <input

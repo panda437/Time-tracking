@@ -173,8 +173,8 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
 
   return (
     <div className="space-y-3">
-      {/* Header Row */}
-      <div className="grid grid-cols-12 gap-4 pb-3 border-b border-gray-200 text-sm font-medium text-[#767676]">
+      {/* Header Row - Hidden on mobile */}
+      <div className="hidden md:grid grid-cols-12 gap-4 pb-3 border-b border-gray-200 text-sm font-medium text-[#767676]">
         <div className="col-span-2">Time Window</div>
         <div className="col-span-4">What did you do?</div>
         <div className="col-span-2">Mood</div>
@@ -192,109 +192,223 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
         return (
           <div 
             key={slot.id} 
-            className={`grid grid-cols-12 gap-4 py-4 border-b border-gray-100 transition-all ${
-              isSubmitted ? 'bg-green-50 opacity-75' : 'hover:bg-gray-50'
+            className={`border-b border-gray-100 transition-all ${
+              isSubmitted ? 'bg-green-50' : 'md:hover:bg-gray-50'
             }`}
           >
-            {/* Time Window */}
-            <div className="col-span-2">
-              <div className="text-sm font-medium text-[#222222]">{time}</div>
-              <div className="text-xs text-[#767676]">{date}</div>
-            </div>
-
-            {/* Activity Input */}
-            <div className="col-span-4">
-              {isSubmitted ? (
-                <div className="flex items-center space-x-2 text-green-600">
-                  <CheckCircle className="h-4 w-4" />
-                  <span className="text-sm">Entry saved!</span>
+            {/* Mobile Layout */}
+            <div className="md:hidden p-4 space-y-4">
+              {/* Time Window - Mobile */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-semibold text-[#222222]">{time}</div>
+                  <div className="text-sm text-[#767676]">{date}</div>
                 </div>
-              ) : (
-                <input
-                  type="text"
-                  placeholder="e.g., Working on project, Reading, Meeting..."
-                  value={entryData?.activity || ''}
-                  onChange={(e) => updateEntry(slot.id, 'activity', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent text-sm"
-                />
-              )}
-            </div>
+                {isSubmitted && (
+                  <div className="flex items-center text-green-600">
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    <span className="text-sm font-medium">Saved</span>
+                  </div>
+                )}
+              </div>
 
-            {/* Mood Selector */}
-            <div className="col-span-2">
-              {!isSubmitted && (
-                <div className="grid grid-cols-3 gap-1">
-                  {MOOD_OPTIONS.map((mood) => (
-                    <button
-                      key={mood}
-                      onClick={() => updateEntry(slot.id, 'mood', mood)}
-                      className={`p-2 text-lg rounded-lg border transition-all hover:scale-110 ${
-                        entryData?.mood === mood
-                          ? 'border-[#FF385C] bg-[#FF385C]/10'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
+              {/* Activity Input - Mobile */}
+              <div>
+                <label className="block text-sm font-medium text-[#767676] mb-2">What did you do?</label>
+                {isSubmitted ? (
+                  <div className="text-base text-green-700 font-medium p-3 bg-green-50 rounded-xl">
+                    Entry saved! ✓
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    placeholder="e.g., Working on project, Reading, Meeting..."
+                    value={entryData?.activity || ''}
+                    onChange={(e) => updateEntry(slot.id, 'activity', e.target.value)}
+                    className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent placeholder-gray-400"
+                  />
+                )}
+              </div>
+
+              {/* Mood & Category Row - Mobile */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Mood Selector - Mobile */}
+                <div>
+                  <label className="block text-sm font-medium text-[#767676] mb-2">Mood</label>
+                  {isSubmitted ? (
+                    <div className="text-2xl p-3 bg-gray-50 rounded-xl text-center">
+                      {entryData?.mood || '😊'}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2">
+                      {MOOD_OPTIONS.map((mood) => (
+                        <button
+                          key={mood}
+                          onClick={() => updateEntry(slot.id, 'mood', mood)}
+                          className={`p-3 text-xl rounded-xl border transition-all active:scale-95 ${
+                            entryData?.mood === mood
+                              ? 'border-[#FF385C] bg-[#FF385C]/10'
+                              : 'border-gray-200 hover:border-gray-300 active:bg-gray-50'
+                          }`}
+                        >
+                          {mood}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Category Dropdown - Mobile */}
+                <div>
+                  <label className="block text-sm font-medium text-[#767676] mb-2">Category</label>
+                  {isSubmitted ? (
+                    <div className="text-base capitalize text-gray-600 p-3 bg-gray-50 rounded-xl text-center">
+                      {entryData?.category || 'work'}
+                    </div>
+                  ) : (
+                    <select
+                      value={entryData?.category || 'work'}
+                      onChange={(e) => updateEntry(slot.id, 'category', e.target.value)}
+                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent"
                     >
-                      {mood}
-                    </button>
-                  ))}
+                      {CATEGORY_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Category Dropdown */}
-            <div className="col-span-2">
-              {!isSubmitted && (
-                <select
-                  value={entryData?.category || 'work'}
-                  onChange={(e) => updateEntry(slot.id, 'category', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent text-sm"
-                >
-                  {CATEGORY_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <div className="col-span-2">
+              {/* Action Button - Mobile */}
               {!isSubmitted && (
                 <button
                   onClick={() => submitEntry(slot)}
                   disabled={!canSubmit(slot.id) || isSubmittingSlot}
-                  className={`w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                  className={`w-full flex items-center justify-center px-6 py-4 rounded-xl font-medium text-base transition-all ${
                     canSubmit(slot.id) && !isSubmittingSlot
-                      ? 'bg-[#FF385C] text-white hover:bg-[#E31C5F] hover:scale-105'
+                      ? 'bg-[#FF385C] text-white hover:bg-[#E31C5F] active:bg-[#D91C5C] active:scale-98'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   }`}
                 >
                   {isSubmittingSlot ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Saving...
+                    </>
                   ) : (
                     <>
-                      <Send className="h-4 w-4" />
-                      <span>Save</span>
+                      <Send className="h-4 w-4 mr-2" />
+                      Save Entry
                     </>
                   )}
                 </button>
               )}
+            </div>
+
+            {/* Desktop Layout - Hidden on mobile */}
+            <div className="hidden md:grid md:grid-cols-12 md:gap-4 md:py-4">
+              {/* Time Window - Desktop */}
+              <div className="col-span-2">
+                <div className="text-sm font-medium text-[#222222]">{time}</div>
+                <div className="text-xs text-[#767676]">{date}</div>
+              </div>
+
+              {/* Activity Input - Desktop */}
+              <div className="col-span-4">
+                {isSubmitted ? (
+                  <div className="flex items-center space-x-2 text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="text-sm">Entry saved!</span>
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    placeholder="e.g., Working on project, Reading, Meeting..."
+                    value={entryData?.activity || ''}
+                    onChange={(e) => updateEntry(slot.id, 'activity', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent text-sm"
+                  />
+                )}
+              </div>
+
+              {/* Mood Selector - Desktop */}
+              <div className="col-span-2">
+                {!isSubmitted && (
+                  <div className="grid grid-cols-3 gap-1">
+                    {MOOD_OPTIONS.map((mood) => (
+                      <button
+                        key={mood}
+                        onClick={() => updateEntry(slot.id, 'mood', mood)}
+                        className={`p-2 text-lg rounded-lg border transition-all hover:scale-110 ${
+                          entryData?.mood === mood
+                            ? 'border-[#FF385C] bg-[#FF385C]/10'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {mood}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Category Dropdown - Desktop */}
+              <div className="col-span-2">
+                {!isSubmitted && (
+                  <select
+                    value={entryData?.category || 'work'}
+                    onChange={(e) => updateEntry(slot.id, 'category', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent text-sm"
+                  >
+                    {CATEGORY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              {/* Submit Button - Desktop */}
+              <div className="col-span-2">
+                {!isSubmitted && (
+                  <button
+                    onClick={() => submitEntry(slot)}
+                    disabled={!canSubmit(slot.id) || isSubmittingSlot}
+                    className={`w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                      canSubmit(slot.id) && !isSubmittingSlot
+                        ? 'bg-[#FF385C] text-white hover:bg-[#E31C5F] hover:scale-105'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    {isSubmittingSlot ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4" />
+                        <span>Save</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         )
       })}
 
       {/* Summary */}
-      <div className="mt-8 p-4 bg-gradient-to-r from-[#FF385C]/10 to-[#E31C5F]/10 rounded-xl">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-5 w-5 text-[#FF385C]" />
-            <span className="font-medium text-[#222222]">
+      <div className="mt-8 p-4 md:p-6 bg-gradient-to-r from-[#FF385C]/10 to-[#E31C5F]/10 rounded-xl">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
+          <div className="flex items-center space-x-3">
+            <Calendar className="h-6 w-6 md:h-5 md:w-5 text-[#FF385C]" />
+            <span className="font-medium text-base md:text-sm text-[#222222]">
               Progress: {submittedSlots.size} of {timeSlots.length} time slots completed
             </span>
           </div>
-          <div className="text-sm text-[#767676]">
+          <div className="text-base md:text-sm text-[#767676] font-medium">
             {submittedSlots.size === timeSlots.length ? '🎉 All done!' : 'Keep going!'}
           </div>
         </div>
