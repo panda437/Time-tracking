@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import TimeEntryForm from "@/components/TimeEntryForm"
+import EnhancedTimeEntry from "@/components/EnhancedTimeEntry"
 import TimeEntryList from "@/components/TimeEntryList"
 import WeeklyOverview from "@/components/WeeklyOverview"
 import Header from "@/components/Header"
@@ -33,6 +34,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [userGoals, setUserGoals] = useState<string[]>([])
+  const [useTimeSlots, setUseTimeSlots] = useState(false)
 
   useEffect(() => {
     if (status === "loading") return
@@ -204,12 +206,68 @@ export default function Dashboard() {
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 md:pb-16">
         <div className="space-y-12">
-          {/* Quick Add Section - Hero CTA */}
+          {/* Time Entry - Hero CTA */}
           <div className="-mt-8 relative z-10">
-            <TimeEntryForm 
-              onEntryAdded={handleEntryAdded} 
-              showExpandedByDefault={entries.length === 0 && userGoals.length === 0}
-            />
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+              {/* Toggle Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center">
+                    {useTimeSlots ? (
+                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    ) : (
+                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    )}
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-[#222222]">
+                      {useTimeSlots ? "Time Slot Entry" : "Quick Entry"}
+                    </h2>
+                    <p className="text-[#767676]">
+                      {useTimeSlots ? "Fill in your activities for specific time slots" : "Add your activity quickly and easily"}
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Toggle Switch */}
+                <div className="flex items-center space-x-3">
+                  <span className={`text-sm font-medium ${!useTimeSlots ? 'text-[#FF385C]' : 'text-[#767676]'}`}>
+                    Quick
+                  </span>
+                  <button
+                    onClick={() => setUseTimeSlots(!useTimeSlots)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:ring-offset-2 ${
+                      useTimeSlots ? 'bg-[#FF385C]' : 'bg-gray-300'
+                    }`}
+                  >
+                    <span
+                      className={`${
+                        useTimeSlots ? 'translate-x-6' : 'translate-x-1'
+                      } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                    />
+                  </button>
+                  <span className={`text-sm font-medium ${useTimeSlots ? 'text-[#FF385C]' : 'text-[#767676]'}`}>
+                    Time Slots
+                  </span>
+                </div>
+              </div>
+              
+              {/* Entry Component */}
+              <div className="border-t border-gray-100 pt-6">
+                {useTimeSlots ? (
+                  <EnhancedTimeEntry onEntryAdded={fetchEntries} />
+                ) : (
+                  <TimeEntryForm 
+                    onEntryAdded={handleEntryAdded} 
+                    showExpandedByDefault={entries.length === 0 && userGoals.length === 0}
+                  />
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Weekly Story Section */}
