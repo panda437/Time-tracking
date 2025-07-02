@@ -3,41 +3,39 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday } from "date-fns"
 import Header from "@/components/Header"
 import MobileNavigation from "@/components/MobileNavigation"
-import DayHoverTooltip from "@/components/DayHoverTooltip"
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react"
+import EnhancedCalendar from "@/components/EnhancedCalendar"
+import TaskEditModal from "@/components/TaskEditModal"
+import InstallPrompt from "@/components/InstallPrompt"
+import { useInstallPrompt } from "@/hooks/useInstallPrompt"
+import { trackTaskMilestone } from "@/components/GoogleAnalytics"
+import { Sparkles, Calendar, Settings } from "lucide-react"
 
-interface CalendarDay {
-  date: string
-  entries: any[]
-  totalDuration: number
-  categories: string[]
-}
-
-interface CalendarData {
-  view: string
-  period: {
-    start: string
-    end: string
-  }
-  days: CalendarDay[]
-  summary: {
-    totalDuration: number
-    totalEntries: number
-    categories: Record<string, number>
-    averageDailyDuration: number
-  }
+interface TimeEntry {
+  id: string
+  activity: string
+  description?: string
+  duration: number
+  startTime: string
+  endTime: string
+  category: string
+  mood?: string
+  tags: string[]
 }
 
 export default function CalendarPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [calendarData, setCalendarData] = useState<CalendarData | null>(null)
+  const [entries, setEntries] = useState<TimeEntry[]>([])
   const [loading, setLoading] = useState(true)
-  const [hoveredDay, setHoveredDay] = useState<{ date: Date; entries: any[]; position: { x: number; y: number } } | null>(null)
+  const [selectedEntry, setSelectedEntry] = useState<TimeEntry | null>(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [showAiSuccess, setShowAiSuccess] = useState(false)
+  
+  // Install prompt hook
+  const { showInstallPrompt, triggerAfterFirstTask, dismissInstallPrompt } = useInstallPrompt()
 
   useEffect(() => {
     if (status === "loading") return
@@ -47,45 +45,157 @@ export default function CalendarPage() {
       return
     }
 
-    fetchCalendarData()
-  }, [session, status, router, currentDate])
+    fetchEntries()
+  }, [session, status, router])
 
-  const fetchCalendarData = async () => {
+  const fetchEntries = async () => {
     try {
-      const response = await fetch(`/api/calendar?view=month&date=${format(currentDate, 'yyyy-MM-dd')}`)
+      // Fetch entries for the current week
+      const response = await fetch("/api/entries?period=week")
       if (response.ok) {
         const data = await response.json()
-        setCalendarData(data)
+        setEntries(data)
       }
     } catch (error) {
-      console.error("Failed to fetch calendar data:", error)
+      console.error("Failed to fetch entries:", error)
     } finally {
       setLoading(false)
     }
   }
 
-  const formatDuration = (minutes: number) => {
-    const hours = Math.floor(minutes / 60)
-    const mins = minutes % 60
-    if (hours > 0) {
-      return `${hours}h ${mins}m`
+  const handleEntryUpdate = async (updatedEntry: TimeEntry) => {
+    try {
+      const isNewEntry = updatedEntry.id.startsWith('new-')
+      
+      if (isNewEntry) {
+        // Create new entry
+        const response = await fetch("/api/entries", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            activity: updatedEntry.activity,
+            description: updatedEntry.description,
+            duration: updatedEntry.duration,
+            startTime: updatedEntry.startTime,
+            category: updatedEntry.category,
+            mood: updatedEntry.mood,
+            tags: updatedEntry.tags
+          }),
+        })
+        
+        if (response.ok) {
+          const newEntry = await response.json()
+          setEntries(prev => [...prev, newEntry])
+          
+          // Trigger install prompt after first task creation
+          triggerAfterFirstTask()
+          
+          // Track task milestone for analytics
+          const newTaskCount = entries.length + 1
+          trackTaskMilestone(newTaskCount)
+        }
+      } else {
+        // Update existing entry
+        const response = await fetch(`/api/entries/${updatedEntry.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedEntry),
+        })
+        
+        if (response.ok) {
+          const updated = await response.json()
+          setEntries(prev => prev.map(entry => 
+            entry.id === updated.id ? updated : entry
+          ))
+        }
+      }
+    } catch (error) {
+      console.error("Failed to update entry:", error)
     }
-    return `${mins}m`
   }
 
-  const getDayData = (date: Date) => {
-    const dateKey = format(date, 'yyyy-MM-dd')
-    return calendarData?.days.find(day => day.date === dateKey)
+  const handleEntrySelect = (entry: TimeEntry) => {
+    setSelectedEntry(entry)
+    setIsEditModalOpen(true)
   }
 
-  const monthStart = startOfMonth(currentDate)
-  const monthEnd = endOfMonth(currentDate)
-  const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd })
+  const handleEntryDelete = async (entryId: string) => {
+    try {
+      if (!entryId) {
+        console.error("Invalid entry ID provided")
+        return
+      }
+
+      const response = await fetch(`/api/entries/${entryId}`, {
+        method: "DELETE",
+      })
+      
+      if (response.ok) {
+        setEntries(prev => prev.filter(entry => entry.id !== entryId))
+      } else {
+        const errorData = await response.json()
+        console.error("Delete failed:", errorData)
+      }
+    } catch (error) {
+      console.error("Failed to delete entry:", error)
+    }
+  }
+
+  const handleAiScheduling = async () => {
+    setAiLoading(true)
+    try {
+      const response = await fetch("/api/ai/schedule", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({})
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        
+        if (result.success) {
+          // Add the new AI-generated entries to the state
+          setEntries(prev => [...prev, ...result.entries])
+          setShowAiSuccess(true)
+          setTimeout(() => setShowAiSuccess(false), 5000)
+        } else {
+          console.log("AI scheduling result:", result.message)
+        }
+      }
+    } catch (error) {
+      console.error("Failed to generate AI schedule:", error)
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
+  const handleReschedule = async (entry: TimeEntry) => {
+    // For now, this could trigger a specific AI reschedule or open scheduling options
+    // You could implement smart rescheduling logic here
+    console.log("Reschedule request for:", entry.activity)
+    // TODO: Implement smart rescheduling
+  }
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB] flex items-center justify-center">
+        <div className="text-center animate-pulse">
+          <div className="w-16 h-16 mx-auto bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-full flex items-center justify-center mb-4">
+            <Calendar className="h-8 w-8 text-white" />
+          </div>
+          <h2 className="text-xl font-semibold text-[#222222] mb-2">
+            Loading your schedule...
+          </h2>
+          <p className="text-[#767676]">
+            Preparing your intelligent calendar view ✨
+          </p>
+        </div>
       </div>
     )
   }
@@ -95,215 +205,105 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB]">
       <Header user={session.user} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32 md:pb-8">
-        <div className="space-y-4 sm:space-y-6">
-          {/* Header */}
-          <div className="bg-white overflow-hidden shadow-lg rounded-2xl">
-            <div className="px-4 py-5 sm:p-6">
-              {/* Mobile-friendly header layout */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center">
-                    <Calendar className="h-5 w-5 text-white" />
-                  </div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Calendar</h1>
-                </div>
-                
-                {/* Month navigation - centered on mobile */}
-                <div className="flex items-center justify-center sm:justify-end space-x-4">
-                  <button
-                    onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
-                    className="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all active:scale-95"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  
-                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900 min-w-[140px] text-center">
-                    {format(currentDate, 'MMMM yyyy')}
-                  </h2>
-                  
-                  <button
-                    onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
-                    className="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all active:scale-95"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Month Summary */}
-              {calendarData && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <div className="text-lg font-semibold text-blue-600">
-                      {formatDuration(calendarData.summary.totalDuration)}
-                    </div>
-                    <div className="text-sm text-gray-600">Total Time</div>
-                  </div>
-                  
-                  <div className="bg-green-50 p-3 rounded-lg">
-                    <div className="text-lg font-semibold text-green-600">
-                      {calendarData.summary.totalEntries}
-                    </div>
-                    <div className="text-sm text-gray-600">Activities</div>
-                  </div>
-                  
-                  <div className="bg-purple-50 p-3 rounded-lg">
-                    <div className="text-lg font-semibold text-purple-600">
-                      {formatDuration(calendarData.summary.averageDailyDuration)}
-                    </div>
-                    <div className="text-sm text-gray-600">Daily Average</div>
-                  </div>
-                  
-                  <div className="bg-yellow-50 p-3 rounded-lg">
-                    <div className="text-lg font-semibold text-yellow-600">
-                      {Object.keys(calendarData.summary.categories).length}
-                    </div>
-                    <div className="text-sm text-gray-600">Categories</div>
-                  </div>
-                </div>
-              )}
-            </div>
+        {/* Hero Section */}
+        <div className="text-center mb-8 animate-slide-up">
+          <div className="inline-flex items-center space-x-3 bg-white rounded-2xl px-6 py-3 shadow-lg border border-gray-100 mb-6">
+            <Calendar className="h-6 w-6 text-[#FF385C]" />
+            <span className="text-lg font-medium text-[#222222]">Smart Calendar</span>
+            <div className="w-2 h-2 bg-[#00A699] rounded-full animate-pulse"></div>
           </div>
+          
+          <h1 className="text-3xl md:text-4xl font-bold text-[#222222] mb-4">
+            Your Daily Schedule 🗓️
+          </h1>
+          <p className="text-lg text-[#767676] max-w-2xl mx-auto mb-6">
+            Drag tasks to reschedule, tap to edit, and let AI optimize your day.
+          </p>
 
-          {/* Calendar Grid */}
-          <div className="bg-white overflow-hidden shadow-lg rounded-2xl">
-            <div className="p-3 sm:p-6">
-              {/* Days of week header */}
-              <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-3 sm:mb-4">
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                  <div key={day} className="p-2 text-center text-xs sm:text-sm font-semibold text-gray-600 bg-gray-50 rounded-lg">
-                    {day}
-                  </div>
-                ))}
-              </div>
-
-              {/* Calendar days */}
-              <div className="grid grid-cols-7 gap-1 sm:gap-2">
-                {monthDays.map(date => {
-                  const dayData = getDayData(date)
-                  const isCurrentMonth = isSameMonth(date, currentDate)
-                  const isTodayDate = isToday(date)
-                  
-                  return (
-                    <div
-                      key={date.toISOString()}
-                      className={`
-                        aspect-square min-h-[60px] sm:min-h-[80px] lg:min-h-[90px] p-1 sm:p-2 lg:p-3 border-2 rounded-xl cursor-pointer transition-all duration-200 relative overflow-hidden
-                        ${isCurrentMonth ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-100'}
-                        ${isTodayDate ? 'ring-2 ring-[#FF385C] border-[#FF385C]' : ''}
-                        ${dayData ? 'hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 hover:shadow-lg active:scale-95' : 'hover:bg-gray-100'}
-                      `}
-                      onMouseEnter={(e) => {
-                        if (dayData && dayData.entries.length > 0) {
-                          const rect = e.currentTarget.getBoundingClientRect()
-                          setHoveredDay({
-                            date,
-                            entries: dayData.entries,
-                            position: {
-                              x: rect.right - 5,
-                              y: rect.top
-                            }
-                          })
-                        }
-                      }}
-                      onMouseLeave={() => {
-                        setHoveredDay(null)
-                      }}
-                      onClick={() => {
-                        router.push(`/calendar/day/${format(date, 'yyyy-MM-dd')}`)
-                      }}
-                    >
-                      <div className={`
-                        text-sm font-medium mb-1
-                        ${isCurrentMonth ? 'text-gray-900' : 'text-gray-400'}
-                        ${isTodayDate ? 'text-indigo-600' : ''}
-                      `}>
-                        {format(date, 'd')}
-                      </div>
-                      
-                      {dayData && (
-                        <>
-                          {/* Desktop: Categories only */}
-                          <div className="hidden lg:flex flex-col items-start space-y-1 mt-1 w-full">
-                            <div className="flex flex-wrap gap-1 w-full">
-                              {[...new Set(dayData.categories)].slice(0, 2).map((category, i) => (
-                                <span
-                                  key={i}
-                                  className={`px-1 py-0.5 rounded text-[9px] font-medium truncate max-w-full ${
-                                    category === 'work' ? 'bg-blue-100 text-blue-800' :
-                                    category === 'personal' ? 'bg-green-100 text-green-800' :
-                                    category === 'health' ? 'bg-red-100 text-red-800' :
-                                    category === 'education' ? 'bg-purple-100 text-purple-800' :
-                                    category === 'social' ? 'bg-yellow-100 text-yellow-800' :
-                                    category === 'entertainment' ? 'bg-pink-100 text-pink-800' :
-                                    'bg-gray-100 text-gray-800'
-                                  }`}
-                                >
-                                  {category}
-                                </span>
-                              ))}
-                              {[...new Set(dayData.categories)].length > 2 && (
-                                <span className="text-[9px] text-gray-500 font-medium">
-                                  +{[...new Set(dayData.categories)].length - 2}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          
-                          {/* Mobile: Activity dots only */}
-                          <div className="lg:hidden flex items-center justify-center mt-1">
-                            <div className="flex space-x-1">
-                              {dayData.entries.length <= 2 ? (
-                                // Show individual dots for 1-2 activities
-                                Array.from({ length: dayData.entries.length }, (_, i) => (
-                                  <div
-                                    key={i}
-                                    className="w-1.5 h-1.5 rounded-full bg-[#FF385C]"
-                                  />
-                                ))
-                              ) : (
-                                // Show 2 dots + number for 3+ activities
-                                <>
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#FF385C]" />
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#FF385C]" />
-                                  <span className="text-[10px] font-medium text-[#FF385C] ml-1">+{dayData.entries.length - 2}</span>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+            <button
+              onClick={handleAiScheduling}
+              disabled={aiLoading}
+              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-2xl font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {aiLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-5 w-5" />
+                  <span>AI Schedule Tomorrow</span>
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={() => router.push('/calendar/monthly')}
+              className="flex items-center space-x-2 px-6 py-3 bg-white text-[#222222] border-2 border-gray-200 rounded-2xl font-semibold hover:border-[#FF385C] hover:text-[#FF385C] transition-all"
+            >
+              <Settings className="h-5 w-5" />
+              <span>Month View</span>
+            </button>
           </div>
         </div>
+
+        {/* AI Success Message */}
+        {showAiSuccess && (
+          <div className="mb-6 animate-slide-up">
+            <div className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-2xl p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
+                  <Sparkles className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-purple-900">AI Schedule Generated! ✨</h3>
+                  <p className="text-purple-700 text-sm">
+                    Tomorrow's tasks have been intelligently planned based on your goals and patterns.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced Calendar */}
+        <div className="animate-slide-up">
+          <EnhancedCalendar
+            entries={entries}
+            onEntryUpdate={handleEntryUpdate}
+            onEntrySelect={handleEntrySelect}
+            onEntryDelete={handleEntryDelete}
+          />
+        </div>
       </main>
-      
-      {/* Hover Tooltip */}
-      {hoveredDay && (
-        <DayHoverTooltip
-          date={hoveredDay.date}
-          entries={hoveredDay.entries}
-          isVisible={true}
-          position={hoveredDay.position}
-          onMouseEnter={() => {
-            // Keep tooltip visible when hovering over it
-          }}
-          onMouseLeave={() => {
-            setHoveredDay(null)
-          }}
-        />
-      )}
-      
-      {/* Mobile Navigation */}
+
+      {/* Task Edit Modal */}
+      <TaskEditModal
+        entry={selectedEntry}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setSelectedEntry(null)
+        }}
+        onSave={handleEntryUpdate}
+        onDelete={handleEntryDelete}
+        onReschedule={handleReschedule}
+      />
+
+      {/* Install App Prompt */}
+      <InstallPrompt 
+        show={showInstallPrompt} 
+        onClose={dismissInstallPrompt} 
+      />
+
       <MobileNavigation />
     </div>
   )
-}
+} 

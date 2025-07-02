@@ -3,6 +3,8 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import Header from "@/components/Header"
+import MobileNavigation from "@/components/MobileNavigation"
 import { ThumbsUp, MessageSquare, Send } from "lucide-react"
 
 interface Feature {
@@ -136,6 +138,7 @@ export default function FeedbackPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB]">
+      <Header user={{ name: session.user?.name, email: session.user?.email }} />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
@@ -252,6 +255,7 @@ export default function FeedbackPage() {
           )}
         </div>
       </div>
+      <MobileNavigation />
     </div>
   )
 }

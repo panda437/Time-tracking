@@ -118,9 +118,39 @@ const FeedbackVoteSchema = new Schema<IFeedbackVote>({
 FeedbackVoteSchema.index({ userId: 1, feedbackId: 1 }, { unique: true })
 FeedbackVoteSchema.index({ feedbackId: 1 })
 
+// DayReflection Model
+export interface IDayReflection extends Document {
+  _id: string
+  userId: string
+  date: Date
+  reflection: string
+  rating: number
+  highlights: string[]
+  improvements: string[]
+  gratitude: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+const DayReflectionSchema = new Schema<IDayReflection>({
+  userId: { type: String, required: true, index: true },
+  date: { type: Date, required: true, index: true },
+  reflection: { type: String, required: true },
+  rating: { type: Number, required: true, min: 1, max: 10 },
+  highlights: [{ type: String }],
+  improvements: [{ type: String }],
+  gratitude: { type: String, default: "" },
+}, {
+  timestamps: true
+})
+
+// Compound unique index for user-date combination
+DayReflectionSchema.index({ userId: 1, date: 1 }, { unique: true })
+
 // Export models
 export const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema)
 export const TimeEntry = mongoose.models.TimeEntry || mongoose.model<ITimeEntry>('TimeEntry', TimeEntrySchema)
 export const UserGoal = mongoose.models.UserGoal || mongoose.model<IUserGoal>('UserGoal', UserGoalSchema)
 export const Feedback = mongoose.models.Feedback || mongoose.model<IFeedback>('Feedback', FeedbackSchema)
-export const FeedbackVote = mongoose.models.FeedbackVote || mongoose.model<IFeedbackVote>('FeedbackVote', FeedbackVoteSchema) 
+export const FeedbackVote = mongoose.models.FeedbackVote || mongoose.model<IFeedbackVote>('FeedbackVote', FeedbackVoteSchema)
+export const DayReflection = mongoose.models.DayReflection || mongoose.model<IDayReflection>('DayReflection', DayReflectionSchema) 

@@ -3,7 +3,10 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { BarChart3, TrendingUp, Clock, Calendar, Target, Brain } from "lucide-react"
+import Link from "next/link"
+import Header from "@/components/Header"
+import MobileNavigation from "@/components/MobileNavigation"
+import { BarChart3, TrendingUp, Clock, Calendar, Target, Brain, ArrowRight, CheckCircle } from "lucide-react"
 
 interface AnalyticsData {
   moodTrends: { mood: string; count: number }[]
@@ -86,6 +89,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB]">
+      <Header user={{ name: session.user?.name, email: session.user?.email }} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-12">
@@ -327,8 +331,51 @@ export default function AnalyticsPage() {
               })}
             </div>
           </div>
+
+          {/* Daily Habit Reinforcement Section */}
+          <div className="bg-gradient-to-r from-[#FF385C] to-[#E31C5F] rounded-3xl shadow-xl p-8 text-white text-center">
+            <div className="max-w-2xl mx-auto">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="h-8 w-8 text-white" />
+              </div>
+              
+              <h2 className="text-3xl font-bold mb-4">
+                Keep Your Momentum Going! 🚀
+              </h2>
+              <p className="text-xl text-white/90 mb-2">
+                You've tracked <span className="font-semibold">{analytics.totalEntries}</span> activities so far
+              </p>
+              <p className="text-lg text-white/80 mb-8">
+                Every day you track builds better insights. Tomorrow's patterns depend on today's data.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="/calendar"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-white text-[#FF385C] rounded-2xl font-semibold hover:bg-gray-50 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  <Calendar className="h-5 w-5 mr-2" />
+                  Plan Tomorrow
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+                
+                <Link
+                  href="/reflection"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-white/20 text-white border-2 border-white/30 rounded-2xl font-semibold hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  <Brain className="h-5 w-5 mr-2" />
+                  Reflect on Today
+                </Link>
+              </div>
+              
+              <div className="mt-8 text-sm text-white/70">
+                <p>💡 <strong>Pro tip:</strong> Users who track daily see 3x better insights within a week</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+      <MobileNavigation />
     </div>
   )
 }

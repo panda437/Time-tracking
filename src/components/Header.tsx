@@ -21,7 +21,7 @@ export default function Header({ user }: HeaderProps) {
   
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3, description: 'Your time overview' },
-    { name: 'Calendar', href: '/calendar', icon: Calendar, description: 'Monthly view' },
+    { name: 'Calendar', href: '/calendar', icon: Calendar, description: 'Smart schedule view' },
   ]
 
   const getGreeting = () => {
@@ -137,9 +137,44 @@ export default function Header({ user }: HeaderProps) {
                   </div>
                   
                   <div className="py-2">
+                    <Link
+                      href="/analytics"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="w-full flex items-center px-4 py-2.5 text-sm text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] transition-smooth"
+                    >
+                      <BarChart3 className="h-4 w-4 mr-3" />
+                      Analytics
+                    </Link>
+                    <Link
+                      href="/reflection"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="w-full flex items-center px-4 py-2.5 text-sm text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] transition-smooth"
+                    >
+                      <Heart className="h-4 w-4 mr-3" />
+                      Daily Reflection
+                    </Link>
+                    <Link
+                      href="/feedback"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="w-full flex items-center px-4 py-2.5 text-sm text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] transition-smooth"
+                    >
+                      <HelpCircle className="h-4 w-4 mr-3" />
+                      Feedback
+                    </Link>
                     <button
                       onClick={() => {
-                        window.location.href = 'mailto:asifkabeer1@gmail.com'
+                        const subject = encodeURIComponent('TimeTrack Support Request')
+                        const body = encodeURIComponent(`Hi Asif,
+
+I need help with TimeTrack. 
+
+My account: ${user.email}
+
+Issue description:
+[Please describe your issue here]
+
+Thanks!`)
+                        window.location.href = `mailto:asifkabeer1@gmail.com?subject=${subject}&body=${body}`
                         setIsProfileOpen(false)
                       }}
                       className="w-full flex items-center px-4 py-2.5 text-sm text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] transition-smooth"

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { subMinutes } from "date-fns"
 import TimePicker from "./TimePicker"
 import { trackTimeEntry, trackFormInteraction } from "./GoogleAnalytics"
@@ -23,6 +24,7 @@ interface TimeEntry {
 interface TimeEntryFormProps {
   onEntryAdded: (entry: TimeEntry) => void
   showExpandedByDefault?: boolean
+  isFirstEntry?: boolean
 }
 
 const categories = [
@@ -48,7 +50,8 @@ const durationOptions = [
   { value: 180, label: "3 hours", description: "Deep work" },
 ]
 
-export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = false }: TimeEntryFormProps) {
+export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = false, isFirstEntry = false }: TimeEntryFormProps) {
+  const router = useRouter()
   const [activity, setActivity] = useState("")
   const [description, setDescription] = useState("")
   const [duration, setDuration] = useState(30)
@@ -98,6 +101,14 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
         // Show success message
         setShowSuccess(true)
         setTimeout(() => setShowSuccess(false), 5000)
+        
+        // If this is the first entry, redirect to reflection page
+        if (isFirstEntry) {
+          setTimeout(() => {
+            router.push('/reflection')
+          }, 2000)
+          return
+        }
         
         // Reset form
         setActivity("")

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/prisma"
 import { TimeEntry, User } from "@/lib/models"
+import { trackUserTaskMilestone } from "@/lib/analytics"
 import { subMinutes, startOfWeek, endOfWeek } from "date-fns"
 
 export async function GET(request: NextRequest) {
@@ -49,7 +50,20 @@ export async function GET(request: NextRequest) {
       }
     }).sort({ startTime: -1 })
 
-    return NextResponse.json(entries)
+    // Transform MongoDB documents to have 'id' instead of '_id'
+    const transformedEntries = entries.map(entry => ({
+      id: entry._id.toString(),
+      activity: entry.activity,
+      description: entry.description,
+      duration: entry.duration,
+      startTime: entry.startTime.toISOString(),
+      endTime: entry.endTime.toISOString(),
+      category: entry.category,
+      mood: entry.mood,
+      tags: entry.tags ? JSON.parse(entry.tags) : []
+    }))
+
+    return NextResponse.json(transformedEntries)
   } catch (error) {
     console.error("Error fetching entries:", error)
     return NextResponse.json({ error: "Failed to fetch entries" }, { status: 500 })
@@ -109,7 +123,28 @@ export async function POST(request: NextRequest) {
       tags: JSON.stringify(tags || [])
     })
 
-    return NextResponse.json(entry)
+    // Transform MongoDB document to have 'id' instead of '_id'
+    const transformedEntry = {
+      id: entry._id.toString(),
+      activity: entry.activity,
+      description: entry.description,
+      duration: entry.duration,
+      startTime: entry.startTime.toISOString(),
+      endTime: entry.endTime.toISOString(),
+      category: entry.category,
+      mood: entry.mood,
+      tags: entry.tags ? JSON.parse(entry.tags) : []
+    }
+
+    // Track task milestone for analytics (async, don't wait)
+    try {
+      const totalTaskCount = await TimeEntry.countDocuments({ userId: session.user.id })
+      trackUserTaskMilestone(session.user.id, totalTaskCount).catch(console.error)
+    } catch (error) {
+      console.error('Error tracking task milestone:', error)
+    }
+
+    return NextResponse.json(transformedEntry)
   } catch (error) {
     console.error("Error creating entry:", error)
     return NextResponse.json({ 

@@ -10,7 +10,10 @@ import TimeEntryList from "@/components/TimeEntryList"
 import WeeklyOverview from "@/components/WeeklyOverview"
 import Header from "@/components/Header"
 import OnboardingModal from "@/components/OnboardingModal"
+import InstallPrompt from "@/components/InstallPrompt"
 import MobileNavigation from "@/components/MobileNavigation"
+import { useInstallPrompt } from "@/hooks/useInstallPrompt"
+import { trackTaskMilestone } from "@/components/GoogleAnalytics"
 
 interface TimeEntry {
   id: string
@@ -35,6 +38,9 @@ export default function Dashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [userGoals, setUserGoals] = useState<string[]>([])
   const [useTimeSlots, setUseTimeSlots] = useState(false)
+  
+  // Install prompt hook
+  const { showInstallPrompt, triggerAfterFirstTask, dismissInstallPrompt } = useInstallPrompt()
 
   useEffect(() => {
     if (status === "loading") return
@@ -108,7 +114,16 @@ export default function Dashboard() {
 
   const handleEntryAdded = (newEntry: TimeEntry) => {
     setEntries([newEntry, ...entries])
+    
+    // Trigger install prompt after first task creation
+    triggerAfterFirstTask()
+    
+    // Track task milestone for analytics
+    const newTaskCount = entries.length + 1
+    trackTaskMilestone(newTaskCount)
   }
+
+  const isFirstEntry = entries.length === 0 && userGoals.length > 0
 
   const handleEntryUpdated = (updatedEntry: TimeEntry) => {
     setEntries(entries.map(entry => 
@@ -264,6 +279,7 @@ export default function Dashboard() {
                   <TimeEntryForm 
                     onEntryAdded={handleEntryAdded} 
                     showExpandedByDefault={entries.length === 0 && userGoals.length === 0}
+                    isFirstEntry={isFirstEntry}
                   />
                 )}
               </div>
@@ -368,6 +384,12 @@ export default function Dashboard() {
         isOpen={showOnboarding}
         onClose={() => setShowOnboarding(false)}
         onSaveGoals={handleSaveGoals}
+      />
+
+      {/* Install App Prompt */}
+      <InstallPrompt 
+        show={showInstallPrompt} 
+        onClose={dismissInstallPrompt} 
       />
 
       {/* Mobile Navigation */}

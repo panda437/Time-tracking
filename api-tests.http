@@ -1,0 +1,43 @@
+### Test Feedback API - List all feedback
+GET http://localhost:3002/api/feedback
+Content-Type: application/json
+
+###
+
+### Test Feedback API - Create new feedback (requires auth)
+POST http://localhost:3002/api/feedback
+Content-Type: application/json
+
+{
+  "title": "Test Feedback Item",
+  "description": "This is a test feedback description"
+}
+
+###
+
+### Test Feedback Vote API - Upvote (requires auth)
+PATCH http://localhost:3002/api/feedback
+Content-Type: application/json
+
+{
+  "feedbackId": "feedback_id_here",
+  "isUpvote": true
+}
+
+###
+
+### Test Entries API (requires auth)
+GET http://localhost:3002/api/entries?period=week
+Content-Type: application/json
+
+###
+
+### Test Analytics API (requires auth)
+GET http://localhost:3002/api/analytics?period=30d
+Content-Type: application/json
+
+###
+
+### Test Database Connection
+GET http://localhost:3002/api/test
+Content-Type: application/json
