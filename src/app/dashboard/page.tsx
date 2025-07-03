@@ -243,7 +243,7 @@ export default function Dashboard() {
                       {useTimeSlots ? "Time Slot Entry" : "Quick Entry"}
                     </h2>
                     <p className="text-[#767676]">
-                      {useTimeSlots ? "Fill in your activities for specific time slots" : "Add your activity quickly and easily"}
+                      {useTimeSlots ? "Fill in your activities for specific time slots" : "Add your activity"}
                     </p>
                   </div>
                 </div>

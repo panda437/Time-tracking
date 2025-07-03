@@ -154,27 +154,44 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
 
         </div>
         
-        <h2 className="text-2xl font-semibold text-white mt-2 mb-1">
-          What did you just accomplish?
-        </h2>
-        <p className="text-white/80 text-sm">
-          Let's capture this moment in your journey ✨
-        </p>
+        {/* Mobile Version - Simplified */}
+        <div className="md:hidden">
+          <h2 className="text-lg font-semibold text-white mt-2 mb-1">
+            What did you do?
+          </h2>
+        </div>
+        
+        {/* Desktop Version - Full Text */}
+        <div className="hidden md:block">
+          <h2 className="text-2xl font-semibold text-white mt-2 mb-1">
+            What did you just accomplish?
+          </h2>
+          <p className="text-white/80 text-sm">
+            Let's capture this moment in your journey ✨
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="p-8 space-y-8">
         {/* Main Activity Input */}
         <div className="space-y-3">
-          <label className="block text-lg font-medium text-[#222222]">
+          {/* Mobile Label - Simplified */}
+          <label className="block text-lg font-medium text-[#222222] md:hidden">
+            Activity
+          </label>
+          
+          {/* Desktop Label - Full Text */}
+          <label className="hidden md:block text-lg font-medium text-[#222222]">
             Tell me about it...
           </label>
+          
           <div className="relative">
             <input
               type="text"
               required
               value={activity}
               onChange={(e) => setActivity(e.target.value)}
-              placeholder="e.g., Brainstormed ideas for the new app design"
+              placeholder="What did you do?"
               className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-smooth placeholder-gray-400 bg-[#FAFAFA] focus:bg-white"
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-4">
@@ -187,7 +204,13 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
 
         {/* Duration Selection */}
         <div className="space-y-4">
-          <label className="block text-lg font-medium text-[#222222]">
+          {/* Mobile Label - Simplified */}
+          <label className="block text-lg font-medium text-[#222222] md:hidden">
+            Duration
+          </label>
+          
+          {/* Desktop Label - Full Text */}
+          <label className="hidden md:block text-lg font-medium text-[#222222]">
             How much time did this take?
           </label>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -217,7 +240,11 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
 
         {/* Quick Details Toggle */}
         <div className="flex items-center justify-between">
-          <span className="text-lg font-medium text-[#222222]">Want to add more details?</span>
+          {/* Mobile Text - Simplified */}
+          <span className="text-lg font-medium text-[#222222] md:hidden">More details?</span>
+          
+          {/* Desktop Text - Full */}
+          <span className="hidden md:block text-lg font-medium text-[#222222]">Want to add more details?</span>
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
@@ -331,7 +358,11 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
               </div>
             ) : (
               <div className="flex items-center justify-center space-x-2">
-                <span>✨ Capture this time</span>
+                {/* Mobile Button Text - Simplified */}
+                <span className="md:hidden">Save</span>
+                
+                {/* Desktop Button Text - Full */}
+                <span className="hidden md:block">✨ Capture this time</span>
               </div>
             )}
           </button>
