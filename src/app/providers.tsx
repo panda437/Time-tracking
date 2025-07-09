@@ -5,13 +5,11 @@ import PWA from "@/components/PWA"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { format } from "date-fns"
-import MicrosoftClarity from "@/components/MicrosoftClarity"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <FirstTimeRedirect />
-      <MicrosoftClarity />
       <PWA />
       {children}
     </SessionProvider>
