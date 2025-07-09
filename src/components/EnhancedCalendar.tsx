@@ -39,9 +39,9 @@ interface EnhancedCalendarProps {
   onEntryUpdate: (entry: TimeEntry) => void
   onEntrySelect: (entry: TimeEntry) => void
   onEntryDelete?: (entryId: string) => void
-  centerDate: Date
-  setCenterDate: React.Dispatch<React.SetStateAction<Date>>
-  loading: boolean
+  centerDate?: Date
+  setCenterDate?: React.Dispatch<React.SetStateAction<Date>>
+  loading?: boolean
 }
 
 interface TimeSlot {
@@ -204,6 +204,9 @@ function DropZone({ timeSlot, date, entries, onDrop }: DropZoneProps) {
 }
 
 export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect, onEntryDelete, centerDate, setCenterDate, loading }: EnhancedCalendarProps) {
+  const [internalCenterDate, setInternalCenterDate] = useState(new Date())
+  const currentDate = centerDate ?? internalCenterDate
+  const updateCenterDate = setCenterDate ?? setInternalCenterDate
   const [draggedEntry, setDraggedEntry] = useState<TimeEntry | null>(null)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -222,18 +225,18 @@ export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect
   const getDaysToShow = useCallback(() => {
     if (isMobile) {
       // Mobile: 2 consecutive days starting from currentDate
-      return [centerDate, addDays(centerDate, 1)]
+      return [currentDate, addDays(currentDate, 1)]
     } else {
       // Desktop: 5-day window centered on currentDate
       return [
-        addDays(centerDate, -2), // two days before
-        addDays(centerDate, -1), // previous day
-        centerDate,              // selected/center day
-        addDays(centerDate, 1),  // next day
-        addDays(centerDate, 2)   // two days after
+        addDays(currentDate, -2), // two days before
+        addDays(currentDate, -1), // previous day
+        currentDate,              // selected/center day
+        addDays(currentDate, 1),  // next day
+        addDays(currentDate, 2)   // two days after
       ]
     }
-  }, [centerDate, isMobile])
+  }, [currentDate, isMobile])
 
   const days = getDaysToShow()
 
@@ -325,10 +328,10 @@ export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect
   const navigateWeek = (direction: 'prev' | 'next') => {
     if (isMobile) {
       // Mobile: move window by 2 days
-      setCenterDate(prev => addDays(prev, direction === 'next' ? 2 : -2))
+      updateCenterDate(prev => addDays(prev, direction === 'next' ? 2 : -2))
     } else {
       // Desktop: shift window by 5 days to keep views contiguous
-      setCenterDate(prev => addDays(prev, direction === 'next' ? 5 : -5))
+      updateCenterDate(prev => addDays(prev, direction === 'next' ? 5 : -5))
     }
   }
 
@@ -364,7 +367,7 @@ export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect
           </div>
           
           <button
-            onClick={() => setCenterDate(new Date())}
+            onClick={() => updateCenterDate(new Date())}
             className="px-4 py-2 bg-white/20 text-white text-sm font-medium rounded-xl hover:bg-white/30 transition-colors"
           >
             Today
