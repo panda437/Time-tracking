@@ -30,6 +30,8 @@ export default function CalendarPage() {
   const router = useRouter()
   const [entries, setEntries] = useState<TimeEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [centerDate, setCenterDate] = useState(new Date())
+  const [loadingEntries, setLoadingEntries] = useState(false)
   const [selectedEntry, setSelectedEntry] = useState<TimeEntry | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
@@ -46,15 +48,15 @@ export default function CalendarPage() {
       return
     }
 
-    fetchEntries()
-  }, [session, status, router])
+    fetchEntries(centerDate)
+  }, [session, status, router, centerDate])
 
-  const fetchEntries = async () => {
+  const fetchEntries = async (dateCenter: Date) => {
     try {
-      // Fetch entries for 5-day window (two days before today through two days after)
-      const today = new Date()
-      const startDate = addDays(today, -2) // two days before today
-      const endDate = addDays(today, 2)   // two days after today
+      setLoadingEntries(true)
+      // Fetch entries for 5-day window around provided center date
+      const startDate = addDays(dateCenter, -2)
+      const endDate = addDays(dateCenter, 2)
       const startStr = format(startDate, 'yyyy-MM-dd')
       const endStr = format(endDate, 'yyyy-MM-dd')
 
@@ -67,6 +69,7 @@ export default function CalendarPage() {
       console.error("Failed to fetch entries:", error)
     } finally {
       setLoading(false)
+      setLoadingEntries(false)
     }
   }
 
@@ -282,11 +285,14 @@ export default function CalendarPage() {
 
         {/* Enhanced Calendar */}
         <div className="animate-slide-up">
-          <EnhancedCalendar
+          <EnhancedCalendar 
             entries={entries}
             onEntryUpdate={handleEntryUpdate}
             onEntrySelect={handleEntrySelect}
             onEntryDelete={handleEntryDelete}
+            centerDate={centerDate}
+            setCenterDate={setCenterDate}
+            loading={loadingEntries}
           />
         </div>
       </main>

@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { format, addDays } from "date-fns"
 import Header from "@/components/Header"
 import MobileNavigation from "@/components/MobileNavigation"
 import EnhancedCalendar from "@/components/EnhancedCalendar"
@@ -26,6 +27,8 @@ export default function EnhancedCalendarPage() {
   const router = useRouter()
   const [entries, setEntries] = useState<TimeEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [centerDate, setCenterDate] = useState<Date>(new Date())
+  const [loadingEntries, setLoadingEntries] = useState<boolean>(false)
   const [selectedEntry, setSelectedEntry] = useState<TimeEntry | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
@@ -39,13 +42,20 @@ export default function EnhancedCalendarPage() {
       return
     }
 
-    fetchEntries()
-  }, [session, status, router])
+    fetchEntries(centerDate)
+  }, [session, status, router, centerDate])
 
-  const fetchEntries = async () => {
+  const fetchEntries = async (dateCenter: Date) => {
     try {
-      // Fetch entries for the current week
-      const response = await fetch("/api/entries?period=week")
+      setLoadingEntries(true)
+
+      // Fetch entries for a 5-day window around the provided center date
+      const startDate = addDays(dateCenter, -2)
+      const endDate = addDays(dateCenter, 2)
+      const startStr = format(startDate, 'yyyy-MM-dd')
+      const endStr = format(endDate, 'yyyy-MM-dd')
+
+      const response = await fetch(`/api/entries?start=${startStr}&end=${endStr}`)
       if (response.ok) {
         const data = await response.json()
         setEntries(data)
@@ -54,6 +64,7 @@ export default function EnhancedCalendarPage() {
       console.error("Failed to fetch entries:", error)
     } finally {
       setLoading(false)
+      setLoadingEntries(false)
     }
   }
 
@@ -267,6 +278,9 @@ export default function EnhancedCalendarPage() {
             onEntryUpdate={handleEntryUpdate}
             onEntrySelect={handleEntrySelect}
             onEntryDelete={handleEntryDelete}
+            centerDate={centerDate}
+            setCenterDate={setCenterDate}
+            loading={loadingEntries}
           />
         </div>
 
