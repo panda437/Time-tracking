@@ -25,6 +25,16 @@ function FirstTimeRedirect() {
 
     const checkFirstEntry = async () => {
       try {
+        // 1. Ensure user has completed goals onboarding
+        const goalsRes = await fetch("/api/goals", { cache: "no-store" })
+        if (!goalsRes.ok) return
+        const goals = await goalsRes.json()
+        if (!Array.isArray(goals) || goals.length === 0) {
+          // User hasn't submitted goals yet – skip redirect
+          return
+        }
+
+        // 2. Check if they have any entries
         const res = await fetch("/api/entries?period=week", { cache: "no-store" })
         if (!res.ok) return
         const entries = await res.json()
@@ -33,7 +43,7 @@ function FirstTimeRedirect() {
           router.replace(`/calendar/day/${today}?firstEntry=true`)
         }
       } catch (error) {
-        console.error("Failed to check first entry:", error)
+        console.error("Failed to check first entry/goals:", error)
       }
     }
 

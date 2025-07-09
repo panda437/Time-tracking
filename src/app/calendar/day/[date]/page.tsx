@@ -37,6 +37,7 @@ export default function DayViewPage({ params }: DayViewPageProps) {
   const [gapEndTime, setGapEndTime] = useState<Date>(new Date())
   const searchParams = useSearchParams()
   const [modalTitle, setModalTitle] = useState<string | undefined>(undefined)
+  const [firstEntryHandled, setFirstEntryHandled] = useState(false)
 
   useEffect(() => {
     async function getParams() {
@@ -59,15 +60,28 @@ export default function DayViewPage({ params }: DayViewPageProps) {
 
   useEffect(() => {
     const firstEntry = searchParams.get('firstEntry')
-    if (firstEntry && !showGapModal) {
+    if (firstEntry && !firstEntryHandled) {
       const end = new Date()
       const start = new Date(end.getTime() - 30 * 60 * 1000)
       setGapStartTime(start)
       setGapEndTime(end)
       setModalTitle('Log your last 30 minutes')
       setShowGapModal(true)
+      setFirstEntryHandled(true)
     }
-  }, [searchParams, showGapModal])
+  }, [searchParams, firstEntryHandled])
+
+  // After modal is closed and first entry handled, wait 10s then prompt for analytics
+  useEffect(() => {
+    if (firstEntryHandled && !showGapModal) {
+      const timer = setTimeout(() => {
+        if (confirm('See how your time looks? Take me to Analytics!')) {
+          router.push('/analytics')
+        }
+      }, 10000)
+      return () => clearTimeout(timer)
+    }
+  }, [firstEntryHandled, showGapModal, router])
 
   const fetchDayEntries = async () => {
     try {
