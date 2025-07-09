@@ -19,7 +19,7 @@ import {
   useSortable
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { Clock, Edit3, Sparkles, ChevronLeft, ChevronRight, X } from "lucide-react"
+import { Clock, Edit3, Sparkles, ChevronLeft, ChevronRight, X, Loader2 } from "lucide-react"
 
 interface TimeEntry {
   id: string
@@ -39,6 +39,9 @@ interface EnhancedCalendarProps {
   onEntryUpdate: (entry: TimeEntry) => void
   onEntrySelect: (entry: TimeEntry) => void
   onEntryDelete?: (entryId: string) => void
+  centerDate: Date
+  setCenterDate: React.Dispatch<React.SetStateAction<Date>>
+  loading: boolean
 }
 
 interface TimeSlot {
@@ -200,8 +203,7 @@ function DropZone({ timeSlot, date, entries, onDrop }: DropZoneProps) {
   )
 }
 
-export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect, onEntryDelete }: EnhancedCalendarProps) {
-  const [currentDate, setCurrentDate] = useState(new Date())
+export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect, onEntryDelete, centerDate, setCenterDate, loading }: EnhancedCalendarProps) {
   const [draggedEntry, setDraggedEntry] = useState<TimeEntry | null>(null)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -220,18 +222,18 @@ export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect
   const getDaysToShow = useCallback(() => {
     if (isMobile) {
       // Mobile: 2 consecutive days starting from currentDate
-      return [currentDate, addDays(currentDate, 1)]
+      return [centerDate, addDays(centerDate, 1)]
     } else {
       // Desktop: 5-day window centered on currentDate
       return [
-        addDays(currentDate, -2), // two days before
-        addDays(currentDate, -1), // previous day
-        currentDate,              // selected/center day
-        addDays(currentDate, 1),  // next day
-        addDays(currentDate, 2)   // two days after
+        addDays(centerDate, -2), // two days before
+        addDays(centerDate, -1), // previous day
+        centerDate,              // selected/center day
+        addDays(centerDate, 1),  // next day
+        addDays(centerDate, 2)   // two days after
       ]
     }
-  }, [currentDate, isMobile])
+  }, [centerDate, isMobile])
 
   const days = getDaysToShow()
 
@@ -323,10 +325,10 @@ export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect
   const navigateWeek = (direction: 'prev' | 'next') => {
     if (isMobile) {
       // Mobile: move window by 2 days
-      setCurrentDate(prev => addDays(prev, direction === 'next' ? 2 : -2))
+      setCenterDate(prev => addDays(prev, direction === 'next' ? 2 : -2))
     } else {
       // Desktop: shift window by 5 days to keep views contiguous
-      setCurrentDate(prev => addDays(prev, direction === 'next' ? 5 : -5))
+      setCenterDate(prev => addDays(prev, direction === 'next' ? 5 : -5))
     }
   }
 
@@ -347,8 +349,9 @@ export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect
               <h2 className="text-xl font-semibold text-white">
                 {isMobile ? "2-Day View" : "5-Day View"}
               </h2>
-              <p className="text-white/80 text-sm">
-                {format(days[0], 'MMM d')} - {format(days[days.length - 1], 'MMM d, yyyy')}
+              <p className="text-white/80 text-sm flex items-center space-x-2">
+                <span>{format(days[0], 'MMM d')} - {format(days[days.length - 1], 'MMM d, yyyy')}</span>
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               </p>
             </div>
             
@@ -361,7 +364,7 @@ export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect
           </div>
           
           <button
-            onClick={() => setCurrentDate(new Date())}
+            onClick={() => setCenterDate(new Date())}
             className="px-4 py-2 bg-white/20 text-white text-sm font-medium rounded-xl hover:bg-white/30 transition-colors"
           >
             Today
