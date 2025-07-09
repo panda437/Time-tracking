@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { format, addDays } from "date-fns"
 import Header from "@/components/Header"
 import MobileNavigation from "@/components/MobileNavigation"
 import EnhancedCalendar from "@/components/EnhancedCalendar"
@@ -50,8 +51,14 @@ export default function CalendarPage() {
 
   const fetchEntries = async () => {
     try {
-      // Fetch entries for the current week
-      const response = await fetch("/api/entries?period=week")
+      // Fetch entries for 5-day window (two days before today through two days after)
+      const today = new Date()
+      const startDate = addDays(today, -2) // two days before today
+      const endDate = addDays(today, 2)   // two days after today
+      const startStr = format(startDate, 'yyyy-MM-dd')
+      const endStr = format(endDate, 'yyyy-MM-dd')
+
+      const response = await fetch(`/api/entries?start=${startStr}&end=${endStr}`)
       if (response.ok) {
         const data = await response.json()
         setEntries(data)

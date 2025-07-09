@@ -1,7 +1,7 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { format, parseISO, isValid } from "date-fns"
 import Link from "next/link"
@@ -35,6 +35,8 @@ export default function DayViewPage({ params }: DayViewPageProps) {
   const [showGapModal, setShowGapModal] = useState(false)
   const [gapStartTime, setGapStartTime] = useState<Date>(new Date())
   const [gapEndTime, setGapEndTime] = useState<Date>(new Date())
+  const searchParams = useSearchParams()
+  const [modalTitle, setModalTitle] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     async function getParams() {
@@ -54,6 +56,18 @@ export default function DayViewPage({ params }: DayViewPageProps) {
 
     fetchDayEntries()
   }, [session, status, router, date])
+
+  useEffect(() => {
+    const firstEntry = searchParams.get('firstEntry')
+    if (firstEntry && !showGapModal) {
+      const end = new Date()
+      const start = new Date(end.getTime() - 30 * 60 * 1000)
+      setGapStartTime(start)
+      setGapEndTime(end)
+      setModalTitle('Log your last 30 minutes')
+      setShowGapModal(true)
+    }
+  }, [searchParams, showGapModal])
 
   const fetchDayEntries = async () => {
     try {
@@ -387,6 +401,7 @@ export default function DayViewPage({ params }: DayViewPageProps) {
         startTime={gapStartTime}
         endTime={gapEndTime}
         onTaskAdded={handleTaskAdded}
+        title={modalTitle}
       />
       
       {/* Mobile Navigation */}

@@ -11,6 +11,8 @@ interface AddTaskGapModalProps {
   startTime: Date
   endTime: Date
   onTaskAdded: (task: any) => void
+  title?: string
+  subtitle?: string
 }
 
 const categories = [
@@ -26,7 +28,7 @@ const moods = [
   { emoji: "😤", name: "Frustrated" },
 ]
 
-export default function AddTaskGapModal({ isOpen, onClose, startTime, endTime, onTaskAdded }: AddTaskGapModalProps) {
+export default function AddTaskGapModal({ isOpen, onClose, startTime, endTime, onTaskAdded, title, subtitle }: AddTaskGapModalProps) {
   const [activity, setActivity] = useState("")
   const [category, setCategory] = useState("work")
   const [mood, setMood] = useState("")
@@ -101,10 +103,10 @@ export default function AddTaskGapModal({ isOpen, onClose, startTime, endTime, o
             </div>
             <div>
               <h2 className="text-xl font-semibold text-white">
-                Fill in the gap
+                {title || 'Fill in the gap'}
               </h2>
               <p className="text-white/80 text-sm">
-                What happened during this time?
+                {subtitle || 'What happened during this time?'}
               </p>
             </div>
           </div>

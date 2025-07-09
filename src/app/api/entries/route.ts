@@ -16,14 +16,30 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const period = searchParams.get("period") || "week"
   const dateParam = searchParams.get("date")
+  const startParam = searchParams.get("start")
+  const endParam = searchParams.get("end")
   
   let startDate: Date
   let endDate: Date
   
   const now = new Date()
   
+  // Date range override via ?start=YYYY-MM-DD&end=YYYY-MM-DD
+  if (startParam) {
+    const start = new Date(startParam)
+    if (isNaN(start.getTime())) {
+      return NextResponse.json({ error: "Invalid start date format" }, { status: 400 })
+    }
+    const end = endParam ? new Date(endParam) : start
+    if (isNaN(end.getTime())) {
+      return NextResponse.json({ error: "Invalid end date format" }, { status: 400 })
+    }
+    startDate = new Date(start.getFullYear(), start.getMonth(), start.getDate())
+    // include the full end day by adding 1 day
+    endDate = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1)
+
   // If specific date is provided, fetch entries for that day
-  if (dateParam) {
+  } else if (dateParam) {
     const targetDate = new Date(dateParam)
     startDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate())
     endDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate() + 1)
