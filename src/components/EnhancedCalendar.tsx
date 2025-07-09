@@ -219,17 +219,16 @@ export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect
   // Generate calendar days (2 for mobile, 5 for desktop centered on today)
   const getDaysToShow = useCallback(() => {
     if (isMobile) {
-      // Mobile: 2 days starting from current date
+      // Mobile: 2 consecutive days starting from currentDate
       return [currentDate, addDays(currentDate, 1)]
     } else {
-      // Desktop: 5 days centered on today (day before yesterday, yesterday, today, tomorrow, day after tomorrow)
-      const today = new Date()
+      // Desktop: 5-day window centered on currentDate
       return [
-        addDays(today, -2), // day before yesterday
-        addDays(today, -1), // yesterday  
-        today,             // today
-        addDays(today, 1),  // tomorrow
-        addDays(today, 2)   // day after tomorrow
+        addDays(currentDate, -2), // two days before
+        addDays(currentDate, -1), // previous day
+        currentDate,              // selected/center day
+        addDays(currentDate, 1),  // next day
+        addDays(currentDate, 2)   // two days after
       ]
     }
   }, [currentDate, isMobile])
@@ -323,11 +322,11 @@ export default function EnhancedCalendar({ entries, onEntryUpdate, onEntrySelect
 
   const navigateWeek = (direction: 'prev' | 'next') => {
     if (isMobile) {
-      // Mobile: navigate by 2 days
+      // Mobile: move window by 2 days
       setCurrentDate(prev => addDays(prev, direction === 'next' ? 2 : -2))
     } else {
-      // Desktop: navigate by 1 week (7 days) since it's centered on today
-      setCurrentDate(prev => addDays(prev, direction === 'next' ? 7 : -7))
+      // Desktop: shift window by 5 days to keep views contiguous
+      setCurrentDate(prev => addDays(prev, direction === 'next' ? 5 : -5))
     }
   }
 
