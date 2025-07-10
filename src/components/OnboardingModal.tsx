@@ -54,9 +54,13 @@ export default function OnboardingModal({ isOpen, onClose, onSaveGoals }: Onboar
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex md:items-center md:justify-center items-start justify-center z-50 p-4 overflow-y-auto"
+    >
+      <div
+        className="bg-white rounded-2xl max-w-lg w-full max-h-[96vh] overflow-y-auto shadow-xl"
+      >
+        <div className="p-4 sm:p-6 text-sm sm:text-base">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
@@ -84,14 +88,14 @@ export default function OnboardingModal({ isOpen, onClose, onSaveGoals }: Onboar
           </div>
 
           {/* Goal Selection */}
-          <div className="space-y-4 mb-6">
+          <div className="space-y-3 mb-6">
             <h3 className="font-semibold text-gray-900">Select your goals:</h3>
             <div className="grid grid-cols-2 gap-3">
               {PRESET_GOALS.map(goal => (
                 <button
                   key={goal}
                   onClick={() => handleGoalToggle(goal)}
-                  className={`p-3 rounded-xl text-sm font-medium transition-all ${
+                  className={`p-2 sm:p-3 rounded-xl text-xs sm:text-sm font-medium transition-all ${
                     selectedGoals.includes(goal)
                       ? 'bg-[#FF385C] text-white shadow-lg scale-105'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -104,7 +108,7 @@ export default function OnboardingModal({ isOpen, onClose, onSaveGoals }: Onboar
           </div>
 
           {/* Custom Goal Input */}
-          <div className="space-y-3 mb-6">
+          <div className="space-y-2 mb-6">
             <h3 className="font-semibold text-gray-900">Or add your own:</h3>
             <div className="flex space-x-2">
               <input
@@ -118,7 +122,7 @@ export default function OnboardingModal({ isOpen, onClose, onSaveGoals }: Onboar
               <button
                 onClick={handleAddCustomGoal}
                 disabled={!customGoal.trim()}
-                className="px-4 py-2 bg-[#FF385C] text-white rounded-lg hover:bg-[#E31C5F] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-2 sm:px-4 bg-[#FF385C] text-white rounded-lg hover:bg-[#E31C5F] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-xs sm:text-sm"
               >
                 Add
               </button>
@@ -149,17 +153,17 @@ export default function OnboardingModal({ isOpen, onClose, onSaveGoals }: Onboar
           )}
 
           {/* Action Buttons */}
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 sticky bottom-0 bg-white pt-4 pb-2 sm:pb-0">
             <button
               onClick={handleSave}
               disabled={selectedGoals.length === 0}
-              className="flex-1 px-4 py-3 bg-[#FF385C] text-white rounded-xl font-semibold hover:bg-[#E31C5F] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 px-3 py-3 bg-[#FF385C] text-white rounded-xl font-semibold hover:bg-[#E31C5F] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm"
             >
               Save Goals & Continue
             </button>
             <button
               onClick={handleSkip}
-              className="px-4 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors"
+              className="px-3 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors text-sm"
             >
               Skip for Now
             </button>
