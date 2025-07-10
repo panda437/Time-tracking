@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Clock, Calendar, BarChart3, Timer, Smile, Zap } from "lucide-react"
+import { Clock, Edit3, BarChart3, Zap, ArrowRight } from "lucide-react"
 
 export default function Home() {
   const { data: session, status } = useSession()
@@ -55,16 +55,15 @@ export default function Home() {
           </nav>
 
           {/* Hero Section */}
-          <div className="text-center max-w-4xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-bold text-[#222222] mb-6 leading-tight">
-              Track Your Life's Story,
+              Your day is a story.
               <span className="bg-gradient-to-r from-[#FF385C] to-[#E31C5F] bg-clip-text text-transparent block">
-                One Moment at a Time
+                Start tracking it
               </span>
             </h1>
-            <p className="text-xl text-[#767676] mb-8 leading-relaxed">
-              Transform how you understand your time with beautiful, intuitive tracking.
-              Discover patterns, celebrate achievements, and make every moment count.
+            <p className="text-lg md:text-xl text-[#767676] mb-8 leading-relaxed">
+              Log what you do, spot patterns, and take action toward a better you.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
@@ -73,78 +72,86 @@ export default function Home() {
               >
                 Start Tracking Free
               </Link>
-             
+              
             </div>
           </div>
         </div>
       </header>
 
-      {/* Features Section */}
-      <section id="features" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-[#222222] mb-4">
-              Everything You Need to Track Your Time
-            </h2>
-            <p className="text-xl text-[#767676] max-w-2xl mx-auto">
-              Simple, beautiful, and powerful tools to help you understand how you spend your most precious resource.
-            </p>
+      {/* How It Works Strip */}
+      <section className="py-16 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
+            {/* Step 1 */}
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF385C] to-[#E31C5F] flex items-center justify-center text-white shadow-lg">
+                <Edit3 className="w-6 h-6" />
+              </div>
+              <p className="text-xl font-semibold text-[#222222]">Log</p>
+            </div>
+
+            {/* Arrow */}
+            <ArrowRight className="hidden sm:block w-5 h-5 text-gray-400" />
+
+            {/* Step 2 */}
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-lg">
+                <BarChart3 className="w-6 h-6" />
+              </div>
+              <p className="text-xl font-semibold text-[#222222]">See patterns</p>
+            </div>
+
+            {/* Arrow */}
+            <ArrowRight className="hidden sm:block w-5 h-5 text-gray-400" />
+
+            {/* Step 3 */}
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white shadow-lg">
+                <Zap className="w-6 h-6" />
+              </div>
+              <p className="text-xl font-semibold text-[#222222]">Act</p>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-gradient-to-br from-[#FF385C]/5 to-[#E31C5F]/5 p-8 rounded-3xl border border-[#FF385C]/10">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-2xl flex items-center justify-center mb-6">
-                <Clock className="h-6 w-6 text-white" />
+      {/* Testimonials */}
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#222222]">Loved by people like you</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              {
+                quote: "I’ve been tracking my personal time for about three years now, and it’s been a game-changer! The insights helped me realize how much time I was spending on low-value activities and motivated me to allocate more time to learning and self-care.",
+                name: "Leo_scarlata",
+                avatar: "/sample1.svg",
+              },
+              {
+                quote: "The true benefit comes from the act of tracking itself—reviewing how you’ve spent your time will naturally influence you to make better choices going forward. I’ve been using Toggl for three years and can’t recommend it enough.",
+                name: "Ambitious_224mogul",
+                avatar: "/avatar%20(2).svg",
+              },
+              {
+                quote: "Only after I started measuring what I was doing with my time did my eyes open, because I found myself doing a lot of things I had no idea about—like hours mindlessly browsing or checking my email more than 100 times a day. The actual value outside of work context is learning about yourself, and more importantly, improving yourself.",
+                name: "typologist",
+                avatar: "/avatar%20(3).svg",
+              },
+              {
+                quote: "One thing that’s cool about time tracking is that you can look back on a random day and see the ‘movie’ of your life. When I realized how much time I spent playing Xbox, I ended up stopping for a few weeks because it was just so many hours.",
+                name: "leonmessi",
+                avatar: "/avatar%20(4).svg",
+              },
+            ].map((t, idx) => (
+              <div key={idx} className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col h-full">
+                <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full mb-4 mx-auto object-cover" />
+                <p className="text-sm text-[#222222] flex-1">“{t.quote}”</p>
+                <p className="mt-4 font-semibold text-[#FF385C] text-sm flex items-center justify-center">
+                  — {t.name}
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#222222] mb-3">Beautiful Time Tracking</h3>
-              <p className="text-[#767676]">Intuitive interface that makes tracking your activities feel natural and enjoyable, not like a chore.</p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-gradient-to-br from-[#00A699]/5 to-[#009B8E]/5 p-8 rounded-3xl border border-[#00A699]/10">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#00A699] to-[#009B8E] rounded-2xl flex items-center justify-center mb-6">
-                <Smile className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#222222] mb-3">Mood Insights</h3>
-              <p className="text-[#767676]">Track how you feel during different activities and discover what truly brings you joy and energy.</p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-gradient-to-br from-[#FC642D]/5 to-[#E8590C]/5 p-8 rounded-3xl border border-[#FC642D]/10">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#FC642D] to-[#E8590C] rounded-2xl flex items-center justify-center mb-6">
-                <Calendar className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#222222] mb-3">Calendar Views</h3>
-              <p className="text-[#767676]">Visualize your time with beautiful calendar layouts and timeline views that tell your story.</p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="bg-gradient-to-br from-purple-500/5 to-purple-600/5 p-8 rounded-3xl border border-purple-500/10">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
-                <Timer className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#222222] mb-3">Pomodoro Timer</h3>
-              <p className="text-[#767676]">Built-in focus timer to help you stay productive and automatically track your focused work sessions.</p>
-            </div>
-
-            {/* Feature 5 */}
-            <div className="bg-gradient-to-br from-blue-500/5 to-blue-600/5 p-8 rounded-3xl border border-blue-500/10">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6">
-                <BarChart3 className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#222222] mb-3">Smart Analytics</h3>
-              <p className="text-[#767676]">Discover patterns in your time usage with intelligent insights and beautiful visualizations.</p>
-            </div>
-
-            {/* Feature 6 */}
-            <div className="bg-gradient-to-br from-green-500/5 to-green-600/5 p-8 rounded-3xl border border-green-500/10">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-6">
-                <Zap className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#222222] mb-3">Gap Detection</h3>
-              <p className="text-[#767676]">Smart detection of time gaps in your day with easy tools to fill in what you were doing.</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
