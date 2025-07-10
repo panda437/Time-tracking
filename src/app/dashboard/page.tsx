@@ -92,6 +92,12 @@ export default function Dashboard() {
       if (response.ok) {
         setUserGoals(goals)
         setShowOnboarding(false)
+
+        // If user had zero entries, redirect them to first entry modal in calendar view
+        if (entries.length === 0 && goals.length > 0) {
+          const today = new Date().toISOString().split('T')[0]
+          router.replace(`/calendar/day/${today}?firstEntry=true`)
+        }
       }
     } catch (error) {
       console.error("Failed to save goals:", error)
