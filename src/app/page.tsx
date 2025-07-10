@@ -47,7 +47,7 @@ export default function Home() {
               <span className="text-2xl font-bold text-[#222222]">TimeTrack</span>
             </div>
             <Link 
-              href="/auth/signin"
+              href="/api/auth/signin/google"
               className="px-6 py-3 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white rounded-xl hover:shadow-lg transition-all hover:scale-105"
             >
               Get Started
@@ -56,23 +56,36 @@ export default function Home() {
 
           {/* Hero Section */}
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold text-[#222222] mb-6 leading-tight">
-              Your day is a story.
-              <span className="bg-gradient-to-r from-[#FF385C] to-[#E31C5F] bg-clip-text text-transparent block">
-                Start tracking it
-              </span>
+            <h1 className="text-4xl md:text-5xl font-bold text-[#222222] mb-6 leading-tight">
+              Track 48 Hours. Spot Time-Sinks. <br className="hidden md:block"/>Lock Onto Your Goals.
             </h1>
-            <p className="text-lg md:text-xl text-[#767676] mb-8 leading-relaxed">
-              Log what you do, spot patterns, and take action toward a better you.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="text-base md:text-lg text-[#767676] mb-8 leading-relaxed space-y-4">
+              <p>
+                We’ve all felt the days slip away—open TikTok, an hour’s gone; dive into email,
+                never-ending rabbit holes. Technology is full of hidden <em>time sinks</em>.
+              </p>
+              <p>
+                But it isn’t your fault. Most digital experiences are engineered to harvest attention, not help you advance your goals.
+              </p>
+              <p>
+                <strong>Take our 2-day challenge:</strong>
+              </p>
+              <ol className="list-decimal list-inside text-[#555] space-y-1">
+                <li>Track every hour</li>
+                <li>Spot the sinks</li>
+                <li>Time-block what matters</li>
+              </ol>
+              <p>See the difference by day three.</p>
+            </div>
+            <div className="flex flex-col items-center gap-3">
               <Link 
-                href="/auth/signin"
-                className="px-8 py-4 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white text-lg font-semibold rounded-2xl hover:shadow-xl transition-all hover:scale-105"
+                href="/api/auth/signin/google"
+                className="inline-flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-[#4285F4] to-[#357ae8] text-white text-lg font-semibold rounded-2xl hover:shadow-xl transition-all hover:scale-105"
               >
-                Start Tracking Free
+                <svg className="w-5 h-5" viewBox="0 0 533.5 544.3"><path fill="#fff" d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.4H272v95.4h146.9c-6.4 34.5-25.7 63.7-54.9 83.3v68h88.7c52-47.9 80.8-118.6 80.8-196.3z"/><path fill="#fff" d="M272 544.3c73.5 0 135-24.3 180-66.2l-88.7-68c-24.6 16.5-56.2 26.4-91.3 26.4-70 0-129.2-47.2-150.4-110.6h-88.9v69.5c44.7 88.5 136.3 149 239.3 149z"/><path fill="#fff" d="M121.6 325.9c-10.3-30.1-10.3-62.9 0-93l-89-69.6C8.5 215 0 244.6 0 276.9s8.5 61.9 32.6 113.6l89-64.6z"/><path fill="#fff" d="M272 109.6c39.9 0 75.7 13.8 104 40.9l78-78C413 33.1 349.3 0 272 0 169 0 77.4 60.5 32.6 148.9l89 69.5C142.8 156.8 202 109.6 272 109.6z"/></svg>
+                <span>Continue with Google</span>
               </Link>
-              
+              <Link href="/auth/signup" className="text-sm text-[#222] underline">Sign&nbsp;up with email</Link>
             </div>
           </div>
         </div>
@@ -126,22 +139,22 @@ export default function Home() {
               {
                 quote: "I’ve been tracking my personal time for about three years now, and it’s been a game-changer! The insights helped me realize how much time I was spending on low-value activities and motivated me to allocate more time to learning and self-care.",
                 name: "Leo_scarlata",
-                avatar: "/sample1.svg",
+                avatar: "/avatar1.svg",
               },
               {
                 quote: "The true benefit comes from the act of tracking itself—reviewing how you’ve spent your time will naturally influence you to make better choices going forward. I’ve been using Toggl for three years and can’t recommend it enough.",
                 name: "Ambitious_224mogul",
-                avatar: "/avatar%20(2).svg",
+                avatar: "/avatar2.svg",
               },
               {
                 quote: "Only after I started measuring what I was doing with my time did my eyes open, because I found myself doing a lot of things I had no idea about—like hours mindlessly browsing or checking my email more than 100 times a day. The actual value outside of work context is learning about yourself, and more importantly, improving yourself.",
                 name: "typologist",
-                avatar: "/avatar%20(3).svg",
+                avatar: "/avatar3.svg",
               },
               {
                 quote: "One thing that’s cool about time tracking is that you can look back on a random day and see the ‘movie’ of your life. When I realized how much time I spent playing Xbox, I ended up stopping for a few weeks because it was just so many hours.",
                 name: "leonmessi",
-                avatar: "/avatar%20(4).svg",
+                avatar: "/avatar4.svg",
               },
             ].map((t, idx) => (
               <div key={idx} className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col h-full">
@@ -203,7 +216,7 @@ export default function Home() {
                 </div>
                 
                 <Link 
-                  href="/auth/signin"
+                  href="/api/auth/signin/google"
                   className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white font-semibold rounded-xl hover:shadow-lg transition-all hover:scale-105"
                 >
                   Start Your Journey →
