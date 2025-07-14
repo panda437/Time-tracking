@@ -147,10 +147,69 @@ const DayReflectionSchema = new Schema<IDayReflection>({
 // Compound unique index for user-date combination
 DayReflectionSchema.index({ userId: 1, date: 1 }, { unique: true })
 
+// Backup Models
+export interface IBackupMetadata extends Document {
+  _id: string
+  backupId: string
+  type: 'manual' | 'automated'
+  status: 'in_progress' | 'completed' | 'failed'
+  collections: {
+    [collectionName: string]: {
+      status: 'success' | 'failed'
+      count: number
+      error?: string
+    }
+  }
+  totalDocuments: number
+  backupSize: number
+  startTime: Date
+  endTime?: Date
+  error?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface IBackupData extends Document {
+  _id: string
+  backupId: string
+  collectionName: string
+  data: any[]
+  createdAt: Date
+}
+
+const BackupMetadataSchema = new Schema<IBackupMetadata>({
+  backupId: { type: String, required: true, unique: true, index: true },
+  type: { type: String, enum: ['manual', 'automated'], required: true },
+  status: { type: String, enum: ['in_progress', 'completed', 'failed'], required: true, default: 'in_progress' },
+  collections: { type: Schema.Types.Mixed, default: {} },
+  totalDocuments: { type: Number, default: 0 },
+  backupSize: { type: Number, default: 0 },
+  startTime: { type: Date, required: true, default: Date.now },
+  endTime: { type: Date },
+  error: { type: String },
+}, {
+  timestamps: true
+})
+
+const BackupDataSchema = new Schema<IBackupData>({
+  backupId: { type: String, required: true, index: true },
+  collectionName: { type: String, required: true },
+  data: [{ type: Schema.Types.Mixed }],
+}, {
+  timestamps: true
+})
+
+// Indexes for backup collections
+BackupMetadataSchema.index({ createdAt: -1 })
+BackupMetadataSchema.index({ type: 1, status: 1 })
+BackupDataSchema.index({ backupId: 1, collectionName: 1 })
+
 // Export models
 export const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema)
 export const TimeEntry = mongoose.models.TimeEntry || mongoose.model<ITimeEntry>('TimeEntry', TimeEntrySchema)
 export const UserGoal = mongoose.models.UserGoal || mongoose.model<IUserGoal>('UserGoal', UserGoalSchema)
 export const Feedback = mongoose.models.Feedback || mongoose.model<IFeedback>('Feedback', FeedbackSchema)
 export const FeedbackVote = mongoose.models.FeedbackVote || mongoose.model<IFeedbackVote>('FeedbackVote', FeedbackVoteSchema)
-export const DayReflection = mongoose.models.DayReflection || mongoose.model<IDayReflection>('DayReflection', DayReflectionSchema) 
+export const DayReflection = mongoose.models.DayReflection || mongoose.model<IDayReflection>('DayReflection', DayReflectionSchema)
+export const BackupMetadata = mongoose.models.BackupMetadata || mongoose.model<IBackupMetadata>('BackupMetadata', BackupMetadataSchema)
+export const BackupData = mongoose.models.BackupData || mongoose.model<IBackupData>('BackupData', BackupDataSchema) 

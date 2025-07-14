@@ -10,6 +10,18 @@
     },
     "app/api/calendar/route.ts": {
       "maxDuration": 30
+    },
+    "app/api/admin/backup/route.ts": {
+      "maxDuration": 300
+    },
+    "app/api/admin/backup-status/route.ts": {
+      "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/admin/backup?automated=true",
+      "schedule": "0 2 * * *"
+    }
+  ]
 }

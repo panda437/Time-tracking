@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google"
 import connectDB from "./prisma"
 import { User } from "./models"
 import bcrypt from "bcryptjs"
+import { sendNewUserNotification } from "./email"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -71,6 +72,14 @@ export const authOptions: NextAuthOptions = {
               name: user.name || "",
               // No password field for OAuth users
             })
+            
+            // Send new user notification to admin
+            try {
+              await sendNewUserNotification(user.email!, user.name || null, 'google')
+              console.log('✅ New user notification sent for Google OAuth signup:', user.email)
+            } catch (error) {
+              console.error('❌ Failed to send new user notification:', error)
+            }
           }
           return true
         } catch (error) {

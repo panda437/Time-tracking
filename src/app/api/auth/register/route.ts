@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import connectDB from "@/lib/prisma"
 import { User } from "@/lib/models"
 import bcrypt from "bcryptjs"
+import { sendNewUserNotification } from "@/lib/email"
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,6 +31,14 @@ export async function POST(request: NextRequest) {
       password: hashedPassword,
       name: name || null
     })
+
+    // Send new user notification to admin
+    try {
+      await sendNewUserNotification(email, name || null, 'credentials')
+      console.log('✅ New user notification sent for credentials signup:', email)
+    } catch (error) {
+      console.error('❌ Failed to send new user notification:', error)
+    }
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user.toObject()
