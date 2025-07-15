@@ -257,6 +257,67 @@ const BackupDataSchema = new Schema<IBackupData>({
   timestamps: true
 })
 
+// AI Insights Model
+export interface IAIInsight extends Document {
+  _id: string
+  userId: string
+  analysisType: 'goal_analysis' | 'schedule_suggestion'
+  aiModel: string
+  modelVersion: string
+  analysis: any // The full AI response
+  userContext: {
+    goals: any[]
+    recentEntries: any[]
+    recentReflections: any[]
+    patterns?: any
+    dataPoints: {
+      totalEntries: number
+      totalGoals: number
+      reflections: number
+      hasPatterns: boolean
+    }
+  }
+  processingTime: number // in milliseconds
+  tokensUsed?: number
+  cost?: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+const AIInsightSchema = new Schema<IAIInsight>({
+  userId: { type: String, required: true, index: true },
+  analysisType: { 
+    type: String, 
+    enum: ['goal_analysis', 'schedule_suggestion'], 
+    required: true 
+  },
+  aiModel: { type: String, required: true },
+  modelVersion: { type: String, required: true },
+  analysis: { type: Schema.Types.Mixed, required: true },
+  userContext: {
+    goals: [{ type: Schema.Types.Mixed }],
+    recentEntries: [{ type: Schema.Types.Mixed }],
+    recentReflections: [{ type: Schema.Types.Mixed }],
+    patterns: { type: Schema.Types.Mixed },
+    dataPoints: {
+      totalEntries: { type: Number, required: true },
+      totalGoals: { type: Number, required: true },
+      reflections: { type: Number, required: true },
+      hasPatterns: { type: Boolean, required: true }
+    }
+  },
+  processingTime: { type: Number, required: true },
+  tokensUsed: { type: Number },
+  cost: { type: Number },
+}, {
+  timestamps: true
+})
+
+// Indexes for AI insights
+AIInsightSchema.index({ userId: 1, createdAt: -1 })
+AIInsightSchema.index({ analysisType: 1, createdAt: -1 })
+AIInsightSchema.index({ aiModel: 1, createdAt: -1 })
+
 // Indexes for backup collections
 BackupMetadataSchema.index({ createdAt: -1 })
 BackupMetadataSchema.index({ type: 1, status: 1 })
@@ -269,5 +330,6 @@ export const UserGoal = mongoose.models.UserGoal || mongoose.model<IUserGoal>('U
 export const Feedback = mongoose.models.Feedback || mongoose.model<IFeedback>('Feedback', FeedbackSchema)
 export const FeedbackVote = mongoose.models.FeedbackVote || mongoose.model<IFeedbackVote>('FeedbackVote', FeedbackVoteSchema)
 export const DayReflection = mongoose.models.DayReflection || mongoose.model<IDayReflection>('DayReflection', DayReflectionSchema)
+export const AIInsight = mongoose.models.AIInsight || mongoose.model<IAIInsight>('AIInsight', AIInsightSchema)
 export const BackupMetadata = mongoose.models.BackupMetadata || mongoose.model<IBackupMetadata>('BackupMetadata', BackupMetadataSchema)
 export const BackupData = mongoose.models.BackupData || mongoose.model<IBackupData>('BackupData', BackupDataSchema) 

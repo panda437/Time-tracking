@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/prisma"
-import { TimeEntry, UserGoal, DayReflection } from "@/lib/models"
+import { TimeEntry, UserGoal, DayReflection, AIInsight } from "@/lib/models"
 import { generateScheduleSuggestions, UserContext } from "@/lib/openai"
 import { format, subDays, addDays } from "date-fns"
 
@@ -45,8 +45,39 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
     
-    // Generate AI suggestions
+    // Generate AI suggestions with tracking
+    const startTime = Date.now()
     const aiResponse = await generateScheduleSuggestions(userContext)
+    const processingTime = Date.now() - startTime
+    
+    // Save AI insight to MongoDB for learning
+    const dataPoints = {
+      totalEntries: userContext.recentEntries.length,
+      totalGoals: userContext.goals.length,
+      reflections: userContext.recentReflections.length,
+      hasPatterns: !!userContext.patterns
+    }
+    
+    try {
+      await AIInsight.create({
+        userId: session.user.id,
+        analysisType: 'schedule_suggestion',
+        aiModel: 'gpt-4o-mini',
+        modelVersion: '4o-mini',
+        analysis: aiResponse,
+        userContext: {
+          goals: userContext.goals,
+          recentEntries: userContext.recentEntries,
+          recentReflections: userContext.recentReflections,
+          patterns: userContext.patterns,
+          dataPoints
+        },
+        processingTime
+      })
+    } catch (saveError) {
+      console.error('Failed to save AI insight:', saveError)
+      // Don't fail the request if saving fails
+    }
     
     // Store the suggestions as AI-generated entries
     const aiEntries = await Promise.all(

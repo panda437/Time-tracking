@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/prisma"
-import { TimeEntry, UserGoal, DayReflection } from "@/lib/models"
+import { TimeEntry, UserGoal, DayReflection, AIInsight } from "@/lib/models"
 import { analyzeGoalProgress, UserContext } from "@/lib/openai"
 import { format, subDays } from "date-fns"
 
@@ -25,22 +25,62 @@ export async function GET(request: NextRequest) {
       }, { status: 400 })
     }
     
-    // Generate AI analysis
-    const analysis = await analyzeGoalProgress(userContext)
+    // Generate AI analysis with timeout and tracking
+    const startTime = Date.now()
+    const analysisPromise = analyzeGoalProgress(userContext)
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('AI analysis timeout')), 8000)
+    )
+    
+    const analysis = await Promise.race([analysisPromise, timeoutPromise]) as any
+    const processingTime = Date.now() - startTime
+    
+    // Save AI insight to MongoDB for learning
+    const dataPoints = {
+      totalEntries: userContext.recentEntries.length,
+      totalGoals: userContext.goals.length,
+      reflections: userContext.recentReflections.length,
+      hasPatterns: !!userContext.patterns
+    }
+    
+    try {
+      await AIInsight.create({
+        userId: session.user.id,
+        analysisType: 'goal_analysis',
+        aiModel: 'gpt-4o-mini',
+        modelVersion: '4o-mini',
+        analysis,
+        userContext: {
+          goals: userContext.goals,
+          recentEntries: userContext.recentEntries,
+          recentReflections: userContext.recentReflections,
+          patterns: userContext.patterns,
+          dataPoints
+        },
+        processingTime
+      })
+    } catch (saveError) {
+      console.error('Failed to save AI insight:', saveError)
+      // Don't fail the request if saving fails
+    }
     
     return NextResponse.json({
       success: true,
       analysis,
-      dataPoints: {
-        totalEntries: userContext.recentEntries.length,
-        totalGoals: userContext.goals.length,
-        reflections: userContext.recentReflections.length,
-        hasPatterns: !!userContext.patterns
-      }
+      dataPoints
     })
     
   } catch (error) {
     console.error("Error analyzing goals:", error)
+    
+    // Handle timeout specifically
+    if (error instanceof Error && error.message.includes('timeout')) {
+      return NextResponse.json({ 
+        error: "AI analysis is taking longer than expected. Please try again in a moment.", 
+        details: "Timeout occurred during AI processing"
+      }, { status: 408 })
+    }
+    
     return NextResponse.json({ 
       error: "Failed to analyze goals", 
       details: error instanceof Error ? error.message : "Unknown error" 
