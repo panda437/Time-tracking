@@ -12,7 +12,7 @@
       "maxDuration": 30
     },
     "app/api/admin/backup/route.ts": {
-      "maxDuration": 300
+      "maxDuration": 60
     },
     "app/api/admin/backup-status/route.ts": {
       "maxDuration": 60

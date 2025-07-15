@@ -57,11 +57,38 @@ TimeEntrySchema.index({ userId: 1, date: 1 })
 TimeEntrySchema.index({ userId: 1, startTime: 1 })
 TimeEntrySchema.index({ userId: 1, category: 1 })
 
-// UserGoal Model
+// UserGoal Model - Enhanced for SMART Goals
 export interface IUserGoal extends Document {
   _id: string
   userId: string
-  goal: string
+  goal: string // Original goal name for backward compatibility
+  
+  // SMART Goal Extensions
+  specificGoal?: string // What exactly will be accomplished?
+  measurableOutcome?: string // How will you measure success?
+  targetValue?: number // Target number (e.g., $500, 15kg, 50 customers)
+  currentValue?: number // Current progress toward target
+  unit?: string // Unit of measurement (e.g., "dollars", "kg", "customers", "pages")
+  deadline?: Date // When should this be achieved?
+  
+  // Category & Activity Mapping
+  relatedCategories?: string[] // Which time entry categories count toward this goal
+  specificActivities?: string[] // Specific activities that count (e.g., "React development", "Morning jog")
+  excludedActivities?: string[] // Activities that don't count (e.g., "Social media" for Focus goal)
+  
+  // Goal Type & Templates
+  goalType?: 'financial' | 'health' | 'learning' | 'productivity' | 'relationship' | 'habit' | 'project' | 'other'
+  isRefined?: boolean // Whether this goal has been refined into SMART format
+  
+  // Progress Tracking
+  milestones?: Array<{
+    description: string
+    targetValue: number
+    targetDate: Date
+    completed: boolean
+    completedDate?: Date
+  }>
+  
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -70,6 +97,37 @@ export interface IUserGoal extends Document {
 const UserGoalSchema = new Schema<IUserGoal>({
   userId: { type: String, required: true, index: true },
   goal: { type: String, required: true },
+  
+  // SMART Goal Extensions
+  specificGoal: { type: String },
+  measurableOutcome: { type: String },
+  targetValue: { type: Number },
+  currentValue: { type: Number, default: 0 },
+  unit: { type: String },
+  deadline: { type: Date },
+  
+  // Category & Activity Mapping
+  relatedCategories: [{ type: String }],
+  specificActivities: [{ type: String }],
+  excludedActivities: [{ type: String }],
+  
+  // Goal Type & Templates
+  goalType: { 
+    type: String, 
+    enum: ['financial', 'health', 'learning', 'productivity', 'relationship', 'habit', 'project', 'other'],
+    default: 'other'
+  },
+  isRefined: { type: Boolean, default: false },
+  
+  // Progress Tracking
+  milestones: [{
+    description: { type: String, required: true },
+    targetValue: { type: Number, required: true },
+    targetDate: { type: Date, required: true },
+    completed: { type: Boolean, default: false },
+    completedDate: { type: Date }
+  }],
+  
   isActive: { type: Boolean, default: true },
 }, {
   timestamps: true

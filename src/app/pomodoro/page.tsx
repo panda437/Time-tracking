@@ -21,6 +21,9 @@ export default function PomodoroPage() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
+  // Add new state for readiness
+  const [readyState, setReadyState] = useState<'check' | 'ready' | 'notReady'>('check')
+
   const WORK_TIME = 25 * 60 // 25 minutes
   const BREAK_TIME = 5 * 60 // 5 minutes
   const LONG_BREAK_TIME = 15 * 60 // 15 minutes
@@ -66,7 +69,7 @@ export default function PomodoroPage() {
     }
   }, [state, timeLeft])
 
-  const handleTimerComplete = () => {
+  const handleTimerComplete = async () => {
     setState('idle')
     
     if (!isBreak) {
@@ -74,6 +77,22 @@ export default function PomodoroPage() {
       setCompletedSessions(prev => prev + 1)
       trackPomodoro('complete', WORK_TIME)
       
+      // Track time entry
+      try {
+        await fetch('/api/entries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            activity: taskInput,
+            duration: 25 * 60, // seconds
+            startTime: new Date().toISOString(),
+            endTime: new Date(Date.now() + 25 * 60 * 1000).toISOString(),
+            category: 'work',
+            tags: 'pomodoro',
+          })
+        })
+      } catch (e) { /* ignore */ }
+
       // Start break
       const isLongBreak = (completedSessions + 1) % 4 === 0
       setTimeLeft(isLongBreak ? LONG_BREAK_TIME : BREAK_TIME)
@@ -108,6 +127,8 @@ export default function PomodoroPage() {
     setState('idle')
     setTimeLeft(isBreak ? BREAK_TIME : WORK_TIME)
     setIsBreak(false)
+    setReadyState('check')
+    setTaskInput("")
   }
 
   const formatTime = (seconds: number) => {
@@ -134,6 +155,37 @@ export default function PomodoroPage() {
 
   if (!session) {
     return null
+  }
+
+  if (!isBreak && state === 'idle' && readyState === 'check') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB] flex flex-col items-center justify-center">
+        <Header user={session.user} />
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 max-w-lg w-full text-center">
+          <h2 className="text-2xl font-bold mb-4">Ready to Focus?</h2>
+          <p className="text-lg mb-6">Are you in the physical and mental state to start a 25 minute focused session?</p>
+          <div className="flex justify-center space-x-4">
+            <button onClick={() => setReadyState('ready')} className="px-6 py-3 bg-[#FF385C] text-white rounded-xl font-semibold hover:bg-[#E31C5F] transition-colors">Yes, I’m ready</button>
+            <button onClick={() => setReadyState('notReady')} className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors">Not now</button>
+          </div>
+        </div>
+        <MobileNavigation />
+      </div>
+    )
+  }
+
+  if (!isBreak && state === 'idle' && readyState === 'notReady') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB]">
+        <Header user={session.user} />
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 max-w-lg w-full text-center">
+          <h2 className="text-2xl font-bold mb-4">Take your time</h2>
+          <p className="text-lg mb-6">Come back when you feel ready for a focused session.</p>
+          <button onClick={() => setReadyState('check')} className="px-6 py-3 bg-[#FF385C] text-white rounded-xl font-semibold hover:bg-[#E31C5F] transition-colors">I’m ready now</button>
+        </div>
+        <MobileNavigation />
+      </div>
+    )
   }
 
   return (
@@ -206,14 +258,13 @@ export default function PomodoroPage() {
               </div>
 
               {/* Play button overlay when idle */}
-              {state === 'idle' && (
+              {state === 'idle' && readyState === 'ready' && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <button
-                    onClick={startTimer}
-                    className="w-20 h-20 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all duration-300 hover:shadow-3xl group"
-                    style={{
-                      boxShadow: '0 20px 40px rgba(255, 56, 92, 0.3)'
-                    }}
+                    onClick={taskInput.trim() ? startTimer : undefined}
+                    className={`w-20 h-20 ${taskInput.trim() ? 'bg-gradient-to-r from-[#FF385C] to-[#E31C5F] cursor-pointer' : 'bg-gray-200 cursor-not-allowed'} rounded-full flex items-center justify-center shadow-2xl group`}
+                    style={{ boxShadow: taskInput.trim() ? '0 20px 40px rgba(255, 56, 92, 0.3)' : undefined }}
+                    disabled={!taskInput.trim()}
                   >
                     <Play className="h-8 w-8 text-white ml-1 group-hover:scale-110 transition-transform" />
                   </button>
@@ -223,7 +274,7 @@ export default function PomodoroPage() {
           </div>
 
           {/* Task Input */}
-          {!isBreak && (
+          {!isBreak && readyState === 'ready' && (
             <div className="px-8 pb-8">
               <label className="block text-lg font-medium text-gray-900 mb-3 text-center">
                 What will you focus on?

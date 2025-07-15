@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { Clock, Calendar, Send, CheckCircle } from 'lucide-react'
+import { CATEGORIES } from '@/lib/categories'
 
 interface TimeSlot {
   startTime: Date
@@ -17,15 +18,6 @@ interface EntryData {
 const MOOD_OPTIONS = [
   '😊', '😔', '😤', 
   '🤔', '😴', '🔥'
-]
-
-const CATEGORY_OPTIONS = [
-  { value: 'work', label: 'Work' },
-  { value: 'personal', label: 'Personal' },
-  { value: 'health', label: 'Health' },
-  { value: 'learning', label: 'Learning' },
-  { value: 'social', label: 'Social' },
-  { value: 'other', label: 'Other' }
 ]
 
 interface EnhancedTimeEntryProps {
@@ -271,9 +263,9 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
                       onChange={(e) => updateEntry(slot.id, 'category', e.target.value)}
                       className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent"
                     >
-                      {CATEGORY_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
+                      {CATEGORIES.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
                         </option>
                       ))}
                     </select>
@@ -362,9 +354,9 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
                     onChange={(e) => updateEntry(slot.id, 'category', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent text-sm"
                   >
-                    {CATEGORY_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
+                    {CATEGORIES.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
                       </option>
                     ))}
                   </select>

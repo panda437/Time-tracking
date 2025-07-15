@@ -79,28 +79,16 @@ export default function Dashboard() {
     }
   }
 
-  const handleSaveGoals = async (goals: string[]) => {
-    try {
-      const response = await fetch("/api/goals", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ goals }),
-      })
-      
-      if (response.ok) {
-        setUserGoals(goals)
-        setShowOnboarding(false)
+  const handleSaveGoals = async (goals: any[]) => {
+    // Extract goal names for display
+    const goalNames = goals.map(g => g.goal)
+    setUserGoals(goalNames)
+    setShowOnboarding(false)
 
-        // If user had zero entries, redirect them to first entry modal in calendar view
-        if (entries.length === 0 && goals.length > 0) {
-          const today = new Date().toISOString().split('T')[0]
-          router.replace(`/calendar/day/${today}?firstEntry=true`)
-        }
-      }
-    } catch (error) {
-      console.error("Failed to save goals:", error)
+    // If user had zero entries, redirect them to first entry modal in calendar view
+    if (entries.length === 0 && goals.length > 0) {
+      const today = new Date().toISOString().split('T')[0]
+      router.replace(`/calendar/day/${today}?firstEntry=true`)
     }
   }
 

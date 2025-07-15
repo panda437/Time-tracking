@@ -4,6 +4,7 @@ import { useState } from "react"
 import { format } from "date-fns"
 import { Clock, X, Calendar, Smile } from "lucide-react"
 import { trackTimeEntry, trackFormInteraction } from "./GoogleAnalytics"
+import { CATEGORIES } from '@/lib/categories'
 
 interface AddTaskGapModalProps {
   isOpen: boolean
@@ -14,10 +15,6 @@ interface AddTaskGapModalProps {
   title?: string
   subtitle?: string
 }
-
-const categories = [
-  "work", "personal", "health", "education", "social", "entertainment", "other"
-]
 
 const moods = [
   { emoji: "😊", name: "Happy" },
@@ -152,7 +149,7 @@ export default function AddTaskGapModal({ isOpen, onClose, startTime, endTime, o
               Category
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {categories.map((cat) => (
+              {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
                   type="button"

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { format, parseISO, setHours, setMinutes } from "date-fns"
 import { Clock, Edit3, HelpCircle, Sparkles, Trash2, Save } from "lucide-react"
+import { CATEGORIES } from '@/lib/categories'
 
 interface TimeEntry {
   id: string
@@ -24,10 +25,6 @@ interface TaskEditModalProps {
   onDelete?: (entryId: string) => void
   onReschedule?: (entry: TimeEntry) => void
 }
-
-const categories = [
-  "work", "personal", "health", "education", "social", "entertainment", "other"
-]
 
 const moods = [
   { emoji: "😊", name: "Happy" },
@@ -283,7 +280,7 @@ export default function TaskEditModal({
                   onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all capitalize"
                 >
-                  {categories.map(cat => (
+                  {CATEGORIES.map(cat => (
                     <option key={cat} value={cat} className="capitalize">
                       {cat}
                     </option>

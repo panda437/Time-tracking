@@ -1,7 +1,7 @@
 "use client"
 
 import { signOut } from "next-auth/react"
-import { Clock, LogOut, User, Calendar, BarChart3, Heart, HelpCircle } from "lucide-react"
+import { Clock, LogOut, User, Calendar, BarChart3, Heart, HelpCircle, Target } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
@@ -22,6 +22,7 @@ export default function Header({ user }: HeaderProps) {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3, description: 'Your time overview' },
     { name: 'Calendar', href: '/calendar', icon: Calendar, description: 'Smart schedule view' },
+    { name: 'Goals', href: '/goals', icon: Target, description: 'Your goals' },
   ]
 
   const getGreeting = () => {
@@ -82,24 +83,6 @@ export default function Header({ user }: HeaderProps) {
                   </Link>
                 )
               })}
-              {/* Add Pomodoro to desktop nav */}
-              <Link
-                href="/pomodoro"
-                className={`
-                  group relative inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-medium transition-smooth
-                  ${
-                    pathname === '/pomodoro'
-                      ? 'bg-[#FF385C]/8 text-[#FF385C] shadow-sm'
-                      : 'text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7]'
-                  }
-                `}
-              >
-                <span className="text-lg mr-2.5">⏳</span>
-                <span>Focus</span>
-                {pathname === '/pomodoro' && (
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-[#FF385C] rounded-full animate-scale-in" />
-                )}
-              </Link>
             </nav>
           </div>
           
@@ -144,6 +127,14 @@ export default function Header({ user }: HeaderProps) {
                     >
                       <BarChart3 className="h-4 w-4 mr-3" />
                       Analytics
+                    </Link>
+                    <Link
+                      href="/pomodoro"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="w-full flex items-center px-4 py-2.5 text-sm text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] transition-smooth"
+                    >
+                      <span className="text-lg mr-3">⏳</span>
+                      Focus
                     </Link>
                     <Link
                       href="/reflection"

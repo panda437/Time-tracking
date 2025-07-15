@@ -15,8 +15,7 @@ export async function GET() {
     await connectDB()
     
     const goals = await UserGoal.find({
-      userId: session.user.id,
-      isActive: true
+      userId: session.user.id
     }).sort({ createdAt: 1 })
 
     return NextResponse.json(goals)
@@ -51,13 +50,26 @@ export async function POST(request: NextRequest) {
 
     // Then create new goals
     const createdGoals = await Promise.all(
-      goals.map(goal => 
-        UserGoal.create({
-          userId: session.user.id,
-          goal: goal,
-          isActive: true
-        })
-      )
+      goals.map(goal => {
+        if (typeof goal === 'string') {
+          // Old format: just a string
+          return UserGoal.create({
+            userId: session.user.id,
+            goal: goal,
+            isActive: true
+          })
+        } else if (typeof goal === 'object' && goal !== null) {
+          // New format: SMART goal object
+          return UserGoal.create({
+            userId: session.user.id,
+            ...goal,
+            isActive: true
+          })
+        } else {
+          // Invalid format
+          return null
+        }
+      })
     )
 
     return NextResponse.json(createdGoals)

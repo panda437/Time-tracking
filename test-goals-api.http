@@ -1,0 +1,33 @@
+### Test Goals API Endpoints
+### Make sure you're authenticated in your browser first!
+
+### 1. Get existing goals
+GET http://localhost:3002/api/goals
+Content-Type: application/json
+
+###
+
+### 2. Create/Update goals
+POST http://localhost:3002/api/goals
+Content-Type: application/json
+
+{
+  "goals": [
+    "Study Programming",
+    "Exercise Daily", 
+    "Read More Books",
+    "Improve Focus"
+  ]
+}
+
+###
+
+### 3. Get AI Goal Analysis
+GET http://localhost:3002/api/goals/analyze
+Content-Type: application/json
+
+###
+
+### 4. Test with minimal data (should trigger fallback)
+GET http://localhost:3002/api/goals/analyze
+Content-Type: application/json 
