@@ -6,6 +6,8 @@ import { TimeEntry, UserGoal, DayReflection, AIInsight } from "@/lib/models"
 import { generateScheduleSuggestions, UserContext } from "@/lib/openai"
 import { format, subDays, addDays } from "date-fns"
 
+export const maxDuration = 60
+
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
   
@@ -62,8 +64,8 @@ export async function POST(request: NextRequest) {
       await AIInsight.create({
         userId: session.user.id,
         analysisType: 'schedule_suggestion',
-        aiModel: 'gpt-4o-mini',
-        modelVersion: '4o-mini',
+        aiModel: 'gpt-4.1',
+        modelVersion: '4.1',
         analysis: aiResponse,
         userContext: {
           goals: userContext.goals,
@@ -216,15 +218,16 @@ async function gatherUserContext(userId: string): Promise<UserContext | null> {
     const categoryStats = analyzePatterns(past30Entries)
     
     const userContext: UserContext = {
-      goals: goals.map(g => g.goal),
+      goals: goals,
       recentEntries: past30Entries.map(entry => ({
         activity: entry.activity,
-        category: entry.category,
+        description: entry.description,
         duration: entry.duration,
         startTime: format(entry.startTime, 'yyyy-MM-dd HH:mm'),
-        mood: entry.mood || undefined,
-        dayOfWeek: format(entry.startTime, 'EEEE'),
-        timeOfDay: format(entry.startTime, 'HH:mm')
+        endTime: format(entry.endTime, 'yyyy-MM-dd HH:mm'),
+        tags: entry.tags ? JSON.parse(entry.tags) : [],
+        category: entry.category,
+        mood: entry.mood || undefined
       })),
       recentReflections: recentReflections.map(ref => ({
         date: format(ref.date, 'yyyy-MM-dd'),

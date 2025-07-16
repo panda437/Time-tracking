@@ -6,6 +6,8 @@ import { TimeEntry, UserGoal, DayReflection, AIInsight } from "@/lib/models"
 import { analyzeGoalProgress, UserContext } from "@/lib/openai"
 import { format, subDays } from "date-fns"
 
+export const maxDuration = 60
+
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions)
   
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest) {
     const startTime = Date.now()
     const analysisPromise = analyzeGoalProgress(userContext)
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('AI analysis timeout')), 8000)
+      setTimeout(() => reject(new Error('AI analysis timeout')), 50000)
     )
     
     const analysis = await Promise.race([analysisPromise, timeoutPromise]) as any
@@ -47,8 +49,8 @@ export async function GET(request: NextRequest) {
       await AIInsight.create({
         userId: session.user.id,
         analysisType: 'goal_analysis',
-        aiModel: 'gpt-4o-mini',
-        modelVersion: '4o-mini',
+        aiModel: 'gpt-4.1',
+        modelVersion: '4.1',
         analysis,
         userContext: {
           goals: userContext.goals,
@@ -99,12 +101,10 @@ async function gatherUserContextForGoals(userId: string): Promise<UserContext | 
       return null // Need goals for meaningful analysis
     }
     
-    // Get past 30 days of entries for comprehensive analysis
-    const thirtyDaysAgo = subDays(new Date(), 30)
+    // Get last 30 entries regardless of date range
     const recentEntries = await TimeEntry.find({
-      userId,
-      startTime: { $gte: thirtyDaysAgo }
-    }).sort({ startTime: -1 }).limit(50)
+      userId
+    }).sort({ startTime: -1 }).limit(30)
     
     if (recentEntries.length < 5) {
       return null // Need some activity data
@@ -121,15 +121,16 @@ async function gatherUserContextForGoals(userId: string): Promise<UserContext | 
     const patterns = analyzeUserPatterns(recentEntries)
     
     const userContext: UserContext = {
-      goals: goals, // Pass full goal objects instead of just strings
+      goals: goals,
       recentEntries: recentEntries.map(entry => ({
         activity: entry.activity,
-        category: entry.category,
+        description: entry.description,
         duration: entry.duration,
         startTime: format(entry.startTime, 'yyyy-MM-dd HH:mm'),
-        mood: entry.mood || undefined,
-        dayOfWeek: format(entry.startTime, 'EEEE'),
-        timeOfDay: format(entry.startTime, 'HH:mm')
+        endTime: format(entry.endTime, 'yyyy-MM-dd HH:mm'),
+        tags: entry.tags ? JSON.parse(entry.tags) : [],
+        category: entry.category,
+        mood: entry.mood || undefined
       })),
       recentReflections: recentReflections.map(ref => ({
         date: format(ref.date, 'yyyy-MM-dd'),
