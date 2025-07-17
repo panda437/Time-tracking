@@ -16,7 +16,7 @@ export default function MobileNavigation() {
   const navigation: NavigationItem[] = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Calendar', href: '/calendar', icon: Calendar },
-    { name: 'Focus', href: '/pomodoro', icon: '⏳' },
+    { name: 'Goals', href: '/goals', icon: '🎯' },
   ]
 
   return (
