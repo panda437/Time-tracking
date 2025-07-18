@@ -33,7 +33,17 @@ export default function Home() {
     )
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB]">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB] relative">
+      {/* Noise Texture Background */}
+      <div 
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundSize: '200px 200px',
+          backgroundRepeat: 'repeat'
+        }}
+      />
+      <div className="relative z-10">
       {/* Header */}
       <header className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#FF385C]/10 via-[#00A699]/10 to-[#FC642D]/10"></div>
@@ -241,6 +251,7 @@ export default function Home() {
           </p>
         </div>
       </footer>
+      </div>
     </div>
   )
 }
