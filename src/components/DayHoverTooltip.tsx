@@ -75,8 +75,8 @@ export default function DayHoverTooltip({ date, entries, isVisible, position, on
 
       {/* Entries List */}
       <div className="space-y-2 mb-3">
-        {visibleEntries.map((entry) => (
-          <div key={entry.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+        {visibleEntries.map((entry, index) => (
+          <div key={`${entry.id}-${index}`} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
             {/* Category Indicator */}
             <div className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 ${getCategoryColor(entry.category)}`}></div>
             

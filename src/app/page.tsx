@@ -60,32 +60,42 @@ export default function Home() {
               href="/api/auth/signin/google"
               className="px-6 py-3 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white rounded-xl hover:shadow-lg transition-all hover:scale-105"
             >
-              Get Started
+              Sign Up Free
             </Link>
           </nav>
 
           {/* Hero Section */}
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold text-[#222222] mb-6 leading-tight">
-              Track 48 Hours. Spot Time-Sinks. <br className="hidden md:block"/>Lock Onto Your Goals.
+              Transform Your Time Into <br className="hidden md:block"/>Meaningful Progress
             </h1>
+            <p className="text-xl md:text-2xl text-[#767676] mb-6 font-medium">
+              AI-powered goal planning that turns your daily activities into measurable achievements
+            </p>
             <div className="text-base md:text-lg text-[#767676] mb-8 leading-relaxed space-y-4">
               <p>
-                We’ve all felt the days slip away—open TikTok, an hour’s gone; dive into email,
-                never-ending rabbit holes. Technology is full of hidden <em>time sinks</em>.
+                Stop wondering where your time went. Start seeing how every moment moves you closer to your biggest goals.
               </p>
               <p>
-                But it isn’t your fault. Most digital experiences are engineered to harvest attention, not help you advance your goals.
+                Our AI analyzes your patterns, suggests optimal schedules, and helps you build habits that actually stick—so you can focus on what matters most.
               </p>
               <p>
-                <strong>Take our 2-day challenge:</strong>
+                <strong>See real results in your first week:</strong>
               </p>
-              <ol className="list-decimal list-inside text-[#555] space-y-1">
-                <li>Track every hour</li>
-                <li>Spot the sinks</li>
-                <li>Time-block what matters</li>
-              </ol>
-              <p>See the difference by day three.</p>
+              <ul className="list-none space-y-2 text-[#555]">
+                <li className="flex items-center justify-center space-x-2">
+                  <span className="w-2 h-2 bg-[#FF385C] rounded-full"></span>
+                  <span>Clarity on your most productive hours</span>
+                </li>
+                <li className="flex items-center justify-center space-x-2">
+                  <span className="w-2 h-2 bg-[#00A699] rounded-full"></span>
+                  <span>AI-powered schedule optimization</span>
+                </li>
+                <li className="flex items-center justify-center space-x-2">
+                  <span className="w-2 h-2 bg-[#FC642D] rounded-full"></span>
+                  <span>Measurable progress toward your goals</span>
+                </li>
+              </ul>
             </div>
             <div className="flex flex-col items-center gap-3">
               <Link 
@@ -93,9 +103,9 @@ export default function Home() {
                 className="inline-flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-[#4285F4] to-[#357ae8] text-white text-lg font-semibold rounded-2xl hover:shadow-xl transition-all hover:scale-105"
               >
                 <svg className="w-5 h-5" viewBox="0 0 533.5 544.3"><path fill="#fff" d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.4H272v95.4h146.9c-6.4 34.5-25.7 63.7-54.9 83.3v68h88.7c52-47.9 80.8-118.6 80.8-196.3z"/><path fill="#fff" d="M272 544.3c73.5 0 135-24.3 180-66.2l-88.7-68c-24.6 16.5-56.2 26.4-91.3 26.4-70 0-129.2-47.2-150.4-110.6h-88.9v69.5c44.7 88.5 136.3 149 239.3 149z"/><path fill="#fff" d="M121.6 325.9c-10.3-30.1-10.3-62.9 0-93l-89-69.6C8.5 215 0 244.6 0 276.9s8.5 61.9 32.6 113.6l89-64.6z"/><path fill="#fff" d="M272 109.6c39.9 0 75.7 13.8 104 40.9l78-78C413 33.1 349.3 0 272 0 169 0 77.4 60.5 32.6 148.9l89 69.5C142.8 156.8 202 109.6 272 109.6z"/></svg>
-                <span>Continue with Google</span>
+                <span>Sign up with Google</span>
               </Link>
-              <Link href="/auth/signup" className="text-sm text-[#222] underline">Sign&nbsp;up with email</Link>
+              <Link href="/auth/signup" className="text-sm text-[#222] underline">Or sign up with email</Link>
             </div>
           </div>
         </div>
@@ -104,37 +114,37 @@ export default function Home() {
       {/* How It Works Strip */}
       <section className="py-16 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
-            {/* Step 1 */}
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF385C] to-[#E31C5F] flex items-center justify-center text-white shadow-lg">
-                <Edit3 className="w-6 h-6" />
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
+              {/* Step 1 */}
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF385C] to-[#E31C5F] flex items-center justify-center text-white shadow-lg">
+                  <Edit3 className="w-6 h-6" />
+                </div>
+                <p className="text-xl font-semibold text-[#222222]">Track</p>
               </div>
-              <p className="text-xl font-semibold text-[#222222]">Log</p>
-            </div>
 
-            {/* Arrow */}
-            <ArrowRight className="hidden sm:block w-5 h-5 text-gray-400" />
+              {/* Arrow */}
+              <ArrowRight className="hidden sm:block w-5 h-5 text-gray-400" />
 
-            {/* Step 2 */}
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-lg">
-                <BarChart3 className="w-6 h-6" />
+              {/* Step 2 */}
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-lg">
+                  <BarChart3 className="w-6 h-6" />
+                </div>
+                <p className="text-xl font-semibold text-[#222222]">AI analyzes</p>
               </div>
-              <p className="text-xl font-semibold text-[#222222]">See patterns</p>
-            </div>
 
-            {/* Arrow */}
-            <ArrowRight className="hidden sm:block w-5 h-5 text-gray-400" />
+              {/* Arrow */}
+              <ArrowRight className="hidden sm:block w-5 h-5 text-gray-400" />
 
-            {/* Step 3 */}
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white shadow-lg">
-                <Zap className="w-6 h-6" />
+              {/* Step 3 */}
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white shadow-lg">
+                  <Zap className="w-6 h-6" />
+                </div>
+                <p className="text-xl font-semibold text-[#222222]">Achieve</p>
               </div>
-              <p className="text-xl font-semibold text-[#222222]">Act</p>
             </div>
-          </div>
         </div>
       </section>
 
@@ -229,7 +239,7 @@ export default function Home() {
                   href="/api/auth/signin/google"
                   className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white font-semibold rounded-xl hover:shadow-lg transition-all hover:scale-105"
                 >
-                  Start Your Journey →
+                  Get Started Free →
                 </Link>
               </div>
             </div>
@@ -247,7 +257,7 @@ export default function Home() {
             <span className="text-xl font-bold">TimeTrack</span>
           </div>
           <p className="text-gray-400">
-            Transform how you understand your time. Track your life's story, one moment at a time.
+            Transform your time into meaningful progress. Achieve your goals with AI-powered insights.
           </p>
         </div>
       </footer>

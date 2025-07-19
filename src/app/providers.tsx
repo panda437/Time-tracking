@@ -41,8 +41,9 @@ function FirstTimeRedirect() {
         if (!res.ok) return
         const entries = await res.json()
         if (Array.isArray(entries) && entries.length === 0) {
-          const today = format(new Date(), "yyyy-MM-dd")
-          router.replace(`/calendar/day/${today}?firstEntry=true`)
+          // Don't redirect to calendar - let them stay on dashboard for first entry
+          // The dashboard will handle the first entry flow properly
+          return
         }
       } catch (error) {
         console.error("Failed to check first entry/goals:", error)

@@ -30,6 +30,21 @@ interface TimeEntry {
   updatedAt: string
 }
 
+interface UserGoal {
+  _id: string
+  goal: string
+  specificGoal?: string
+  measurableOutcome?: string
+  targetValue?: number
+  currentValue?: number
+  unit?: string
+  deadline?: string
+  goalType?: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export default function Dashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -37,6 +52,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [userGoals, setUserGoals] = useState<string[]>([])
+  const [goals, setGoals] = useState<UserGoal[]>([])
   const [useTimeSlots, setUseTimeSlots] = useState(false)
   
   // Install prompt hook
@@ -53,6 +69,7 @@ export default function Dashboard() {
     if (status === "authenticated" && session) {
       fetchEntries()
       checkUserGoals()
+      fetchGoals()
     }
   }, [session, status, router])
 
@@ -79,17 +96,29 @@ export default function Dashboard() {
     }
   }
 
+  const fetchGoals = async () => {
+    try {
+      const response = await fetch("/api/goals")
+      if (response.ok) {
+        const goalsData = await response.json()
+        setGoals(goalsData)
+      }
+    } catch (error) {
+      console.error("Failed to fetch goals:", error)
+    }
+  }
+
   const handleSaveGoals = async (goals: any[]) => {
     // Extract goal names for display
     const goalNames = goals.map(g => g.goal)
     setUserGoals(goalNames)
     setShowOnboarding(false)
 
-    // If user had zero entries, redirect them to first entry modal in calendar view
-    if (entries.length === 0 && goals.length > 0) {
-      const today = new Date().toISOString().split('T')[0]
-      router.replace(`/calendar/day/${today}?firstEntry=true`)
-    }
+    // Refresh goals list
+    await fetchGoals()
+
+    // Don't redirect - let them stay on dashboard for their first entry
+    // The dashboard will handle the first entry flow properly
   }
 
   const fetchEntries = async () => {
@@ -289,6 +318,88 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* User Goals Section */}
+          {goals.length > 0 && (
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden animate-slide-up">
+              <div className="bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] px-8 py-8">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-white mb-2">
+                      Your Goals
+                    </h2>
+                    <p className="text-white/80">
+                      Track your progress and stay motivated
+                    </p>
+                  </div>
+                  <div className="hidden md:block">
+                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                      <span className="text-2xl">🎯</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {goals.slice(0, 6).map((goal) => (
+                    <div key={goal._id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-xl flex items-center justify-center">
+                          <span className="text-white text-lg">
+                            {goal.goalType === 'financial' ? '💰' : 
+                             goal.goalType === 'health' ? '💪' : 
+                             goal.goalType === 'learning' ? '📚' : 
+                             goal.goalType === 'productivity' ? '⚡' : 
+                             goal.goalType === 'relationship' ? '❤️' : 
+                             goal.goalType === 'habit' ? '🔄' : 
+                             goal.goalType === 'project' ? '📋' : '🎯'}
+                          </span>
+                        </div>
+                        {goal.deadline && (
+                          <div className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">
+                            {new Date(goal.deadline).toLocaleDateString()}
+                          </div>
+                        )}
+                      </div>
+                      <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">
+                        {goal.specificGoal || goal.goal}
+                      </h3>
+                      {goal.measurableOutcome && (
+                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                          {goal.measurableOutcome}
+                        </p>
+                      )}
+                      {goal.targetValue && goal.currentValue !== undefined && (
+                        <div className="mb-3">
+                          <div className="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>Progress</span>
+                            <span>{goal.currentValue} / {goal.targetValue} {goal.unit}</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${Math.min((goal.currentValue / goal.targetValue) * 100, 100)}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="text-center">
+                  <Link 
+                    href="/goals"
+                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] text-white text-lg rounded-xl hover:from-[#7C3AED] hover:to-[#6D28D9] transition-all duration-300 shadow-lg hover:shadow-xl"
+                  >
+                    <span>View All Goals</span>
+                    <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Weekly Story Section */}
           <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden animate-slide-up">

@@ -71,17 +71,7 @@ export default function DayViewPage({ params }: DayViewPageProps) {
     }
   }, [searchParams, firstEntryHandled])
 
-  // After modal is closed and first entry handled, wait 10s then prompt for analytics
-  useEffect(() => {
-    if (firstEntryHandled && !showGapModal) {
-      const timer = setTimeout(() => {
-        if (confirm('See how your time looks? Take me to Analytics!')) {
-          router.push('/analytics')
-        }
-      }, 10000)
-      return () => clearTimeout(timer)
-    }
-  }, [firstEntryHandled, showGapModal, router])
+  // Removed analytics prompt - users should be redirected to dashboard instead
 
   const fetchDayEntries = async () => {
     try {

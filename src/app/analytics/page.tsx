@@ -90,24 +90,24 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB]">
       <Header user={{ name: session.user?.name, email: session.user?.email }} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-12">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-12">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 sm:mb-8 lg:mb-12">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#222222] mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#222222] mb-2 sm:mb-3 lg:mb-4">
               Power Analytics
             </h1>
-            <p className="text-xl text-[#767676]">
+            <p className="text-base sm:text-lg lg:text-xl text-[#767676]">
               Deep insights into your time patterns and productivity trends
             </p>
           </div>
           
           {/* Period Selector */}
-          <div className="mt-6 lg:mt-0">
+          <div className="mt-4 lg:mt-0">
             <select 
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF385C]"
+              className="w-full lg:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF385C] text-sm sm:text-base"
             >
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
@@ -117,176 +117,236 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="grid gap-8">
+        <div className="grid gap-4 sm:gap-6 lg:gap-8">
           {/* Key Metrics Row */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-white" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-3 sm:p-4 lg:p-6">
+              <div className="flex items-center space-x-2 lg:space-x-3 mb-2 lg:mb-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center">
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
                 </div>
-                <h3 className="font-semibold text-[#222222]">Total Time</h3>
+                <h3 className="font-semibold text-[#222222] text-xs sm:text-sm lg:text-base">Total Time</h3>
               </div>
-              <div className="text-2xl font-bold text-[#222222]">
+              <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#222222]">
                 {formatDuration(analytics.totalTimeTracked)}
               </div>
-              <div className="text-sm text-[#767676] mt-1">This period</div>
+              <div className="text-xs lg:text-sm text-[#767676] mt-1">This period</div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#00A699] to-[#009B8E] rounded-xl flex items-center justify-center">
-                  <Target className="h-5 w-5 text-white" />
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-3 sm:p-4 lg:p-6">
+              <div className="flex items-center space-x-2 lg:space-x-3 mb-2 lg:mb-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-[#00A699] to-[#009B8E] rounded-xl flex items-center justify-center">
+                  <Target className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
                 </div>
-                <h3 className="font-semibold text-[#222222]">Productivity</h3>
+                <h3 className="font-semibold text-[#222222] text-xs sm:text-sm lg:text-base">Productivity</h3>
               </div>
-              <div className="text-2xl font-bold text-[#222222]">
+              <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#222222]">
                 {analytics.productivityScore}%
               </div>
-              <div className="text-sm text-[#767676] mt-1">Score</div>
+              <div className="text-xs lg:text-sm text-[#767676] mt-1">Score</div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#FC642D] to-[#E8590C] rounded-xl flex items-center justify-center">
-                  <Calendar className="h-5 w-5 text-white" />
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-3 sm:p-4 lg:p-6">
+              <div className="flex items-center space-x-2 lg:space-x-3 mb-2 lg:mb-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-[#FC642D] to-[#E8590C] rounded-xl flex items-center justify-center">
+                  <Calendar className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
                 </div>
-                <h3 className="font-semibold text-[#222222]">Streak</h3>
+                <h3 className="font-semibold text-[#222222] text-xs sm:text-sm lg:text-base">Streak</h3>
               </div>
-              <div className="text-2xl font-bold text-[#222222]">
+              <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#222222]">
                 {analytics.streakDays}
               </div>
-              <div className="text-sm text-[#767676] mt-1">Days</div>
+              <div className="text-xs lg:text-sm text-[#767676] mt-1">Days</div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-white" />
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-3 sm:p-4 lg:p-6">
+              <div className="flex items-center space-x-2 lg:space-x-3 mb-2 lg:mb-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
                 </div>
-                <h3 className="font-semibold text-[#222222]">Peak Hour</h3>
+                <h3 className="font-semibold text-[#222222] text-xs sm:text-sm lg:text-base">Peak Hour</h3>
               </div>
-              <div className="text-2xl font-bold text-[#222222]">
+              <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#222222]">
                 {Math.max(...analytics.peakHours.map(h => h.hour))}:00
               </div>
-              <div className="text-sm text-[#767676] mt-1">Most productive</div>
+              <div className="text-xs lg:text-sm text-[#767676] mt-1">Most productive</div>
             </div>
           </div>
 
-          {/* Category by Date - Stacked Bar Chart */}
-          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-white" />
+          {/* Category by Date - Bar Chart */}
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-4 sm:p-6 lg:p-8">
+            <div className="flex items-center space-x-3 mb-4 lg:mb-6">
+              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center">
+                <BarChart3 className="h-4 w-4 lg:h-5 lg:w-5 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-[#222222]">Categories by Date</h2>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#222222]">Categories by Date</h2>
             </div>
             
-            <div className="space-y-4 overflow-x-auto">
-              <div className="min-w-[800px] space-y-4">
-                {analytics.categoryByDate?.slice(-14).map((dayData) => {
-                  const totalDuration = dayData.categories.reduce((sum, cat) => sum + cat.duration, 0)
+            {/* Mobile Responsive Chart Container */}
+            <div className="w-full">
+                              {/* Chart Container */}
+                <div className="relative" style={{ height: '250px', minHeight: '250px' }}>
+                  {/* Y-axis labels */}
+                  <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-12 lg:w-16 flex flex-col justify-between text-xs text-[#767676]">
+                    <span className="hidden sm:block">8h</span>
+                    <span className="hidden sm:block">6h</span>
+                    <span>4h</span>
+                    <span className="hidden sm:block">2h</span>
+                    <span>0h</span>
+                  </div>
                   
-                  return (
-                    <div key={dayData.date} className="flex items-center space-x-4">
-                      <div className="w-20 text-sm font-medium text-[#222222]">
-                        {new Date(dayData.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </div>
-                      
-                      <div className="flex-1 relative group">
-                        <div className="bg-gray-200 rounded-full h-6 relative overflow-hidden flex">
-                          {dayData.categories.map((category, index) => {
-                            const percentage = totalDuration > 0 ? (category.duration / totalDuration) * 100 : 0
-                            return (
-                              <div
-                                key={`${category.category}-${index}`}
-                                className={`h-full ${getCategoryColor(category.category)} relative cursor-pointer transition-all hover:opacity-80`}
-                                style={{ width: `${percentage}%` }}
-                                title={`${category.category}: ${formatDuration(category.duration)} - ${category.activities.join(', ')}`}
-                              >
-                                {/* Tooltip on hover */}
-                                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded-lg py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 whitespace-nowrap">
-                                  <div className="font-semibold capitalize">{category.category}</div>
-                                  <div>{formatDuration(category.duration)}</div>
-                                  <div className="text-xs opacity-75 max-w-48 truncate">
-                                    {category.activities.join(', ')}
+                  {/* Grid lines */}
+                  <div className="absolute left-8 sm:left-12 lg:left-16 right-0 top-0 bottom-0">
+                    {[0, 1, 2, 3, 4].map((line) => (
+                      <div
+                        key={line}
+                        className="absolute w-full border-t border-gray-200"
+                        style={{ top: `${(line / 4) * 100}%` }}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Bars Container with Horizontal Scroll */}
+                  <div className="absolute left-8 sm:left-12 lg:left-16 right-0 top-0 bottom-0 overflow-x-auto">
+                    <div className="flex items-end justify-between px-2 lg:px-4" style={{ minWidth: 'max-content' }}>
+                      {analytics.categoryByDate && analytics.categoryByDate.length > 0 ? (
+                        analytics.categoryByDate.slice(-14).map((dayData, dayIndex) => {
+                          // Calculate max hours across all days for scaling
+                          const maxHours = Math.max(...analytics.categoryByDate.slice(-14).map(d => 
+                            d.categories.reduce((sum, cat) => sum + cat.duration, 0) / 60
+                          ) || [0])
+                          
+                          return (
+                            <div key={dayData.date} className="flex flex-col items-center space-y-1 lg:space-y-2 mx-1">
+                              {/* Stacked Bars for Categories */}
+                              <div className="w-6 sm:w-8 lg:w-10 relative group" style={{ height: '100%' }}>
+                                {dayData.categories.length > 0 ? (
+                                  <div className="relative w-full h-full">
+                                    {dayData.categories.map((category, catIndex) => {
+                                      const categoryHours = category.duration / 60
+                                      const barHeight = maxHours > 0 ? `${(categoryHours / maxHours) * 100}%` : '4px'
+                                      
+                                      // Calculate position for stacking
+                                      const previousCategories = dayData.categories.slice(0, catIndex)
+                                      const previousHeight = previousCategories.reduce((sum, cat) => {
+                                        const catHours = cat.duration / 60
+                                        return sum + (maxHours > 0 ? (catHours / maxHours) * 100 : 0)
+                                      }, 0)
+                                      
+                                      return (
+                                        <div
+                                          key={`${category.category}-${catIndex}`}
+                                          className={`${getCategoryColor(category.category)} absolute bottom-0 left-0 right-0 transition-all hover:opacity-80 cursor-pointer`}
+                                          style={{ 
+                                            height: barHeight,
+                                            minHeight: '2px',
+                                            bottom: `${previousHeight}%`
+                                          }}
+                                          title={`${category.category}: ${formatDuration(category.duration)}`}
+                                        >
+                                          {/* Individual Category Tooltip */}
+                                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded-lg py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 whitespace-nowrap mb-2 min-w-max">
+                                            <div className="font-semibold capitalize">{category.category}</div>
+                                            <div>{formatDuration(category.duration)}</div>
+                                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
                                   </div>
-                                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
-                                </div>
+                                ) : (
+                                  <div className="bg-gray-200 h-4 lg:h-8"></div>
+                                )}
                               </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                      
-                      <div className="text-sm text-[#767676] w-16 text-right">
-                        {formatDuration(totalDuration)}
-                      </div>
+                              
+                              {/* Date label */}
+                              <div className="text-xs text-[#767676] text-center whitespace-nowrap">
+                                {new Date(dayData.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </div>
+                            </div>
+                          )
+                        })
+                      ) : (
+                        // Show empty state with placeholder bars
+                        Array.from({ length: 14 }, (_, i) => {
+                          const date = new Date()
+                          date.setDate(date.getDate() - (13 - i))
+                          return (
+                            <div key={i} className="flex flex-col items-center space-y-1 lg:space-y-2 mx-1">
+                              <div className="w-6 sm:w-8 lg:w-10">
+                                <div className="bg-gray-200 h-4 lg:h-8"></div>
+                              </div>
+                              <div className="text-xs text-[#767676] text-center whitespace-nowrap">
+                                {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </div>
+                            </div>
+                          )
+                        })
+                      )}
                     </div>
-                  )
-                })}
-              </div>
+                  </div>
+                </div>
             </div>
             
             {/* Legend */}
-            <div className="mt-6 flex flex-wrap gap-3 justify-center">
+            <div className="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-3 justify-center">
               {[...new Set(analytics.categoryByDate?.flatMap(d => d.categories.map(c => c.category)) || [])].map((category) => (
-                <div key={category} className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-full ${getCategoryColor(category)}`}></div>
-                  <span className="text-sm text-[#767676] capitalize">{category}</span>
+                <div key={category} className="flex items-center space-x-1 sm:space-x-2">
+                  <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-sm ${getCategoryColor(category)}`}></div>
+                  <span className="text-xs sm:text-sm text-[#767676] capitalize">{category}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Mood Trends */}
-          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#00A699] to-[#009B8E] rounded-xl flex items-center justify-center">
-                <Brain className="h-5 w-5 text-white" />
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-4 sm:p-6 lg:p-8">
+            <div className="flex items-center space-x-3 mb-4 lg:mb-6">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-[#00A699] to-[#009B8E] rounded-xl flex items-center justify-center">
+                <Brain className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-[#222222]">Mood Patterns</h2>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#222222]">Mood Patterns</h2>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
               {analytics.moodTrends.map((mood, index) => (
-                <div key={index} className="text-center p-4 bg-gray-50 rounded-xl">
-                  <div className="text-3xl mb-2">{mood.mood}</div>
-                  <div className="text-lg font-semibold text-[#222222]">{mood.count}</div>
-                  <div className="text-sm text-[#767676]">times</div>
+                <div key={index} className="text-center p-2 sm:p-4 bg-gray-50 rounded-xl">
+                  <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">{mood.mood}</div>
+                  <div className="text-base sm:text-lg font-semibold text-[#222222]">{mood.count}</div>
+                  <div className="text-xs sm:text-sm text-[#767676]">times</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Weekly Trends */}
-          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-white" />
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-4 sm:p-6 lg:p-8">
+            <div className="flex items-center space-x-3 mb-4 lg:mb-6">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-[#222222]">Weekly Progress</h2>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#222222]">Weekly Progress</h2>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {analytics.weeklyComparison.map((week, index) => {
                 const maxDuration = Math.max(...analytics.weeklyComparison.map(w => w.duration))
                 const percentage = (week.duration / maxDuration) * 100
                 
                 return (
-                  <div key={index} className="flex items-center space-x-4">
-                    <div className="w-16 text-sm font-medium text-[#222222]">
+                  <div key={index} className="flex items-center space-x-2 sm:space-x-4">
+                    <div className="w-12 sm:w-16 text-xs sm:text-sm font-medium text-[#222222]">
                       {week.week}
                     </div>
                     <div className="flex-1">
-                      <div className="bg-gray-200 rounded-full h-4 relative overflow-hidden">
+                      <div className="bg-gray-200 rounded-full h-3 sm:h-4 relative overflow-hidden">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-[#FF385C] to-[#E31C5F]"
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
                     </div>
-                    <div className="text-sm font-medium text-[#222222] w-20 text-right">
+                    <div className="text-xs sm:text-sm font-medium text-[#222222] w-16 sm:w-20 text-right">
                       {formatDuration(week.duration)}
                     </div>
                   </div>
@@ -296,15 +356,15 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Peak Hours Heatmap */}
-          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#FC642D] to-[#E8590C] rounded-xl flex items-center justify-center">
-                <Clock className="h-5 w-5 text-white" />
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-4 sm:p-6 lg:p-8">
+            <div className="flex items-center space-x-3 mb-4 lg:mb-6">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-[#FC642D] to-[#E8590C] rounded-xl flex items-center justify-center">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-[#222222]">Peak Performance Hours</h2>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#222222]">Peak Performance Hours</h2>
             </div>
             
-            <div className="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-2">
+            <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-12 lg:grid-cols-12 gap-1 lg:gap-2">
               {Array.from({ length: 24 }, (_, hour) => {
                 const peakData = analytics.peakHours.find(p => p.hour === hour)
                 const intensity = peakData ? (peakData.duration / 240) * 100 : 0
@@ -312,7 +372,7 @@ export default function AnalyticsPage() {
                 return (
                   <div key={hour} className="text-center">
                     <div 
-                      className={`h-12 rounded-lg flex items-end justify-center text-xs font-medium transition-all hover:scale-105 ${
+                      className={`h-8 sm:h-10 lg:h-12 rounded-lg flex items-end justify-center text-xs font-medium transition-all hover:scale-105 ${
                         intensity > 50 ? 'bg-[#FF385C] text-white' :
                         intensity > 25 ? 'bg-[#FF385C]/60 text-white' :
                         intensity > 0 ? 'bg-[#FF385C]/30 text-[#FF385C]' :
@@ -322,7 +382,7 @@ export default function AnalyticsPage() {
                       {hour}
                     </div>
                     {peakData && (
-                      <div className="text-xs text-[#767676] mt-1">
+                      <div className="text-xs text-[#767676] mt-1 hidden sm:block">
                         {formatDuration(peakData.duration)}
                       </div>
                     )}
@@ -333,23 +393,23 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Daily Habit Reinforcement Section */}
-          <div className="bg-gradient-to-r from-[#FF385C] to-[#E31C5F] rounded-3xl shadow-xl p-8 text-white text-center">
+          <div className="bg-gradient-to-r from-[#FF385C] to-[#E31C5F] rounded-3xl shadow-xl p-4 sm:p-6 lg:p-8 text-white text-center">
             <div className="max-w-2xl mx-auto">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="h-8 w-8 text-white" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
               </div>
               
-              <h2 className="text-3xl font-bold mb-4">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
                 Keep Your Momentum Going! 🚀
               </h2>
-              <p className="text-xl text-white/90 mb-2">
+              <p className="text-lg sm:text-xl text-white/90 mb-2">
                 You've tracked <span className="font-semibold">{analytics.totalEntries}</span> activities so far
               </p>
-              <p className="text-lg text-white/80 mb-8">
+              <p className="text-base sm:text-lg text-white/80 mb-6 sm:mb-8">
                 Every day you track builds better insights. Tomorrow's patterns depend on today's data.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center">
                 <Link
                   href="/calendar"
                   className="inline-flex items-center justify-center px-8 py-4 bg-white text-[#FF385C] rounded-2xl font-semibold hover:bg-gray-50 hover:scale-[1.02] active:scale-[0.98] transition-all"
