@@ -48,9 +48,9 @@ export default function Header({ user }: HeaderProps) {
                 </div>
                 <Heart className="absolute -top-1 -right-1 h-3 w-3 md:h-4 md:w-4 text-[#FF385C] fill-current animate-pulse-warm" />
               </div>
-              <div className="ml-2 md:ml-3">
-                <h1 className="text-lg md:text-2xl font-semibold text-[#222222] tracking-tight">TimeTrack</h1>
-                <p className="text-xs text-[#767676] -mt-1 hidden md:block">Your life, beautifully tracked</p>
+              <div className="ml-2 md:ml-3 flex flex-col items-start">
+                <span className="text-lg md:text-2xl font-semibold text-[#222222] tracking-tight">Roozi</span>
+                <span className="text-[10px] text-gray-400 font-normal mt-0.5">previously <span className="text-[#FF385C]">Time Track</span></span>
               </div>
             </Link>
             

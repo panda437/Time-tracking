@@ -16,12 +16,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://time-track.vercel.app'),
-  title: "TimeTrack - Personal Time Tracking Made Beautiful",
-  description: "Transform how you understand your time with TimeTrack. Beautiful, intuitive time tracking with mood insights, calendar views, and Pomodoro timer. Track your life's story, one moment at a time.",
-  keywords: "time tracking, productivity, personal time tracker, mood tracking, calendar, pomodoro timer, time management, daily habits, life tracking",
-  authors: [{ name: "TimeTrack" }],
-  creator: "TimeTrack",
-  publisher: "TimeTrack",
+  title: "Roozi (previously Time Track) - Personal Time Tracking Made Beautiful",
+  description: "Transform how you understand your time with Roozi (previously Time Track). Beautiful, intuitive time tracking with mood insights, calendar views, and Pomodoro timer. Track your life's story, one moment at a time.",
+  keywords: "time tracking, productivity, personal time tracker, mood tracking, calendar, pomodoro timer, time management, daily habits, life tracking, roozi, time track",
+  authors: [{ name: "Roozi" }],
+  creator: "Roozi",
+  publisher: "Roozi",
   robots: "index, follow",
   
   // Open Graph
@@ -29,15 +29,15 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://time-track.vercel.app",
-    title: "TimeTrack - Personal Time Tracking Made Beautiful",
-    description: "Transform how you understand your time with TimeTrack. Beautiful, intuitive time tracking with mood insights, calendar views, and Pomodoro timer.",
-    siteName: "TimeTrack",
+    title: "Roozi (previously Time Track) - Personal Time Tracking Made Beautiful",
+    description: "Transform how you understand your time with Roozi (previously Time Track). Beautiful, intuitive time tracking with mood insights, calendar views, and Pomodoro timer.",
+    siteName: "Roozi",
     images: [
       {
         url: "/time.jpg",
         width: 1200,
         height: 630,
-        alt: "TimeTrack - Personal Time Tracking App",
+        alt: "Roozi - Personal Time Tracking App (previously Time Track)",
       },
     ],
   },
@@ -45,10 +45,10 @@ export const metadata: Metadata = {
   // Twitter
   twitter: {
     card: "summary_large_image",
-    title: "TimeTrack - Personal Time Tracking Made Beautiful",
+    title: "Roozi (previously Time Track) - Personal Time Tracking Made Beautiful",
     description: "Transform how you understand your time with beautiful, intuitive time tracking.",
     images: ["/time.jpg"],
-    creator: "@timetrack",
+    creator: "@rooziapp",
   },
   
   // Icons

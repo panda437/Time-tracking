@@ -54,7 +54,10 @@ export default function Home() {
               <div className="w-10 h-10 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-2xl flex items-center justify-center">
                 <Clock className="h-6 w-6 text-white" />
               </div>
-              <span className="text-2xl font-bold text-[#222222]">TimeTrack</span>
+              <span className="flex flex-col items-start">
+                <span className="text-2xl font-bold text-[#222222]">Roozi</span>
+                <span className="text-[10px] text-gray-400 font-normal mt-0.5">previously <span className="text-[#FF385C]">Time Track</span></span>
+              </span>
             </div>
             <Link 
               href="/api/auth/signin/google"
@@ -254,7 +257,10 @@ export default function Home() {
             <div className="w-8 h-8 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center">
               <Clock className="h-4 w-4 text-white" />
             </div>
-            <span className="text-xl font-bold">TimeTrack</span>
+            <span className="flex flex-col items-start">
+              <span className="text-xl font-bold">Roozi</span>
+              <span className="text-[10px] text-gray-400 font-normal mt-0.5">previously <span className="text-[#FF385C]">Time Track</span></span>
+            </span>
           </div>
           <p className="text-gray-400">
             Transform your time into meaningful progress. Achieve your goals with AI-powered insights.
