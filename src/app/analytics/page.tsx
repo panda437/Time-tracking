@@ -7,6 +7,7 @@ import Link from "next/link"
 import Header from "@/components/Header"
 import MobileNavigation from "@/components/MobileNavigation"
 import { BarChart3, TrendingUp, Clock, Calendar, Target, Brain, ArrowRight, CheckCircle } from "lucide-react"
+import React from "react" // Added for React.useState
 
 interface AnalyticsData {
   moodTrends: { mood: string; count: number }[]
@@ -181,122 +182,7 @@ export default function AnalyticsPage() {
               </div>
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#222222]">Categories by Date</h2>
             </div>
-            
-            {/* Mobile Responsive Chart Container */}
-            <div className="w-full">
-                              {/* Chart Container */}
-                <div className="relative" style={{ height: '250px', minHeight: '250px' }}>
-                  {/* Y-axis labels */}
-                  <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-12 lg:w-16 flex flex-col justify-between text-xs text-[#767676]">
-                    <span className="hidden sm:block">8h</span>
-                    <span className="hidden sm:block">6h</span>
-                    <span>4h</span>
-                    <span className="hidden sm:block">2h</span>
-                    <span>0h</span>
-                  </div>
-                  
-                  {/* Grid lines */}
-                  <div className="absolute left-8 sm:left-12 lg:left-16 right-0 top-0 bottom-0">
-                    {[0, 1, 2, 3, 4].map((line) => (
-                      <div
-                        key={line}
-                        className="absolute w-full border-t border-gray-200"
-                        style={{ top: `${(line / 4) * 100}%` }}
-                      />
-                    ))}
-                  </div>
-                  
-                  {/* Bars Container with Horizontal Scroll */}
-                  <div className="absolute left-8 sm:left-12 lg:left-16 right-0 top-0 bottom-0 overflow-x-auto">
-                    <div className="flex items-end justify-between px-2 lg:px-4" style={{ minWidth: 'max-content' }}>
-                      {analytics.categoryByDate && analytics.categoryByDate.length > 0 ? (
-                        analytics.categoryByDate.slice(-14).map((dayData, dayIndex) => {
-                          // Calculate max hours across all days for scaling
-                          const maxHours = Math.max(...analytics.categoryByDate.slice(-14).map(d => 
-                            d.categories.reduce((sum, cat) => sum + cat.duration, 0) / 60
-                          ) || [0])
-                          
-                          return (
-                            <div key={dayData.date} className="flex flex-col items-center space-y-1 lg:space-y-2 mx-1">
-                              {/* Stacked Bars for Categories */}
-                              <div className="w-6 sm:w-8 lg:w-10 relative group" style={{ height: '100%' }}>
-                                {dayData.categories.length > 0 ? (
-                                  <div className="relative w-full h-full">
-                                    {dayData.categories.map((category, catIndex) => {
-                                      const categoryHours = category.duration / 60
-                                      const barHeight = maxHours > 0 ? `${(categoryHours / maxHours) * 100}%` : '4px'
-                                      
-                                      // Calculate position for stacking
-                                      const previousCategories = dayData.categories.slice(0, catIndex)
-                                      const previousHeight = previousCategories.reduce((sum, cat) => {
-                                        const catHours = cat.duration / 60
-                                        return sum + (maxHours > 0 ? (catHours / maxHours) * 100 : 0)
-                                      }, 0)
-                                      
-                                      return (
-                                        <div
-                                          key={`${category.category}-${catIndex}`}
-                                          className={`${getCategoryColor(category.category)} absolute bottom-0 left-0 right-0 transition-all hover:opacity-80 cursor-pointer`}
-                                          style={{ 
-                                            height: barHeight,
-                                            minHeight: '2px',
-                                            bottom: `${previousHeight}%`
-                                          }}
-                                          title={`${category.category}: ${formatDuration(category.duration)}`}
-                                        >
-                                          {/* Individual Category Tooltip */}
-                                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded-lg py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 whitespace-nowrap mb-2 min-w-max">
-                                            <div className="font-semibold capitalize">{category.category}</div>
-                                            <div>{formatDuration(category.duration)}</div>
-                                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
-                                          </div>
-                                        </div>
-                                      )
-                                    })}
-                                  </div>
-                                ) : (
-                                  <div className="bg-gray-200 h-4 lg:h-8"></div>
-                                )}
-                              </div>
-                              
-                              {/* Date label */}
-                              <div className="text-xs text-[#767676] text-center whitespace-nowrap">
-                                {new Date(dayData.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                              </div>
-                            </div>
-                          )
-                        })
-                      ) : (
-                        // Show empty state with placeholder bars
-                        Array.from({ length: 14 }, (_, i) => {
-                          const date = new Date()
-                          date.setDate(date.getDate() - (13 - i))
-                          return (
-                            <div key={i} className="flex flex-col items-center space-y-1 lg:space-y-2 mx-1">
-                              <div className="w-6 sm:w-8 lg:w-10">
-                                <div className="bg-gray-200 h-4 lg:h-8"></div>
-                              </div>
-                              <div className="text-xs text-[#767676] text-center whitespace-nowrap">
-                                {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                              </div>
-                            </div>
-                          )
-                        })
-                      )}
-                    </div>
-                  </div>
-                </div>
-            </div>
-            
-            {/* Legend */}
-            <div className="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-3 justify-center">
-              {[...new Set(analytics.categoryByDate?.flatMap(d => d.categories.map(c => c.category)) || [])].map((category) => (
-                <div key={category} className="flex items-center space-x-1 sm:space-x-2">
-                  <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-sm ${getCategoryColor(category)}`}></div>
-                  <span className="text-xs sm:text-sm text-[#767676] capitalize">{category}</span>
-                </div>
-              ))}
-            </div>
+            <CategoryByDateChart data={analytics.categoryByDate || []} />
           </div>
 
           {/* Mood Trends */}
@@ -436,6 +322,122 @@ export default function AnalyticsPage() {
         </div>
       </div>
       <MobileNavigation />
+    </div>
+  )
+}
+
+// New CategoryByDateChart component
+function CategoryByDateChart({ data }: { data: any[] }) {
+  // Get all unique categories
+  const allCategories = Array.from(
+    new Set(data.flatMap(day => day.categories.map((c: any) => c.category)))
+  )
+
+  // Color map (extend as needed)
+  const categoryColors: Record<string, string> = {
+    work: 'bg-blue-500',
+    health: 'bg-red-500',
+    other: 'bg-gray-500',
+    social: 'bg-yellow-400',
+    personal: 'bg-green-500',
+    education: 'bg-purple-500',
+    entertainment: 'bg-pink-500',
+    learning: 'bg-gray-700',
+  }
+
+  // Calculate max total hours for scaling
+  const maxHours = Math.max(
+    ...data.map(day => day.categories.reduce((sum: number, c: any) => sum + c.duration, 0) / 60)
+  , 8) // at least 8h for y-axis
+
+  // Tooltip state
+  const [tooltip, setTooltip] = React.useState<null | { x: number, y: number, label: string }>(null)
+
+  if (!data.length) {
+    return (
+      <div className="flex items-center justify-center h-40 text-gray-400">
+        No data to display for this period.
+      </div>
+    )
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="relative" style={{ height: 260 }}>
+        {/* Y-axis grid/labels */}
+        <div className="absolute left-0 top-0 bottom-0 w-10 flex flex-col justify-between text-xs text-[#767676] z-10">
+          {[8,6,4,2,0].map(h => (
+            <span key={h}>{h}h</span>
+          ))}
+        </div>
+        {/* Grid lines */}
+        <div className="absolute left-10 right-0 top-0 bottom-0 z-0">
+          {[0,1,2,3,4].map(i => (
+            <div key={i} className="absolute w-full border-t border-gray-200" style={{ top: `${(i/4)*100}%` }} />
+          ))}
+        </div>
+        {/* Bars */}
+        <div className="absolute left-10 right-0 top-0 bottom-0 flex items-end justify-between px-2" style={{ minWidth: 56 * data.length }}>
+          {data.map((day, i) => {
+            let yOffset = 0
+            const total = day.categories.reduce((sum: number, c: any) => sum + c.duration, 0)
+            return (
+              <div key={day.date} className="flex flex-col items-center group" style={{ width: 32 }}>
+                {/* Stacked bar */}
+                <div className="relative w-6 sm:w-8 h-48 flex flex-col-reverse" style={{ height: 192 }}>
+                  {allCategories.map(cat => {
+                    const catData = day.categories.find((c: any) => c.category === cat)
+                    if (!catData) return null
+                    const hours = catData.duration / 60
+                    const barHeight = maxHours > 0 ? (hours / maxHours) * 192 : 0
+                    const color = categoryColors[cat] || 'bg-gray-400'
+                    const top = yOffset
+                    yOffset += barHeight
+                    return (
+                      <div
+                        key={cat}
+                        className={`${color} w-full cursor-pointer transition-all hover:opacity-80 relative`}
+                        style={{ height: barHeight < 2 ? 2 : barHeight, minHeight: 2 }}
+                        onMouseEnter={e => {
+                          const rect = (e.target as HTMLElement).getBoundingClientRect()
+                          setTooltip({
+                            x: rect.left + rect.width/2,
+                            y: rect.top,
+                            label: `${cat.charAt(0).toUpperCase()+cat.slice(1)}: ${hours.toFixed(2)}h`
+                          })
+                        }}
+                        onMouseLeave={() => setTooltip(null)}
+                      />
+                    )
+                  })}
+                  {/* Tooltip (desktop only) */}
+                  {tooltip && (
+                    <div
+                      className="fixed z-50 px-3 py-2 rounded-lg bg-black text-white text-xs pointer-events-none"
+                      style={{ left: tooltip.x, top: tooltip.y - 36 }}
+                    >
+                      {tooltip.label}
+                    </div>
+                  )}
+                </div>
+                {/* Date label */}
+                <div className="text-xs text-[#767676] mt-1 whitespace-nowrap">
+                  {new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      {/* Legend */}
+      <div className="mt-4 flex flex-wrap gap-3 justify-center">
+        {allCategories.map(cat => (
+          <div key={cat} className="flex items-center space-x-2">
+            <div className={`w-3 h-3 rounded-sm ${categoryColors[cat] || 'bg-gray-400'}`}></div>
+            <span className="text-sm text-[#767676] capitalize">{cat}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

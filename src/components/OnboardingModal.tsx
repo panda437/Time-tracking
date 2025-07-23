@@ -56,8 +56,6 @@ export default function OnboardingModal({ isOpen, onClose, onSaveGoals }: Onboar
       // Initialize goal details for each selected goal
       const details = selectedGoals.map(goal => ({
         goal,
-        specificGoal: "",
-        measurableOutcome: "",
         targetValue: 0,
         currentValue: 0,
         unit: "",
@@ -265,37 +263,16 @@ export default function OnboardingModal({ isOpen, onClose, onSaveGoals }: Onboar
           {step > 0 && currentGoal && (
             <div className="space-y-4">
               <div className="space-y-3">
-                <label className="block text-sm font-medium text-gray-700">Specific Goal</label>
+                <label className="block text-sm font-medium text-gray-700">Target Value</label>
                 <input
-                  type="text"
-                  value={currentGoal.specificGoal}
-                  onChange={e => updateGoalDetail('specificGoal', e.target.value)}
-                  placeholder="What exactly will you accomplish?"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-gray-700">Measurable Outcome</label>
-                <input
-                  type="text"
-                  value={currentGoal.measurableOutcome}
-                  onChange={e => updateGoalDetail('measurableOutcome', e.target.value)}
-                  placeholder="How will you measure success?"
+                  type="number"
+                  value={currentGoal.targetValue}
+                  onChange={e => updateGoalDetail('targetValue', Number(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Target Value</label>
-                  <input
-                    type="number"
-                    value={currentGoal.targetValue}
-                    onChange={e => updateGoalDetail('targetValue', Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent"
-                  />
-                </div>
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">Unit</label>
                   <input
@@ -306,16 +283,15 @@ export default function OnboardingModal({ isOpen, onClose, onSaveGoals }: Onboar
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent"
                   />
                 </div>
-              </div>
-
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-gray-700">Deadline</label>
-                <input
-                  type="date"
-                  value={currentGoal.deadline}
-                  onChange={e => updateGoalDetail('deadline', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent"
-                />
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Deadline</label>
+                  <input
+                    type="date"
+                    value={currentGoal.deadline}
+                    onChange={e => updateGoalDetail('deadline', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent"
+                  />
+                </div>
               </div>
 
               <div className="space-y-3">

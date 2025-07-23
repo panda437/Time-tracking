@@ -22,8 +22,6 @@ export default function GoalEditModal({ goal, onClose, onSaved }: GoalEditModalP
   const isNew = !goal
   const [form, setForm] = useState<any>({
     goal: "",
-    specificGoal: "",
-    measurableOutcome: "",
     targetValue: 0,
     currentValue: 0,
     unit: "",
@@ -125,7 +123,7 @@ export default function GoalEditModal({ goal, onClose, onSaved }: GoalEditModalP
                 </div>
                 <div>
                   <h2 className="text-2xl font-semibold text-white mb-1">
-                    {isNew ? 'Add New Goal' : (form.specificGoal || form.goal || 'Edit Goal')}
+                    {isNew ? 'Add New Goal' : (form.goal || 'Edit Goal')}
                   </h2>
                   <p className="text-white/80">
                     {isNew ? 'Create a new SMART goal' : 'Edit or refine your goal'}
@@ -151,26 +149,6 @@ export default function GoalEditModal({ goal, onClose, onSaved }: GoalEditModalP
                 className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all placeholder-gray-400 bg-[#FAFAFA] focus:bg-white"
                 autoFocus
                 required
-              />
-            </div>
-            <div className="space-y-3">
-              <label className="block text-lg font-medium text-[#222222]">Specific Goal</label>
-              <input
-                type="text"
-                value={form.specificGoal}
-                onChange={e => handleChange('specificGoal', e.target.value)}
-                placeholder="What exactly will you accomplish?"
-                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all placeholder-gray-400 bg-[#FAFAFA] focus:bg-white"
-              />
-            </div>
-            <div className="space-y-3">
-              <label className="block text-lg font-medium text-[#222222]">Measurable Outcome</label>
-              <input
-                type="text"
-                value={form.measurableOutcome}
-                onChange={e => handleChange('measurableOutcome', e.target.value)}
-                placeholder="How will you measure success?"
-                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all placeholder-gray-400 bg-[#FAFAFA] focus:bg-white"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">

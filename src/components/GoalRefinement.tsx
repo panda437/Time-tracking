@@ -6,8 +6,6 @@ import { Target, Calendar, TrendingUp, Zap, ChevronRight, ChevronDown, Save, X, 
 interface SmartGoal {
   _id?: string
   goal: string
-  specificGoal: string
-  measurableOutcome: string
   targetValue: number
   currentValue: number
   unit: string
@@ -113,8 +111,6 @@ export default function GoalRefinement({ goals, onGoalsUpdate }: GoalRefinementP
     setSmartGoal({
       _id: goal._id,
       goal: goal.goal,
-      specificGoal: '',
-      measurableOutcome: '',
       targetValue: 0,
       currentValue: 0,
       unit: '',
@@ -133,7 +129,6 @@ export default function GoalRefinement({ goals, onGoalsUpdate }: GoalRefinementP
     
     setSmartGoal({
       ...smartGoal,
-      specificGoal: example.target,
       targetValue: example.value,
       unit: example.unit,
       relatedCategories: example.categories || smartGoal.relatedCategories,
@@ -319,8 +314,8 @@ export default function GoalRefinement({ goals, onGoalsUpdate }: GoalRefinementP
                   </label>
                   <input
                     type="text"
-                    value={smartGoal.specificGoal}
-                    onChange={(e) => setSmartGoal({...smartGoal, specificGoal: e.target.value})}
+                    value={smartGoal.goal}
+                    onChange={(e) => setSmartGoal({...smartGoal, goal: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="e.g., Launch a React-based personal portfolio website"
                   />
@@ -385,8 +380,8 @@ export default function GoalRefinement({ goals, onGoalsUpdate }: GoalRefinementP
                   </label>
                   <input
                     type="text"
-                    value={smartGoal.measurableOutcome}
-                    onChange={(e) => setSmartGoal({...smartGoal, measurableOutcome: e.target.value})}
+                    value={smartGoal.goal} // This field is no longer used for measurable outcome, but kept for consistency
+                    onChange={(e) => setSmartGoal({...smartGoal, goal: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="e.g., Monthly recurring revenue, weight lost, projects completed"
                   />
@@ -609,7 +604,7 @@ export default function GoalRefinement({ goals, onGoalsUpdate }: GoalRefinementP
             </button>
             <button
               onClick={saveSmartGoal}
-              disabled={saving || !smartGoal.specificGoal || !smartGoal.targetValue}
+              disabled={saving || !smartGoal.goal || !smartGoal.targetValue}
               className="inline-flex items-center px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
             >
               {saving ? (
@@ -677,7 +672,7 @@ export default function GoalRefinement({ goals, onGoalsUpdate }: GoalRefinementP
               <div key={index} className="bg-white rounded-lg p-4 border border-green-100">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-900 mb-1">{goal.specificGoal || goal.goal}</h4>
+                    <h4 className="font-medium text-gray-900 mb-1">{goal.goal}</h4>
                     <div className="text-sm text-gray-600 mb-2">
                       Target: {goal.targetValue} {goal.unit} by {goal.deadline ? new Date(goal.deadline).toLocaleDateString() : 'No deadline'}
                     </div>

@@ -61,8 +61,6 @@ interface Goal {
   goal: string
   isActive: boolean
   isRefined?: boolean
-  specificGoal?: string
-  measurableOutcome?: string
   targetValue?: number
   currentValue?: number
   unit?: string
@@ -238,7 +236,7 @@ export default function GoalsPage() {
                     <div className="flex items-center mb-2">
                       <Target className="h-7 w-7 text-purple-500 mr-3" />
                       <div className="flex-1">
-                        <div className="text-lg font-bold text-gray-900">{goal.specificGoal || goal.goal}</div>
+                        <div className="text-lg font-bold text-gray-900">{goal.goal}</div>
                         <div className="text-sm text-gray-500">Target: {goal.targetValue} {goal.unit}</div>
                       </div>
                       <button onClick={() => { setGoalToEdit(goal); setShowGoalModal(true); }} className="ml-2 text-gray-400 hover:text-gray-700"><Edit3 className="h-5 w-5" /></button>
