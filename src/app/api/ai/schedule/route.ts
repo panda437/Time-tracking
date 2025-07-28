@@ -192,10 +192,12 @@ function analyzePatterns(entries: any[]) {
 
 async function gatherUserContext(userId: string): Promise<UserContext | null> {
   try {
-    // Get user goals
+    // Get user goals - only active goals (not archived or completed)
     const goals = await UserGoal.find({
       userId,
-      isActive: true
+      isActive: true,
+      isArchived: { $ne: true },
+      isCompleted: { $ne: true }
     }).sort({ createdAt: 1 })
     
     if (goals.length === 0) {

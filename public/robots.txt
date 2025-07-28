@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://time-track.vercel.app/sitemap.xml
+Sitemap: https://www.heyroozi.com/sitemap.xml
 
 # Optimize crawling
 Crawl-delay: 1

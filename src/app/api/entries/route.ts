@@ -2,60 +2,65 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/prisma"
-import { TimeEntry, User } from "@/lib/models"
+import { TimeEntry, User, UserGoal } from "@/lib/models"
 import { trackUserTaskMilestone } from "@/lib/analytics"
 import { subMinutes, startOfWeek, endOfWeek } from "date-fns"
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
-  const { searchParams } = new URL(request.url)
-  const period = searchParams.get("period") || "week"
-  const dateParam = searchParams.get("date")
-  const startParam = searchParams.get("start")
-  const endParam = searchParams.get("end")
-  
-  let startDate: Date
-  let endDate: Date
-  
-  const now = new Date()
-  
-  // Date range override via ?start=YYYY-MM-DD&end=YYYY-MM-DD
-  if (startParam) {
-    const start = new Date(startParam)
-    if (isNaN(start.getTime())) {
-      return NextResponse.json({ error: "Invalid start date format" }, { status: 400 })
-    }
-    const end = endParam ? new Date(endParam) : start
-    if (isNaN(end.getTime())) {
-      return NextResponse.json({ error: "Invalid end date format" }, { status: 400 })
-    }
-    startDate = new Date(start.getFullYear(), start.getMonth(), start.getDate())
-    // include the full end day by adding 1 day
-    endDate = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1)
-
-  // If specific date is provided, fetch entries for that day
-  } else if (dateParam) {
-    const targetDate = new Date(dateParam)
-    startDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate())
-    endDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate() + 1)
-  } else if (period === "today") {
-    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
-  } else if (period === "week") {
-    startDate = startOfWeek(now, { weekStartsOn: 1 })
-    endDate = endOfWeek(now, { weekStartsOn: 1 })
-  } else {
-    // Default to last 7 days
-    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-    endDate = now
-  }
-
   try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      console.log("No session or user ID found in entries GET request")
+      return NextResponse.json({ error: "Unauthorized - No valid session" }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const period = searchParams.get("period") || "week"
+    const dateParam = searchParams.get("date")
+    const startParam = searchParams.get("start")
+    const endParam = searchParams.get("end")
+    
+    let startDate: Date
+    let endDate: Date
+    
+    const now = new Date()
+    
+    // Date range override via ?start=YYYY-MM-DD&end=YYYY-MM-DD
+    if (startParam) {
+      const start = new Date(startParam)
+      if (isNaN(start.getTime())) {
+        return NextResponse.json({ error: "Invalid start date format" }, { status: 400 })
+      }
+      const end = endParam ? new Date(endParam) : start
+      if (isNaN(end.getTime())) {
+        return NextResponse.json({ error: "Invalid end date format" }, { status: 400 })
+      }
+      startDate = new Date(start.getFullYear(), start.getMonth(), start.getDate())
+      // include the full end day by adding 1 day
+      endDate = new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1)
+
+    // If specific date is provided, fetch entries for that day
+    } else if (dateParam) {
+      const targetDate = new Date(dateParam)
+      startDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate())
+      endDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate() + 1)
+    } else if (period === "today") {
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+    } else if (period === "week") {
+      startDate = startOfWeek(now, { weekStartsOn: 1 })
+      endDate = endOfWeek(now, { weekStartsOn: 1 })
+    } else if (period === "all") {
+      // Fetch all entries for the user (no date filter)
+      startDate = new Date(0) // Beginning of time
+      endDate = new Date(8640000000000000) // End of time (max safe date)
+    } else {
+      // Default to last 7 days
+      startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+      endDate = now
+    }
+
     await connectDB()
     
     const entries = await TimeEntry.find({
@@ -82,18 +87,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(transformedEntries)
   } catch (error) {
     console.error("Error fetching entries:", error)
-    return NextResponse.json({ error: "Failed to fetch entries" }, { status: 500 })
+    return NextResponse.json({ 
+      error: "Failed to fetch entries", 
+      details: error instanceof Error ? error.message : "Unknown error" 
+    }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
   try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      console.log("No session or user ID found in entries POST request")
+      return NextResponse.json({ error: "Unauthorized - No valid session" }, { status: 401 })
+    }
+
     await connectDB()
     
     const body = await request.json()
@@ -158,6 +167,50 @@ export async function POST(request: NextRequest) {
       trackUserTaskMilestone(session.user.id, totalTaskCount).catch(console.error)
     } catch (error) {
       console.error('Error tracking task milestone:', error)
+    }
+
+    // Update default time entry goal (async, don't wait)
+    try {
+      const existingGoal = await UserGoal.findOne({
+        userId: session.user.id,
+        goal: "Make Time Entries",
+        isActive: true
+      })
+
+      if (existingGoal) {
+        const totalEntries = await TimeEntry.countDocuments({ userId: session.user.id })
+        
+        // Update current value
+        await UserGoal.findByIdAndUpdate(existingGoal._id, {
+          currentValue: totalEntries,
+          isCompleted: totalEntries >= existingGoal.targetValue,
+          completedAt: totalEntries >= existingGoal.targetValue ? new Date() : undefined
+        })
+
+        // If goal is completed, archive it and create new one
+        if (totalEntries >= existingGoal.targetValue && !existingGoal.isCompleted) {
+          await UserGoal.findByIdAndUpdate(existingGoal._id, {
+            isArchived: true,
+            archivedAt: new Date(),
+            isActive: false
+          })
+
+          // Create new goal with higher target
+          const newTarget = existingGoal.targetValue === 24 ? 100 : existingGoal.targetValue + 100
+          await UserGoal.create({
+            userId: session.user.id,
+            goal: "Make Time Entries",
+            targetValue: newTarget,
+            currentValue: totalEntries,
+            unit: "entries",
+            isActive: true,
+            isRefined: true,
+            goalType: "habit"
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Error updating default time entry goal:', error)
     }
 
     return NextResponse.json(transformedEntry)

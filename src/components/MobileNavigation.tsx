@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, BarChart3, LucideIcon } from "lucide-react"
+import { Calendar, BarChart3, Target, LucideIcon } from "lucide-react"
 
 interface NavigationItem {
   name: string
@@ -16,7 +16,7 @@ export default function MobileNavigation() {
   const navigation: NavigationItem[] = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Calendar', href: '/calendar', icon: Calendar },
-    { name: 'Goals', href: '/goals', icon: '🎯' },
+    { name: 'Goals', href: '/goals', icon: Target },
   ]
 
   return (

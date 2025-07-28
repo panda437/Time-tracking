@@ -1,10 +1,11 @@
 "use client"
 
 import { signOut } from "next-auth/react"
-import { Clock, LogOut, User, Calendar, BarChart3, Heart, HelpCircle, Target } from "lucide-react"
+import { Clock, LogOut, User, Calendar, BarChart3, Heart, HelpCircle, Target, Timer } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
+import { useUserStats } from "@/hooks/useUserStats"
 
 interface User {
   name?: string | null
@@ -18,6 +19,7 @@ interface HeaderProps {
 export default function Header({ user }: HeaderProps) {
   const pathname = usePathname()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const { stats, loading } = useUserStats()
   
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3, description: 'Your time overview' },
@@ -100,10 +102,22 @@ export default function Header({ user }: HeaderProps) {
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center space-x-2 md:space-x-3 p-1.5 md:p-2 rounded-2xl transition-smooth hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#FF385C]/20"
               >
-                <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-[#00A699] to-[#009B8E] flex items-center justify-center shadow-md transition-smooth hover:shadow-lg">
-                  <span className="text-white font-semibold text-sm">
-                    {firstName.charAt(0).toUpperCase()}
-                  </span>
+                <div className="relative">
+                  <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-[#00A699] to-[#009B8E] flex items-center justify-center shadow-md transition-smooth hover:shadow-lg">
+                    <span className="text-white font-semibold text-sm">
+                      {firstName.charAt(0).toUpperCase()}
+                    </span>
+                    {/* Streak counter */}
+                    {!loading && stats.streak > 0 && (
+                      <div className="absolute -top-1 -right-1 bg-[#FF385C] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white">
+                        {stats.streak > 99 ? '99+' : stats.streak}
+                      </div>
+                    )}
+                  </div>
+                  {/* Red dot indicator */}
+                  {!loading && stats.showRedDot && (
+                    <div className="absolute -top-1 -right-1 bg-[#FF385C] rounded-full w-3 h-3 border-2 border-white animate-pulse"></div>
+                  )}
                 </div>
                 <div className="hidden md:block text-left">
                   <p className="text-sm font-medium text-[#222222] leading-tight">{firstName}</p>
@@ -119,6 +133,15 @@ export default function Header({ user }: HeaderProps) {
                     <p className="text-xs text-[#767676]">{user.email}</p>
                   </div>
                   
+                  {/* Dynamic Contextual Message */}
+                  {!loading && stats.contextualMessage && (
+                    <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {stats.contextualMessage}
+                      </p>
+                    </div>
+                  )}
+                  
                   <div className="py-2">
                     <Link
                       href="/analytics"
@@ -133,16 +156,23 @@ export default function Header({ user }: HeaderProps) {
                       onClick={() => setIsProfileOpen(false)}
                       className="w-full flex items-center px-4 py-2.5 text-sm text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] transition-smooth"
                     >
-                      <span className="text-lg mr-3">⏳</span>
+                      <Timer className="h-4 w-4 mr-3" />
                       Focus
                     </Link>
                     <Link
                       href="/reflection"
                       onClick={() => setIsProfileOpen(false)}
-                      className="w-full flex items-center px-4 py-2.5 text-sm text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] transition-smooth"
+                      className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-[#767676] hover:text-[#222222] hover:bg-[#F7F7F7] transition-smooth"
                     >
-                      <Heart className="h-4 w-4 mr-3" />
-                      Daily Reflection
+                      <div className="flex items-center">
+                        <Heart className="h-4 w-4 mr-3" />
+                        Daily Reflection
+                      </div>
+                      <img 
+                        src="/roozi-sleeping.webp" 
+                        alt="Roozi sleeping" 
+                        className="w-6 h-6 md:w-8 md:h-8 object-cover rounded-lg"
+                      />
                     </Link>
                     <Link
                       href="/feedback"

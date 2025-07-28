@@ -23,35 +23,41 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        await connectDB()
+        try {
+          await connectDB()
 
-        const user = await User.findOne({
-          email: credentials.email
-        })
+          const user = await User.findOne({
+            email: credentials.email
+          })
 
-        if (!user || !user.password) {
+          if (!user || !user.password) {
+            return null
+          }
+
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          )
+
+          if (!isPasswordValid) {
+            return null
+          }
+
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+          }
+        } catch (error) {
+          console.error("Error in authorize callback:", error)
           return null
-        }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        )
-
-        if (!isPasswordValid) {
-          return null
-        }
-
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
         }
       }
     })
   ],
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
     signIn: "/auth/signin"
@@ -103,6 +109,20 @@ export const authOptions: NextAuthOptions = {
           console.error("Error fetching user from database:", error)
         }
       }
+      
+      // Ensure token.sub exists for session callback
+      if (!token.sub && token.email) {
+        try {
+          await connectDB()
+          const dbUser = await User.findOne({ email: token.email })
+          if (dbUser) {
+            token.sub = dbUser._id.toString()
+          }
+        } catch (error) {
+          console.error("Error fetching user ID for token:", error)
+        }
+      }
+      
       return token
     },
     async redirect({ url, baseUrl }) {
@@ -112,12 +132,20 @@ export const authOptions: NextAuthOptions = {
       else if (new URL(url).origin === baseUrl) return url
       return `${baseUrl}/dashboard`
     },
-    session: ({ session, token }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: token.sub, // This will now be the database user ID
-      },
-    }),
+    session: ({ session, token }) => {
+      if (!token.sub) {
+        console.error("No user ID found in token:", token)
+        return session
+      }
+      
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.sub, // This will now be the database user ID
+        },
+      }
+    },
   },
+  debug: process.env.NODE_ENV === 'development',
 }

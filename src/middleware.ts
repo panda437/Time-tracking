@@ -12,8 +12,17 @@ export default withAuth(
     }
 
     // If user is not authenticated and trying to access protected pages, redirect to signin
-    if (!token && pathname.startsWith('/dashboard')) {
+    if (!token && (pathname.startsWith('/dashboard') || pathname.startsWith('/calendar') || pathname.startsWith('/goals') || pathname.startsWith('/analytics') || pathname.startsWith('/pomodoro') || pathname.startsWith('/reflection'))) {
       return NextResponse.redirect(new URL('/auth/signin', req.url))
+    }
+
+    // Add cache control headers for API routes to prevent stale data
+    if (pathname.startsWith('/api/')) {
+      const response = NextResponse.next()
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+      response.headers.set('Pragma', 'no-cache')
+      response.headers.set('Expires', '0')
+      return response
     }
 
     return NextResponse.next()
@@ -31,6 +40,11 @@ export const config = {
     '/auth/signin',
     '/auth/signup',
     '/calendar/:path*',
-    '/pomodoro/:path*'
+    '/pomodoro/:path*',
+    '/goals/:path*',
+    '/analytics/:path*',
+    '/reflection/:path*',
+    '/feedback/:path*',
+    '/api/:path*'
   ]
 }

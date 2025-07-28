@@ -143,7 +143,7 @@ export default function FeedbackPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-[#222222] mb-4">
-            Shape TimeTrack's Future
+            Shape Roozi's Future
           </h1>
           <p className="text-xl text-[#767676] max-w-2xl mx-auto">
             Vote on upcoming features and share your ideas to help us build the perfect time tracking experience.
@@ -227,14 +227,21 @@ export default function FeedbackPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent resize-none"
                 required
               />
-              <button
-                type="submit"
-                disabled={submitting || !feedbackForm.title.trim() || !feedbackForm.description.trim()}
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white font-semibold rounded-xl hover:shadow-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Send className="h-4 w-4" />
-                <span>{submitting ? 'Submitting...' : 'Submit Idea'}</span>
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  type="submit"
+                  disabled={submitting || !feedbackForm.title.trim() || !feedbackForm.description.trim()}
+                  className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-[#FF385C] to-[#E31C5F] text-white font-semibold rounded-xl hover:shadow-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="h-4 w-4" />
+                  <span>{submitting ? 'Submitting...' : 'Submit Idea'}</span>
+                </button>
+                <img 
+                  src="/roozi-question.webp" 
+                  alt="Roozi with question" 
+                  className="w-12 h-12 md:w-16 md:h-16 object-contain"
+                />
+              </div>
             </div>
           </form>
 

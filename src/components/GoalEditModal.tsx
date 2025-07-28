@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { format, parseISO } from "date-fns"
-import { Target, Save, X, Plus, Trash2, Calendar, Edit3 } from "lucide-react"
+import { Target, Save, X, Plus, Trash2, Calendar, Edit3, CheckCircle, Archive } from "lucide-react"
 
 interface GoalEditModalProps {
   goal: any | null
@@ -109,6 +109,33 @@ export default function GoalEditModal({ goal, onClose, onSaved }: GoalEditModalP
     // Optional: implement delete if needed
   }
 
+  const handleGoalAction = async (action: 'mark_done' | 'archive') => {
+    if (!goal?._id) return
+    
+    setSaving(true)
+    setError(null)
+    
+    try {
+      const response = await fetch(`/api/goals/${goal._id}/actions`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action })
+      })
+      
+      if (response.ok) {
+        onSaved()
+        onClose()
+      } else {
+        const err = await response.json()
+        setError(err.error || `Failed to ${action.replace('_', ' ')} goal`)
+      }
+    } catch (e) {
+      setError(`Failed to ${action.replace('_', ' ')} goal`)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 py-6 pb-24 md:pb-6">
@@ -151,6 +178,16 @@ export default function GoalEditModal({ goal, onClose, onSaved }: GoalEditModalP
                 required
               />
             </div>
+            <div className="space-y-3">
+              <label className="block text-lg font-medium text-[#222222]">Target Unit</label>
+              <input
+                type="text"
+                value={form.unit}
+                onChange={e => handleChange('unit', e.target.value)}
+                placeholder="e.g. hours, kg, sessions, entries"
+                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all placeholder-gray-400 bg-[#FAFAFA] focus:bg-white"
+              />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-3">
                 <label className="block text-lg font-medium text-[#222222]">Target Value</label>
@@ -171,26 +208,14 @@ export default function GoalEditModal({ goal, onClose, onSaved }: GoalEditModalP
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <label className="block text-lg font-medium text-[#222222]">Unit</label>
-                <input
-                  type="text"
-                  value={form.unit}
-                  onChange={e => handleChange('unit', e.target.value)}
-                  placeholder="e.g. hours, kg, sessions"
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all placeholder-gray-400 bg-[#FAFAFA] focus:bg-white"
-                />
-              </div>
-              <div className="space-y-3">
-                <label className="block text-lg font-medium text-[#222222]">Deadline</label>
-                <input
-                  type="date"
-                  value={form.deadline}
-                  onChange={e => handleChange('deadline', e.target.value)}
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all placeholder-gray-400 bg-[#FAFAFA] focus:bg-white"
-                />
-              </div>
+            <div className="space-y-3">
+              <label className="block text-lg font-medium text-[#222222]">Deadline</label>
+              <input
+                type="date"
+                value={form.deadline}
+                onChange={e => handleChange('deadline', e.target.value)}
+                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all placeholder-gray-400 bg-[#FAFAFA] focus:bg-white"
+              />
             </div>
             <div className="space-y-3">
               <label className="block text-lg font-medium text-[#222222]">Related Categories</label>
@@ -296,11 +321,36 @@ export default function GoalEditModal({ goal, onClose, onSaved }: GoalEditModalP
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 px-8 py-6 border-t border-gray-100 rounded-b-3xl bg-gray-50">
-            <button onClick={onClose} className="px-5 py-3 rounded-xl bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">Cancel</button>
-            <button onClick={handleSave} disabled={saving} className="px-5 py-3 rounded-xl bg-[#FF385C] text-white font-semibold hover:bg-[#E31C5F] transition-colors disabled:opacity-50">
-              {saving ? 'Saving...' : 'Save Goal'}
-            </button>
+          <div className="flex justify-between items-center px-8 py-6 border-t border-gray-100 rounded-b-3xl bg-gray-50">
+            {/* Left side - Action buttons (only for existing goals) */}
+            {!isNew && (
+              <div className="flex space-x-2">
+                <button 
+                  onClick={() => handleGoalAction('mark_done')} 
+                  disabled={saving}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors disabled:opacity-50"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  <span>Mark as Done</span>
+                </button>
+                <button 
+                  onClick={() => handleGoalAction('archive')} 
+                  disabled={saving}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-gray-500 text-white font-semibold hover:bg-gray-600 transition-colors disabled:opacity-50"
+                >
+                  <Archive className="h-4 w-4" />
+                  <span>Archive</span>
+                </button>
+              </div>
+            )}
+            
+            {/* Right side - Save/Cancel buttons */}
+            <div className="flex space-x-3">
+              <button onClick={onClose} className="px-5 py-3 rounded-xl bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">Cancel</button>
+              <button onClick={handleSave} disabled={saving} className="px-5 py-3 rounded-xl bg-[#FF385C] text-white font-semibold hover:bg-[#E31C5F] transition-colors disabled:opacity-50">
+                {saving ? 'Saving...' : 'Save Goal'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

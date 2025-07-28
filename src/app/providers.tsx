@@ -23,9 +23,10 @@ function FirstTimeRedirect() {
   const router = useRouter()
 
   useEffect(() => {
-    if (status !== "authenticated") return
+    if (status !== "authenticated" || !session) return
 
-    const checkFirstEntry = async () => {
+    // Add a small delay to ensure session is fully established
+    const timer = setTimeout(async () => {
       try {
         // 1. Ensure user has completed goals onboarding
         const goalsRes = await fetch("/api/goals", { cache: "no-store" })
@@ -48,10 +49,10 @@ function FirstTimeRedirect() {
       } catch (error) {
         console.error("Failed to check first entry/goals:", error)
       }
-    }
+    }, 1000) // 1 second delay
 
-    checkFirstEntry()
-  }, [status, router])
+    return () => clearTimeout(timer)
+  }, [status, session, router])
 
   return null
 }

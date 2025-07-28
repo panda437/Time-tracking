@@ -8,6 +8,7 @@ import MobileNavigation from "@/components/MobileNavigation"
 import GoalManagement from "@/components/GoalManagement"
 import GoalRefinement from "@/components/GoalRefinement"
 import GoalEditModal from "@/components/GoalEditModal"
+import GoalChatModal from "@/components/GoalChatModal"
 import { 
   Target, 
   TrendingUp, 
@@ -26,7 +27,9 @@ import {
   ChevronRight,
   ArrowUp,
   ArrowDown,
-  Minus
+  Minus,
+  Archive,
+  MessageCircle
 } from "lucide-react"
 
 interface GoalInsight {
@@ -76,6 +79,10 @@ interface Goal {
     completed: boolean
     completedDate?: string | Date
   }>
+  isArchived?: boolean
+  isCompleted?: boolean
+  completedAt?: string | Date
+  archivedAt?: string | Date
   createdAt?: string | Date
 }
 
@@ -83,6 +90,8 @@ export default function GoalsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [goals, setGoals] = useState<Goal[]>([])
+  const [archivedGoals, setArchivedGoals] = useState<Goal[]>([])
+  const [showArchived, setShowArchived] = useState(false)
   const [analysis, setAnalysis] = useState<GoalAnalysisResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [analyzingGoals, setAnalyzingGoals] = useState(false)
@@ -90,6 +99,7 @@ export default function GoalsPage() {
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null)
   const [showGoalModal, setShowGoalModal] = useState(false)
   const [goalToEdit, setGoalToEdit] = useState<any>(null)
+  const [showChatModal, setShowChatModal] = useState(false)
 
   useEffect(() => {
     if (status === "loading") return
@@ -100,6 +110,7 @@ export default function GoalsPage() {
     }
 
     fetchGoals()
+    fetchArchivedGoals()
   }, [session, status, router])
 
   const fetchGoals = async () => {
@@ -115,6 +126,18 @@ export default function GoalsPage() {
       console.error("Failed to fetch goals:", error)
       setError("Failed to load goals")
       setLoading(false)
+    }
+  }
+
+  const fetchArchivedGoals = async () => {
+    try {
+      const response = await fetch("/api/goals/archived")
+      if (response.ok) {
+        const archivedData = await response.json()
+        setArchivedGoals(archivedData)
+      }
+    } catch (error) {
+      console.error("Failed to fetch archived goals:", error)
     }
   }
 
@@ -184,8 +207,10 @@ export default function GoalsPage() {
     return 'text-red-600'
   }
 
-  const refinedGoals = goals.filter((g: any) => g.isRefined)
-  const unrefinedGoals = goals.filter((g: any) => !g.isRefined)
+  const refinedGoals = goals.filter((g: any) => g.isRefined && !g.isArchived && !g.isCompleted)
+  const unrefinedGoals = goals.filter((g: any) => !g.isRefined && !g.isArchived && !g.isCompleted)
+  const completedGoals = goals.filter((g: any) => g.isCompleted && !g.isArchived)
+  const archivedGoalsList = archivedGoals.filter((g: any) => g.isArchived)
 
   if (loading && !analysis) {
     return (
@@ -244,7 +269,7 @@ export default function GoalsPage() {
                     <div className="mt-2 mb-1">
                       <div className="text-xs text-gray-500 mb-1">Progress</div>
                       <div className="w-full bg-gray-100 rounded-full h-2 mb-2">
-                        <div className="bg-[#FF385C] h-2 rounded-full" style={{ width: `${Math.min(100, (goal.currentValue && goal.targetValue ? (goal.currentValue / goal.targetValue) * 100 : 0))}%` }}></div>
+                        <div className="bg-[#FF385C] h-2 rounded-full" style={{ width: `${Math.min(100, (goal.currentValue && goal.targetValue ? Math.max(0, Math.min(100, (goal.currentValue / goal.targetValue) * 100)) : 0))}%` }}></div>
                       </div>
                       <div className="text-xs text-gray-500 mb-1">Time</div>
                       <div className="w-full bg-gray-100 rounded-full h-2">
@@ -279,7 +304,59 @@ export default function GoalsPage() {
             </div>
           )}
 
-          <div className="flex justify-end">
+          {/* Archived Goals Section */}
+          {showArchived && archivedGoalsList.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-2xl font-semibold text-[#222222] flex items-center">
+                <Archive className="h-6 w-6 mr-3 text-gray-600" />
+                Archived Goals
+              </h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                {archivedGoalsList.map(goal => (
+                  <div key={goal._id} className="bg-gray-50 rounded-2xl border border-gray-200 p-6 flex flex-col relative">
+                    <div className="flex items-center mb-2">
+                      <Archive className="h-7 w-7 text-gray-500 mr-3" />
+                      <div className="flex-1">
+                        <div className="text-lg font-bold text-gray-700">{goal.goal}</div>
+                        <div className="text-sm text-gray-500">
+                          {goal.targetValue && goal.unit ? `Target: ${goal.targetValue} ${goal.unit}` : 'No target set'}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1">
+                          Archived on {goal.archivedAt ? new Date(goal.archivedAt).toLocaleDateString() : 'Unknown date'}
+                        </div>
+                      </div>
+                    </div>
+                    {goal.isCompleted && (
+                      <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-center text-green-700">
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          <span className="text-sm font-medium">Completed</span>
+                        </div>
+                        {goal.completedAt && (
+                          <div className="text-xs text-green-600 mt-1">
+                            Completed on {new Date(goal.completedAt).toLocaleDateString()}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-between items-center">
+            <div className="flex space-x-3">
+              {archivedGoalsList.length > 0 && (
+                <button 
+                  onClick={() => setShowArchived(!showArchived)} 
+                  className="inline-flex items-center px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-colors"
+                >
+                  <Archive className="h-5 w-5 mr-2" />
+                  {showArchived ? 'Hide' : 'View'} Archived Goals ({archivedGoalsList.length})
+                </button>
+              )}
+            </div>
             <button onClick={() => { setGoalToEdit(null); setShowGoalModal(true); }} className="inline-flex items-center px-4 py-2 bg-[#FF385C] text-white rounded-xl hover:bg-[#E31C5F] transition-colors">
               <Plus className="h-5 w-5 mr-2" />
               Add a New Goal
@@ -289,19 +366,34 @@ export default function GoalsPage() {
           {/* AI Insights Section */}
           <div className="mt-10">
             {/* Score Card */}
-            <div className="bg-white rounded-2xl shadow border border-gray-100 p-6 flex items-center justify-between mb-6">
-              <div>
-                <div className="text-lg font-semibold text-gray-900 mb-1">AI Score</div>
-                <div className="text-5xl font-bold text-gray-800">
-                  {analysis ? `${analysis.overallScore}/10` : "?/10"}
+            <div className="bg-white rounded-2xl shadow border border-gray-100 p-4 md:p-6 mb-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div>
+                  <div className="text-base md:text-lg font-semibold text-gray-900 mb-1">AI Score</div>
+                  <div className="text-4xl md:text-5xl font-bold text-gray-800">
+                    {analysis ? `${analysis.overallScore}/10` : "?/10"}
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col items-end">
-                <button onClick={fetchAnalysis} className="inline-flex items-center px-4 py-2 bg-[#FF385C] text-white rounded-xl hover:bg-[#E31C5F] transition-colors mb-2">
-                  <Brain className="h-5 w-5 mr-2" />
-                  {analyzingGoals ? "Loading..." : "Get AI Insights"}
-                </button>
-                <span className="text-gray-400 text-sm" title="AI analysis is based on your goals and tracked activities.">?</span>
+                <div className="flex flex-col items-start md:items-end space-y-3 md:space-y-2">
+                  <div className="flex items-center space-x-3 w-full sm:w-auto">
+                    <div className="flex flex-col space-y-3">
+                      <button onClick={fetchAnalysis} className="inline-flex items-center justify-center px-3 md:px-4 py-2 bg-[#FF385C] text-white rounded-xl hover:bg-[#E31C5F] transition-colors text-sm md:text-base">
+                        <Brain className="h-4 w-4 md:h-5 md:w-5 mr-2" />
+                        {analyzingGoals ? "Loading..." : "Roozi Insights"}
+                      </button>
+                      <button onClick={() => setShowChatModal(true)} className="inline-flex items-center justify-center px-3 md:px-4 py-2 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition-colors text-sm md:text-base">
+                        <MessageCircle className="h-4 w-4 md:h-5 md:w-5 mr-2" />
+                        Chat with Roozi
+                      </button>
+                    </div>
+                    <img 
+                      src="/roozi-thinking.webp" 
+                      alt="Roozi thinking" 
+                      className="h-12 w-12 md:h-16 md:w-16 rounded-lg shadow-sm"
+                    />
+                  </div>
+                  <span className="text-gray-400 text-xs md:text-sm" title="AI analysis is based on your goals and tracked activities.">?</span>
+                </div>
               </div>
             </div>
 
@@ -491,6 +583,13 @@ export default function GoalsPage() {
               goal={goalToEdit}
               onClose={() => setShowGoalModal(false)}
               onSaved={fetchGoals}
+            />
+          )}
+
+          {showChatModal && (
+            <GoalChatModal
+              isOpen={showChatModal}
+              onClose={() => setShowChatModal(false)}
             />
           )}
         </div>

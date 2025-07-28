@@ -92,9 +92,12 @@ export async function GET(request: NextRequest) {
 
 async function gatherUserContextForGoals(userId: string): Promise<UserContext | null> {
   try {
-    // Get user goals
+    // Get user goals - only active goals (not archived or completed)
     const goals = await UserGoal.find({
-      userId
+      userId,
+      isActive: true,
+      isArchived: { $ne: true },
+      isCompleted: { $ne: true }
     }).sort({ createdAt: 1 })
     
     if (goals.length === 0) {

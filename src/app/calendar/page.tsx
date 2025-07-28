@@ -8,8 +8,8 @@ import Header from "@/components/Header"
 import MobileNavigation from "@/components/MobileNavigation"
 import EnhancedCalendar from "@/components/EnhancedCalendar"
 import TaskEditModal from "@/components/TaskEditModal"
-import InstallPrompt from "@/components/InstallPrompt"
-import { useInstallPrompt } from "@/hooks/useInstallPrompt"
+import FeedbackModal from "@/components/FeedbackModal"
+import { useFeedbackPrompt } from "@/hooks/useFeedbackPrompt"
 import { trackTaskMilestone } from "@/components/GoogleAnalytics"
 import { Sparkles, Calendar, Settings } from "lucide-react"
 
@@ -38,7 +38,7 @@ export default function CalendarPage() {
   const [showAiSuccess, setShowAiSuccess] = useState(false)
   
   // Install prompt hook
-  const { showInstallPrompt, triggerAfterFirstTask, dismissInstallPrompt } = useInstallPrompt()
+  const { showFeedbackPrompt, triggerAfterFirstTask, dismissFeedbackPrompt } = useFeedbackPrompt()
 
   useEffect(() => {
     if (status === "loading") return
@@ -229,22 +229,8 @@ export default function CalendarPage() {
       <Header user={session.user} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32 md:pb-8">
-        {/* Hero Section */}
+        {/* Action Buttons */}
         <div className="text-center mb-8 animate-slide-up">
-          <div className="inline-flex items-center space-x-3 bg-white rounded-2xl px-6 py-3 shadow-lg border border-gray-100 mb-6">
-            <Calendar className="h-6 w-6 text-[#FF385C]" />
-            <span className="text-lg font-medium text-[#222222]">Smart Calendar</span>
-            <div className="w-2 h-2 bg-[#00A699] rounded-full animate-pulse"></div>
-          </div>
-          
-          <h1 className="text-3xl md:text-4xl font-bold text-[#222222] mb-4">
-            Your Daily Schedule 🗓️
-          </h1>
-          <p className="text-lg text-[#767676] max-w-2xl mx-auto mb-6">
-            Drag tasks to reschedule, tap to edit, and let AI optimize your day.
-          </p>
-
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
             <button
               onClick={handleAiScheduling}
@@ -321,9 +307,9 @@ export default function CalendarPage() {
       />
 
       {/* Install App Prompt */}
-      <InstallPrompt 
-        show={showInstallPrompt} 
-        onClose={dismissInstallPrompt} 
+            <FeedbackModal
+        show={showFeedbackPrompt}
+        onClose={dismissFeedbackPrompt}
       />
 
       <MobileNavigation />

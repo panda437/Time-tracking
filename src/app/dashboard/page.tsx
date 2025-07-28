@@ -10,10 +10,11 @@ import TimeEntryList from "@/components/TimeEntryList"
 import WeeklyOverview from "@/components/WeeklyOverview"
 import Header from "@/components/Header"
 import OnboardingModal from "@/components/OnboardingModal"
-import InstallPrompt from "@/components/InstallPrompt"
+import FeedbackModal from "@/components/FeedbackModal"
 import MobileNavigation from "@/components/MobileNavigation"
-import { useInstallPrompt } from "@/hooks/useInstallPrompt"
+import { useFeedbackPrompt } from "@/hooks/useFeedbackPrompt"
 import { trackTaskMilestone } from "@/components/GoogleAnalytics"
+import { refreshUserStats } from "@/hooks/useUserStats"
 
 interface TimeEntry {
   id: string
@@ -54,9 +55,10 @@ export default function Dashboard() {
   const [userGoals, setUserGoals] = useState<string[]>([])
   const [goals, setGoals] = useState<UserGoal[]>([])
   const [useTimeSlots, setUseTimeSlots] = useState(false)
+  const [sessionReady, setSessionReady] = useState(false)
   
-  // Install prompt hook
-  const { showInstallPrompt, triggerAfterFirstTask, dismissInstallPrompt } = useInstallPrompt()
+  // Feedback prompt hook
+  const { showFeedbackPrompt, triggerAfterFirstTask, dismissFeedbackPrompt } = useFeedbackPrompt()
 
   useEffect(() => {
     if (status === "loading") return
@@ -67,41 +69,130 @@ export default function Dashboard() {
     }
 
     if (status === "authenticated" && session) {
-      fetchEntries()
-      checkUserGoals()
-      fetchGoals()
+      // Ensure session is fully established before making API calls
+      const timer = setTimeout(() => {
+        setSessionReady(true)
+        initializeDashboard()
+      }, 1000) // Increased delay to ensure session is fully established
+
+      return () => clearTimeout(timer)
     }
   }, [session, status, router])
 
+  const initializeDashboard = async () => {
+    try {
+      setLoading(true)
+      
+      // Make API calls sequentially to avoid race conditions
+      await Promise.all([
+        fetchEntries(),
+        checkUserGoals(),
+        fetchGoals()
+      ])
+    } catch (error) {
+      console.error("Failed to initialize dashboard:", error)
+      // Retry initialization after a delay
+      setTimeout(() => {
+        if (status === "authenticated" && sessionReady) {
+          initializeDashboard()
+        }
+      }, 3000)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const checkUserGoals = async () => {
     try {
-      const response = await fetch("/api/goals")
+      const response = await fetch("/api/goals", {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
+      
+      if (response.status === 401) {
+        console.log("Session expired, redirecting to signin")
+        router.push("/auth/signin")
+        return
+      }
+      
       if (response.ok) {
         const goals = await response.json()
         setUserGoals(goals.map((g: any) => g.goal))
+        
+        // Check if user has the default time entry goal
+        const hasDefaultGoal = goals.some((g: any) => g.goal === "Make Time Entries")
+        
+        if (!hasDefaultGoal) {
+          // Create default time entry goal
+          try {
+            const defaultGoalResponse = await fetch("/api/goals/default-time-entry", {
+              method: "POST",
+              headers: { 
+                "Content-Type": "application/json",
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+              }
+            })
+            
+            if (!defaultGoalResponse.ok) {
+              console.error("Failed to create default time entry goal:", defaultGoalResponse.status)
+            }
+          } catch (error) {
+            console.error("Failed to create default time entry goal:", error)
+          }
+        }
+        
         // Show onboarding if user has no goals and no entries
         if (goals.length === 0) {
           // Check if user has any entries to determine if they're truly new
-          const entriesResponse = await fetch("/api/entries")
-          if (entriesResponse.ok) {
-            const allEntries = await entriesResponse.json()
-            if (allEntries.length === 0) {
-              setShowOnboarding(true)
+          try {
+            const entriesResponse = await fetch("/api/entries", {
+              headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+              }
+            })
+            if (entriesResponse.ok) {
+              const allEntries = await entriesResponse.json()
+              if (allEntries.length === 0) {
+                setShowOnboarding(true)
+              }
             }
+          } catch (error) {
+            console.error("Failed to fetch entries for onboarding check:", error)
           }
         }
+      } else {
+        console.error("Failed to fetch user goals:", response.status, response.statusText)
       }
     } catch (error) {
       console.error("Failed to fetch user goals:", error)
+      // Don't retry immediately to avoid infinite loops
     }
   }
 
   const fetchGoals = async () => {
     try {
-      const response = await fetch("/api/goals")
+      const response = await fetch("/api/goals", {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
+      
+      if (response.status === 401) {
+        console.log("Session expired, redirecting to signin")
+        router.push("/auth/signin")
+        return
+      }
+      
       if (response.ok) {
         const goalsData = await response.json()
         setGoals(goalsData)
+      } else {
+        console.error("Failed to fetch goals:", response.status, response.statusText)
       }
     } catch (error) {
       console.error("Failed to fetch goals:", error)
@@ -123,15 +214,27 @@ export default function Dashboard() {
 
   const fetchEntries = async () => {
     try {
-      const response = await fetch("/api/entries?period=week")
+      const response = await fetch("/api/entries?period=week", {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
+      
+      if (response.status === 401) {
+        console.log("Session expired, redirecting to signin")
+        router.push("/auth/signin")
+        return
+      }
+      
       if (response.ok) {
         const data = await response.json()
         setEntries(data)
+      } else {
+        console.error("Failed to fetch entries:", response.status, response.statusText)
       }
     } catch (error) {
       console.error("Failed to fetch entries:", error)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -144,6 +247,9 @@ export default function Dashboard() {
     // Track task milestone for analytics
     const newTaskCount = entries.length + 1
     trackTaskMilestone(newTaskCount)
+    
+    // Refresh user stats for profile icon
+    refreshUserStats()
   }
 
   const isFirstEntry = entries.length === 0 && userGoals.length > 0
@@ -152,13 +258,20 @@ export default function Dashboard() {
     setEntries(entries.map(entry => 
       entry.id === updatedEntry.id ? updatedEntry : entry
     ))
+    
+    // Refresh user stats for profile icon
+    refreshUserStats()
   }
 
   const handleEntryDeleted = (deletedId: string) => {
     setEntries(entries.filter(entry => entry.id !== deletedId))
+    
+    // Refresh user stats for profile icon
+    refreshUserStats()
   }
 
-  if (status === "loading" || loading) {
+  // Show loading state while session is not ready or data is loading
+  if (status === "loading" || loading || !sessionReady) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB] flex items-center justify-center">
         <div className="text-center animate-pulse">
@@ -172,10 +285,10 @@ export default function Dashboard() {
           
           {/* Loading Text */}
           <h2 className="text-2xl font-semibold text-[#222222] mb-2">
-            Preparing your story...
+            {status === "loading" ? "Authenticating..." : "Preparing your story..."}
           </h2>
           <p className="text-[#767676]">
-            We're gathering all your beautiful moments ✨
+            {status === "loading" ? "Setting up your secure session ✨" : "We're gathering all your beautiful moments ✨"}
           </p>
           
           {/* Progress Dots */}
@@ -502,9 +615,9 @@ export default function Dashboard() {
       />
 
       {/* Install App Prompt */}
-      <InstallPrompt 
-        show={showInstallPrompt} 
-        onClose={dismissInstallPrompt} 
+            <FeedbackModal
+        show={showFeedbackPrompt}
+        onClose={dismissFeedbackPrompt}
       />
 
       {/* Mobile Navigation */}

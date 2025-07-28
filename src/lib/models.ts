@@ -89,7 +89,13 @@ export interface IUserGoal extends Document {
     completedDate?: Date
   }>
   
+  // Goal Status
   isActive: boolean
+  isArchived: boolean
+  isCompleted: boolean
+  completedAt?: Date
+  archivedAt?: Date
+  
   createdAt: Date
   updatedAt: Date
 }
@@ -128,7 +134,12 @@ const UserGoalSchema = new Schema<IUserGoal>({
     completedDate: { type: Date }
   }],
   
+  // Goal Status
   isActive: { type: Boolean, default: true },
+  isArchived: { type: Boolean, default: false },
+  isCompleted: { type: Boolean, default: false },
+  completedAt: { type: Date },
+  archivedAt: { type: Date },
 }, {
   timestamps: true
 })
