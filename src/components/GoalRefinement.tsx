@@ -354,7 +354,7 @@ export default function GoalRefinement({ goals, onGoalsUpdate }: GoalRefinementP
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Unit</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Measurable Target (Revenue, Users, Kg, etc)</label>
                     <input
                       type="text"
                       value={smartGoal.unit}

@@ -179,7 +179,7 @@ export default function GoalEditModal({ goal, onClose, onSaved }: GoalEditModalP
               />
             </div>
             <div className="space-y-3">
-              <label className="block text-lg font-medium text-[#222222]">Target Unit</label>
+              <label className="block text-lg font-medium text-[#222222]">Measurable Target (Revenue, Users, Kg, etc)</label>
               <input
                 type="text"
                 value={form.unit}

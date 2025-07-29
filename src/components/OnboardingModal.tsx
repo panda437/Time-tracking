@@ -274,7 +274,7 @@ export default function OnboardingModal({ isOpen, onClose, onSaveGoals }: Onboar
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Unit</label>
+                  <label className="block text-sm font-medium text-gray-700">Measurable Target (Revenue, Users, Kg, etc)</label>
                   <input
                     type="text"
                     value={currentGoal.unit}
