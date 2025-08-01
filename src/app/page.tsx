@@ -68,47 +68,36 @@ export default function Home() {
           </nav>
 
           {/* Hero Section */}
-          <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold text-[#222222] mb-6 leading-tight">
-              Transform Your Time Into <br className="hidden md:block"/>Meaningful Progress
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-4xl md:text-6xl font-bold text-[#222222] mb-6 leading-tight">
+              Personal Time Tracking for <br className="hidden md:block"/>Busy Professionals
             </h1>
-            <p className="text-xl md:text-2xl text-[#767676] mb-6 font-medium">
-              AI-powered goal planning that turns your daily activities into measurable achievements
+            <p className="text-xl md:text-2xl text-[#767676] mb-8 font-medium leading-relaxed">
+              See where your time really goes and turn it into measurable progress toward your goals.
             </p>
-            <div className="text-base md:text-lg text-[#767676] mb-8 leading-relaxed space-y-4">
-              <p>
-                Stop wondering where your time went. Start seeing how every moment moves you closer to your biggest goals.
-              </p>
-              <p>
-                Our AI analyzes your patterns, suggests optimal schedules, and helps you build habits that actually stick—so you can focus on what matters most.
-              </p>
-              <p>
-                <strong>See real results in your first week:</strong>
-              </p>
-              <ul className="list-none space-y-2 text-[#555]">
-                <li className="flex items-center justify-center space-x-2">
-                  <span className="w-2 h-2 bg-[#FF385C] rounded-full"></span>
-                  <span>Clarity on your most productive hours</span>
-                </li>
-                <li className="flex items-center justify-center space-x-2">
-                  <span className="w-2 h-2 bg-[#00A699] rounded-full"></span>
-                  <span>AI-powered schedule optimization</span>
-                </li>
-                <li className="flex items-center justify-center space-x-2">
-                  <span className="w-2 h-2 bg-[#FC642D] rounded-full"></span>
-                  <span>Measurable progress toward your goals</span>
-                </li>
-              </ul>
-            </div>
-            <div className="flex flex-col items-center gap-3">
-              <Link 
-                href="/api/auth/signin/google"
-                className="inline-flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-[#4285F4] to-[#357ae8] text-white text-lg font-semibold rounded-2xl hover:shadow-xl transition-all hover:scale-105"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 533.5 544.3"><path fill="#fff" d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.4H272v95.4h146.9c-6.4 34.5-25.7 63.7-54.9 83.3v68h88.7c52-47.9 80.8-118.6 80.8-196.3z"/><path fill="#fff" d="M272 544.3c73.5 0 135-24.3 180-66.2l-88.7-68c-24.6 16.5-56.2 26.4-91.3 26.4-70 0-129.2-47.2-150.4-110.6h-88.9v69.5c44.7 88.5 136.3 149 239.3 149z"/><path fill="#fff" d="M121.6 325.9c-10.3-30.1-10.3-62.9 0-93l-89-69.6C8.5 215 0 244.6 0 276.9s8.5 61.9 32.6 113.6l89-64.6z"/><path fill="#fff" d="M272 109.6c39.9 0 75.7 13.8 104 40.9l78-78C413 33.1 349.3 0 272 0 169 0 77.4 60.5 32.6 148.9l89 69.5C142.8 156.8 202 109.6 272 109.6z"/></svg>
-                <span>Sign up with Google</span>
-              </Link>
-              <Link href="/auth/signup" className="text-sm text-[#222] underline">Or sign up with email</Link>
+            
+
+
+            {/* CTA Section */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link 
+                  href="/api/auth/signin/google"
+                  className="inline-flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-[#4285F4] to-[#357ae8] text-white text-lg font-semibold rounded-2xl hover:shadow-xl transition-all hover:scale-105 w-full sm:w-auto justify-center"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 533.5 544.3"><path fill="#fff" d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.4H272v95.4h146.9c-6.4 34.5-25.7 63.7-54.9 83.3v68h88.7c52-47.9 80.8-118.6 80.8-196.3z"/><path fill="#fff" d="M272 544.3c73.5 0 135-24.3 180-66.2l-88.7-68c-24.6 16.5-56.2 26.4-91.3 26.4-70 0-129.2-47.2-150.4-110.6h-88.9v69.5c44.7 88.5 136.3 149 239.3 149z"/><path fill="#fff" d="M121.6 325.9c-10.3-30.1-10.3-62.9 0-93l-89-69.6C8.5 215 0 244.6 0 276.9s8.5 61.9 32.6 113.6l89-64.6z"/><path fill="#fff" d="M272 109.6c39.9 0 75.7 13.8 104 40.9l78-78C413 33.1 349.3 0 272 0 169 0 77.4 60.5 32.6 148.9l89 69.5C142.8 156.8 202 109.6 272 109.6z"/></svg>
+                  <span>Start Free with Google</span>
+                </Link>
+                
+                <Link 
+                  href="/auth/signup"
+                  className="inline-flex items-center px-8 py-4 bg-white text-[#222222] text-lg font-semibold rounded-2xl border-2 border-gray-200 hover:border-[#FF385C] hover:shadow-lg transition-all w-full sm:w-auto justify-center"
+                >
+                  <span>Sign up with Email</span>
+                </Link>
+              </div>
+              
+
             </div>
           </div>
         </div>

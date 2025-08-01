@@ -350,45 +350,45 @@ export default function Dashboard() {
       {/* Hero Section with Personal Touch */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#FF385C]/5 via-[#00A699]/5 to-[#FC642D]/5"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center animate-slide-up">
-            <h1 className="text-4xl md:text-5xl font-bold text-[#222222] mb-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-[#222222] mb-2">
               {getTimeBasedGreeting()}
             </h1>
-            <p className="text-xl text-[#767676] mb-2">
+            <p className="text-lg text-[#767676] mb-1">
               You've tracked <span className="font-semibold text-[#FF385C]">{formatDuration(getTotalTimeToday())}</span> today
             </p>
-            <p className="text-base text-[#767676]">
+            <p className="hidden md:block text-sm text-[#767676]">
               Every moment matters. Let's make today count! ✨
             </p>
           </div>
         </div>
       </div>
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 md:pb-16">
-        <div className="space-y-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="space-y-8">
           {/* Time Entry - Hero CTA */}
-          <div className="-mt-8 relative z-10">
-            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+          <div className="-mt-4 relative z-10">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-2 md:p-6">
               {/* Toggle Header */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#FF385C] to-[#E31C5F] rounded-xl flex items-center justify-center">
                     {useTimeSlots ? (
-                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     ) : (
-                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
                     )}
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-[#222222]">
+                    <h2 className="text-xl font-bold text-[#222222]">
                       {useTimeSlots ? "Time Slot Entry" : "Quick Entry"}
                     </h2>
-                    <p className="text-[#767676]">
+                    <p className="hidden md:block text-sm text-[#767676]">
                       {useTimeSlots ? "Fill in your activities for specific time slots" : "Add your activity"}
                     </p>
                   </div>
@@ -418,7 +418,7 @@ export default function Dashboard() {
               </div>
               
               {/* Entry Component */}
-              <div className="border-t border-gray-100 pt-6">
+              <div className="border-t border-gray-100 pt-4">
                 {useTimeSlots ? (
                   <EnhancedTimeEntry onEntryAdded={fetchEntries} />
                 ) : (
@@ -435,30 +435,30 @@ export default function Dashboard() {
           {/* User Goals Section */}
           {goals.length > 0 && (
             <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden animate-slide-up">
-              <div className="bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] px-8 py-8">
+              <div className="bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] px-6 py-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-semibold text-white mb-2">
+                    <h2 className="text-xl font-semibold text-white mb-1">
                       Your Goals
                     </h2>
-                    <p className="text-white/80">
+                    <p className="text-sm text-white/80">
                       Track your progress and stay motivated
                     </p>
                   </div>
                   <div className="hidden md:block">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                      <span className="text-2xl">🎯</span>
+                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                      <span className="text-xl">🎯</span>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                   {goals.slice(0, 6).map((goal) => (
-                    <div key={goal._id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="w-10 h-10 bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-xl flex items-center justify-center">
-                          <span className="text-white text-lg">
+                                          <div key={goal._id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 border border-gray-200 hover:shadow-lg transition-all duration-300">
+                                              <div className="flex items-start justify-between mb-3">
+                                                  <div className="w-8 h-8 bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-xl flex items-center justify-center">
+                            <span className="text-white text-sm">
                             {goal.goalType === 'financial' ? '💰' : 
                              goal.goalType === 'health' ? '💪' : 
                              goal.goalType === 'learning' ? '📚' : 
@@ -474,16 +474,16 @@ export default function Dashboard() {
                           </div>
                         )}
                       </div>
-                      <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">
+                      <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2">
                         {goal.specificGoal || goal.goal}
                       </h3>
                       {goal.measurableOutcome && (
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                           {goal.measurableOutcome}
                         </p>
                       )}
                       {goal.targetValue && goal.currentValue !== undefined && (
-                        <div className="mb-3">
+                        <div className="mb-2">
                           <div className="flex justify-between text-sm text-gray-600 mb-1">
                             <span>Progress</span>
                             <span>{goal.currentValue} / {goal.targetValue} {goal.unit}</span>
