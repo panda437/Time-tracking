@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { format, parseISO } from "date-fns"
 import { Target, Save, X, Plus, Trash2, Calendar, Edit3, CheckCircle, Archive } from "lucide-react"
+import { useUserCategories } from '@/hooks/useUserCategories'
 
 interface GoalEditModalProps {
   goal: any | null
@@ -10,15 +11,12 @@ interface GoalEditModalProps {
   onSaved: () => void
 }
 
-const CATEGORIES = [
-  "work", "education", "health", "personal", "social", "entertainment", "other"
-]
-
 const GOAL_TYPES = [
   "financial", "health", "learning", "productivity", "relationship", "habit", "project", "other"
 ]
 
 export default function GoalEditModal({ goal, onClose, onSaved }: GoalEditModalProps) {
+  const { categories } = useUserCategories()
   const isNew = !goal
   const [form, setForm] = useState<any>({
     goal: "",
@@ -225,7 +223,7 @@ export default function GoalEditModal({ goal, onClose, onSaved }: GoalEditModalP
                 onChange={e => handleChange('relatedCategories', Array.from(e.target.selectedOptions, option => option.value))}
                 className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all bg-[#FAFAFA] focus:bg-white"
               >
-                {CATEGORIES.map(cat => (
+                {categories.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>

@@ -7,6 +7,8 @@ export interface IUser extends Document {
   password?: string  // Make password optional for OAuth users
   name?: string
   timezone: string
+  timeCategories?: string[] // User's custom time tracking categories
+  hasCompletedOnboarding?: boolean // Whether user has completed onboarding
   createdAt: Date
   updatedAt: Date
 }
@@ -16,6 +18,8 @@ const UserSchema = new Schema<IUser>({
   password: { type: String, required: false }, // Allow empty password for OAuth users
   name: { type: String },
   timezone: { type: String, default: "UTC" },
+  timeCategories: { type: [String], default: ["Work", "Personal", "Health", "Education", "Social", "Fun", "Side Project", "Other"] },
+  hasCompletedOnboarding: { type: Boolean, default: false },
 }, {
   timestamps: true
 })

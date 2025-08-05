@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation"
 import { subMinutes } from "date-fns"
 import TimePicker from "./TimePicker"
 import ScrollPicker from "./ScrollPicker"
+import { useUserCategories } from "@/hooks/useUserCategories"
 import { trackTimeEntry, trackFormInteraction } from "./GoogleAnalytics"
+import CategorySelectionModal from "./CategorySelectionModal"
 
 interface TimeEntry {
   id: string
@@ -53,13 +55,29 @@ const durationOptions = [
 
 export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = false, isFirstEntry = false }: TimeEntryFormProps) {
   const router = useRouter()
+  const { categories, refreshCategories } = useUserCategories()
   const [activity, setActivity] = useState("")
   const [description, setDescription] = useState("")
   const [duration, setDuration] = useState(60)
-  const [category, setCategory] = useState("work")
+  const [category, setCategory] = useState("Work")
   const [mood, setMood] = useState("")
   const [loading, setLoading] = useState(false)
   const [isExpanded, setIsExpanded] = useState(showExpandedByDefault)
+
+  // Helper function to get icon for category
+  const getCategoryIcon = (cat: string) => {
+    const iconMap: { [key: string]: string } = {
+      "Work": "💼",
+      "Personal": "🏠", 
+      "Health": "💪",
+      "Education": "🎓",
+      "Social": "👥",
+      "Fun": "🎬",
+      "Side Project": "💡",
+      "Other": "📝"
+    }
+    return iconMap[cat] || "📝"
+  }
   const [startTime, setStartTime] = useState<Date>(() => {
     const now = new Date()
     const startTime = new Date(now)
@@ -75,6 +93,7 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
   const [endTime, setEndTime] = useState<Date>(new Date())
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [showSuccess, setShowSuccess] = useState(false)
+  const [showCategoryModal, setShowCategoryModal] = useState(false)
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,10 +101,8 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
     setLoading(true)
 
     try {
-      // Use the selected start time from TimePicker, or fallback to calculated time
-      const submissionStartTime = isExpanded 
-        ? startTime.toISOString() 
-        : subMinutes(new Date(), duration).toISOString()
+      // Always use the selected start time from the form
+      const submissionStartTime = startTime.toISOString()
       
       const response = await fetch("/api/entries", {
         method: "POST",
@@ -151,7 +168,8 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
 
   const updateStartTimeForDuration = useCallback((newDuration: number) => {
     const now = new Date()
-    const startTime = new Date(now)
+    const startTime = new Date(selectedDate)
+    startTime.setHours(now.getHours(), now.getMinutes())
     startTime.setMinutes(startTime.getMinutes() - newDuration)
     // Round to nearest half hour
     const minutes = startTime.getMinutes()
@@ -160,7 +178,7 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
     startTime.setSeconds(0)
     startTime.setMilliseconds(0)
     setStartTime(startTime)
-  }, [])
+  }, [selectedDate])
 
   const [areaScrollIndex, setAreaScrollIndex] = useState(0)
   const [feelingScrollIndex, setFeelingScrollIndex] = useState(0)
@@ -236,7 +254,7 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
                 value={startTime.toTimeString().slice(0, 5)}
                 onChange={(e) => {
                   const [hours, minutes] = e.target.value.split(':')
-                  const newTime = new Date(startTime)
+                  const newTime = new Date(selectedDate)
                   newTime.setHours(parseInt(hours), parseInt(minutes))
                   setStartTime(newTime)
                 }}
@@ -307,7 +325,7 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
               value={startTime.toTimeString().slice(0, 5)}
               onChange={(e) => {
                 const [hours, minutes] = e.target.value.split(':')
-                const newTime = new Date(startTime)
+                const newTime = new Date(selectedDate)
                 newTime.setHours(parseInt(hours), parseInt(minutes))
                 setStartTime(newTime)
               }}
@@ -339,18 +357,23 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
               <label className="flex items-center space-x-2 text-sm font-medium text-[#222222]">
                 <span>📁</span>
                 <span>Area</span>
+                <button
+                  type="button"
+                  onClick={() => setShowCategoryModal(true)}
+                  className="ml-1 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                  title="Edit categories"
+                >
+                  <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
               </label>
               <ScrollPicker
-                items={[
-                  { value: "work", label: "Work", icon: "💼" },
-                  { value: "personal", label: "Personal", icon: "🏠" },
-                  { value: "health", label: "Health", icon: "💪" },
-                  { value: "education", label: "Education", icon: "🎓" },
-                  { value: "social", label: "Social", icon: "👥" },
-                  { value: "fun", label: "Fun", icon: "🎬" },
-                  { value: "side-project", label: "Side Project", icon: "💡" },
-                  { value: "other", label: "Other", icon: "📝" }
-                ]}
+                items={categories.map(cat => ({
+                  value: cat,
+                  label: cat,
+                  icon: getCategoryIcon(cat)
+                }))}
                 selectedValue={category}
                 onSelect={setCategory}
                 height={120}
@@ -390,30 +413,31 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
               <label className="flex items-center space-x-2 text-sm font-medium text-[#222222]">
                 <span>📁</span>
                 <span>Area</span>
+                <button
+                  type="button"
+                  onClick={() => setShowCategoryModal(true)}
+                  className="ml-1 p-1 hover:bg-gray-100 rounded-full transition-colors"
+                  title="Edit categories"
+                >
+                  <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
               </label>
               <div className="flex flex-wrap gap-2">
-                {[
-                  { value: "work", label: "Work", icon: "💼" },
-                  { value: "personal", label: "Personal", icon: "🏠" },
-                  { value: "health", label: "Health", icon: "💪" },
-                  { value: "education", label: "Education", icon: "🎓" },
-                  { value: "social", label: "Social", icon: "👥" },
-                  { value: "fun", label: "Fun", icon: "🎬" },
-                  { value: "side-project", label: "Side Project", icon: "💡" },
-                  { value: "other", label: "Other", icon: "📝" }
-                ].map((cat) => (
+                {categories.map((cat) => (
                   <button
-                    key={cat.value}
+                    key={cat}
                     type="button"
-                    onClick={() => setCategory(cat.value)}
+                    onClick={() => setCategory(cat)}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-full border transition-all ${
-                      category === cat.value
+                      category === cat
                         ? 'bg-[#FF385C] text-white border-[#FF385C]'
                         : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-[#FF385C]/50'
                     }`}
                   >
-                    <span className="text-lg">{cat.icon}</span>
-                    <span className="text-sm font-medium capitalize">{cat.label}</span>
+                    <span className="text-lg">{getCategoryIcon(cat)}</span>
+                    <span className="text-sm font-medium capitalize">{cat}</span>
                   </button>
                 ))}
               </div>
@@ -525,6 +549,19 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
           </div>
         </div>
       )}
+
+      {/* Category Selection Modal */}
+      <CategorySelectionModal
+        isOpen={showCategoryModal}
+        onClose={() => setShowCategoryModal(false)}
+        onSaveCategories={async (categories) => {
+          setShowCategoryModal(false)
+          // Wait a moment for the database update to complete
+          await new Promise(resolve => setTimeout(resolve, 500))
+          // Refresh categories in the hook
+          await refreshCategories()
+        }}
+      />
     </div>
   )
 }

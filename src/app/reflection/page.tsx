@@ -7,6 +7,7 @@ import { format, subDays, parseISO, setHours, setMinutes } from "date-fns"
 import Header from "@/components/Header"
 import MobileNavigation from "@/components/MobileNavigation"
 import { Calendar, Clock, Edit3, ArrowRight, Sparkles, Heart, Save } from "lucide-react"
+import { useUserCategories } from "@/hooks/useUserCategories"
 
 interface TimeEntry {
   id: string
@@ -44,10 +45,6 @@ interface TimeSlot {
   mood: string
 }
 
-const categories = [
-  "work", "personal", "health", "education", "social", "entertainment", "other"
-]
-
 const moods = [
   { emoji: "😊", name: "Happy" },
   { emoji: "🔥", name: "Energized" },
@@ -60,6 +57,7 @@ const moods = [
 export default function ReflectionPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { categories } = useUserCategories()
   const [yesterdayEntries, setYesterdayEntries] = useState<TimeEntry[]>([])
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
   const [loading, setLoading] = useState(true)

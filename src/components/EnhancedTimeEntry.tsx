@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { Clock, Calendar, Send, CheckCircle } from 'lucide-react'
-import { CATEGORIES } from '@/lib/categories'
+import { useUserCategories } from '@/hooks/useUserCategories'
 
 interface TimeSlot {
   startTime: Date
@@ -26,6 +26,7 @@ interface EnhancedTimeEntryProps {
 
 export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryProps) {
   const { data: session } = useSession()
+  const { categories } = useUserCategories()
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
   const [entries, setEntries] = useState<{ [key: string]: EntryData }>({})
   const [submittedSlots, setSubmittedSlots] = useState<Set<string>>(new Set())
@@ -63,7 +64,7 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
       initialEntries[slot.id] = {
         activity: '',
         mood: '',
-        category: 'work'
+        category: categories.length > 0 ? categories[0] : 'work'
       }
     })
     setEntries(initialEntries)
@@ -147,7 +148,7 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
           [slot.id]: {
             activity: '',
             mood: '',
-            category: 'work'
+            category: categories.length > 0 ? categories[0] : 'work'
           }
         }))
         // Notify parent component
@@ -263,7 +264,7 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
                       onChange={(e) => updateEntry(slot.id, 'category', e.target.value)}
                       className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent"
                     >
-                      {CATEGORIES.map((option) => (
+                      {categories.map((option) => (
                         <option key={option} value={option}>
                           {option}
                         </option>
@@ -354,7 +355,7 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
                     onChange={(e) => updateEntry(slot.id, 'category', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF385C] focus:border-transparent text-sm"
                   >
-                    {CATEGORIES.map((option) => (
+                    {categories.map((option) => (
                       <option key={option} value={option}>
                         {option}
                       </option>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { format, parseISO, setHours, setMinutes } from "date-fns"
 import { Clock, Edit3, HelpCircle, Sparkles, Trash2, Save } from "lucide-react"
-import { CATEGORIES } from '@/lib/categories'
+import { useUserCategories } from '@/hooks/useUserCategories'
 
 interface TimeEntry {
   id: string
@@ -43,6 +43,7 @@ export default function TaskEditModal({
   onDelete, 
   onReschedule 
 }: TaskEditModalProps) {
+  const { categories } = useUserCategories()
   const [formData, setFormData] = useState<TimeEntry>({
     id: '',
     activity: '',
@@ -50,7 +51,7 @@ export default function TaskEditModal({
     duration: 30,
     startTime: new Date().toISOString(),
     endTime: new Date().toISOString(),
-    category: 'work',
+    category: categories.length > 0 ? categories[0] : 'work',
     mood: '',
     tags: []
   })
@@ -280,7 +281,7 @@ export default function TaskEditModal({
                   onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-[#FF385C]/20 focus:border-[#FF385C] transition-all capitalize"
                 >
-                  {CATEGORIES.map(cat => (
+                  {categories.map(cat => (
                     <option key={cat} value={cat} className="capitalize">
                       {cat}
                     </option>

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { format } from "date-fns"
 import { Clock, X, Calendar, Smile } from "lucide-react"
 import { trackTimeEntry, trackFormInteraction } from "./GoogleAnalytics"
-import { CATEGORIES } from '@/lib/categories'
+import { useUserCategories } from '@/hooks/useUserCategories'
 
 interface AddTaskGapModalProps {
   isOpen: boolean
@@ -26,8 +26,9 @@ const moods = [
 ]
 
 export default function AddTaskGapModal({ isOpen, onClose, startTime, endTime, onTaskAdded, title, subtitle }: AddTaskGapModalProps) {
+  const { categories } = useUserCategories()
   const [activity, setActivity] = useState("")
-  const [category, setCategory] = useState("work")
+  const [category, setCategory] = useState(categories.length > 0 ? categories[0] : "work")
   const [mood, setMood] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -149,7 +150,7 @@ export default function AddTaskGapModal({ isOpen, onClose, startTime, endTime, o
               Category
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <button
                   key={cat}
                   type="button"
