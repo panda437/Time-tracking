@@ -34,14 +34,14 @@ export default function Home() {
     setMounted(true)
   }, [])
 
-  // Trigger chart animation when it comes into view
+  // Trigger chart animation based on scroll direction
   useEffect(() => {
     console.log('Chart animation triggered, isVisible:', isVisible)
     if (isVisible) {
       const timer = setTimeout(() => {
         console.log('Setting productive data')
         setAnimateData([1, 1, 3, 4, 1, 2]) // Animate to productive time management
-      }, 500)
+      }, 200)
       return () => clearTimeout(timer)
     } else {
       console.log('Setting poor data')
@@ -81,9 +81,15 @@ export default function Home() {
       },
     },
     scales: {
+      x: {
+        display: false, // Hide x-axis labels to avoid duplication
+      },
       y: {
         beginAtZero: true,
         max: 5,
+        grid: {
+          color: 'rgba(0, 0, 0, 0.1)',
+        },
       },
     },
   }
@@ -143,24 +149,91 @@ export default function Home() {
               See where your time really goes and turn it into measurable progress toward your goals.
             </p>
 
-            {/* Chart Section - Shows transformation from poor to productive time management */}
-            <div ref={elementRef}>
+            {/* Chart Section - Before/After Transition */}
+            <div ref={elementRef} className="relative">
               <h2 className="text-3xl md:text-4xl font-bold text-[#222222] mb-4">
-                Your Time is your most valuable Asset
+                Time is your most valuable Asset
               </h2>
               <p className="text-lg text-gray-600 mb-8">
-                Take control of your time. {isVisible ? '✨ Animating!' : '📊 Scroll to see transformation'}
+                Take control of your time.
               </p>
-                          <div className="max-w-2xl mx-auto mb-6">
-              <Bar data={data} options={options} />
-            </div>
-            <div className="flex justify-around max-w-2xl mx-auto text-gray-700">
-                <div className="flex flex-col items-center text-sm"><Youtube />YouTube</div>
-                <div className="flex flex-col items-center text-sm"><Smartphone />TikTok</div>
-                <div className="flex flex-col items-center text-sm"><Zap />Side Project</div>
-                <div className="flex flex-col items-center text-sm"><Briefcase />Focused Work</div>
-                <div className="flex flex-col items-center text-sm"><BookOpen />Reading</div>
-                <div className="flex flex-col items-center text-sm"><Heart />Self Care</div>
+              
+              {/* Before/After Labels */}
+              <div className="flex justify-between items-center mb-4 max-w-2xl mx-auto">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-semibold text-red-600 bg-red-50 px-3 py-1 rounded-full">
+                    BEFORE
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-semibold text-[#FF385C] bg-[#FF385C]/10 px-3 py-1 rounded-full">
+                    AFTER
+                  </span>
+                </div>
+              </div>
+              
+              {/* Chart and Labels Container - Single Responsive Unit */}
+              <div className="relative max-w-2xl mx-auto bg-white rounded-lg p-4">
+                {/* Chart Container - Auto height to match chart content */}
+                <div className="relative mb-4">
+                  {/* Base Chart (Always Visible) */}
+                  <div className="bg-gray-100 rounded-lg p-4">
+                    <Bar data={data} options={options} />
+                  </div>
+                  
+                  {/* After Chart Overlay (White Background) */}
+                  <div 
+                    className="absolute inset-0 transition-all duration-1000 ease-out bg-white rounded-lg p-4"
+                    style={{ 
+                      clipPath: isVisible 
+                        ? `polygon(0 0, 100% 0, 100% 100%, 0 100%)` 
+                        : `polygon(0 0, 0% 0, 0% 100%, 0 100%)`
+                    }}
+                  >
+                    <Bar data={data} options={options} />
+                  </div>
+                  
+                  {/* Sliding Divider */}
+                  <div 
+                    className="absolute top-0 bottom-0 w-1 bg-[#FF385C] z-10 transition-all duration-1000 ease-out"
+                    style={{ 
+                      left: isVisible ? '100%' : '0%',
+                      transform: 'translateX(-50%)'
+                    }}
+                  >
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-[#FF385C] rounded-full flex items-center justify-center shadow-lg">
+                      <div className="w-1 h-4 bg-white rounded-full opacity-80"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Category Labels - Grid-based alignment for perfect positioning */}
+                <div className="grid grid-cols-6 gap-1 text-gray-700">
+                  <div className="flex flex-col items-center text-xs sm:text-sm">
+                    <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="mt-1 text-center">YouTube</span>
+                  </div>
+                  <div className="flex flex-col items-center text-xs sm:text-sm">
+                    <Smartphone className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="mt-1 text-center">TikTok</span>
+                  </div>
+                  <div className="flex flex-col items-center text-xs sm:text-sm">
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="mt-1 text-center">Side Project</span>
+                  </div>
+                  <div className="flex flex-col items-center text-xs sm:text-sm">
+                    <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="mt-1 text-center">Focused Work</span>
+                  </div>
+                  <div className="flex flex-col items-center text-xs sm:text-sm">
+                    <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="mt-1 text-center">Reading</span>
+                  </div>
+                  <div className="flex flex-col items-center text-xs sm:text-sm">
+                    <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="mt-1 text-center">Self Care</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -196,7 +269,7 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF385C] to-[#E31C5F] flex items-center justify-center text-white shadow-lg">
                   <Edit3 className="w-6 h-6" />
                 </div>
-                <p className="text-xl font-semibold text-[#222222]">Track</p>
+                <p className="text-xl font-semibold text-[#222222]">Track Time</p>
               </div>
 
               {/* Arrow */}
@@ -207,7 +280,7 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-lg">
                   <BarChart3 className="w-6 h-6" />
                 </div>
-                <p className="text-xl font-semibold text-[#222222]">AI analyzes</p>
+                <p className="text-xl font-semibold text-[#222222]">AI analysis</p>
               </div>
 
               {/* Arrow */}
@@ -218,7 +291,7 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white shadow-lg">
                   <Zap className="w-6 h-6" />
                 </div>
-                <p className="text-xl font-semibold text-[#222222]">Achieve</p>
+                <p className="text-xl font-semibold text-[#222222]">Achieve Goals</p>
               </div>
             </div>
         </div>

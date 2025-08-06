@@ -3,30 +3,42 @@ import { useEffect, useRef, useState } from 'react'
 export function useScrollAnimation() {
   const elementRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
+  const lastScrollYRef = useRef(0)
+  const isScrollingRef = useRef(false)
 
   useEffect(() => {
-    const element = elementRef.current
-    if (!element) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        console.log('Scroll animation triggered:', entry.isIntersecting)
-        if (entry.isIntersecting) {
+    const handleScroll = () => {
+      if (isScrollingRef.current) return
+      
+      isScrollingRef.current = true
+      
+      const currentScrollY = window.scrollY
+      const scrollDifference = currentScrollY - lastScrollYRef.current
+      
+      console.log('Scroll position:', currentScrollY, 'Difference:', scrollDifference)
+      
+      if (Math.abs(scrollDifference) > 10) { // Only trigger if scroll is significant
+        if (scrollDifference > 0) {
+          console.log('Scrolling DOWN - setting to productive')
           setIsVisible(true)
         } else {
+          console.log('Scrolling UP - setting to poor')
           setIsVisible(false)
         }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
       }
-    )
+      
+      lastScrollYRef.current = currentScrollY
+      
+      // Debounce scroll events
+      setTimeout(() => {
+        isScrollingRef.current = false
+      }, 100)
+    }
 
-    observer.observe(element)
-
+    window.addEventListener('scroll', handleScroll)
+    
     return () => {
-      observer.unobserve(element)
+      window.removeEventListener('scroll', handleScroll)
     }
   }, [])
 
