@@ -10,13 +10,16 @@ export function useScrollAnimation() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        console.log('Scroll animation triggered:', entry.isIntersecting)
         if (entry.isIntersecting) {
           setIsVisible(true)
+        } else {
+          setIsVisible(false)
         }
       },
       {
-        threshold: 0.3,
-        rootMargin: '0px 0px -100px 0px'
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
       }
     )
 

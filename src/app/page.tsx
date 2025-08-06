@@ -28,10 +28,7 @@ export default function Home() {
   const { elementRef, isVisible } = useScrollAnimation()
   
   // Chart data - starts with poor time management, animates to productive time management
-  const poorTimeData = [3, 3, 1, 2, 0, 1] // YouTube, TikTok, Side Project, Focused Work, Reading, Self Care
-  const productiveTimeData = [1, 1, 3, 4, 1, 2] // Improved productivity
-  
-  const [animateData, setAnimateData] = useState(poorTimeData)
+  const [animateData, setAnimateData] = useState([3, 3, 1, 2, 0, 1]) // Start with poor time management
 
   useEffect(() => {
     setMounted(true)
@@ -39,15 +36,18 @@ export default function Home() {
 
   // Trigger chart animation when it comes into view
   useEffect(() => {
+    console.log('Chart animation triggered, isVisible:', isVisible)
     if (isVisible) {
       const timer = setTimeout(() => {
-        setAnimateData(productiveTimeData)
+        console.log('Setting productive data')
+        setAnimateData([1, 1, 3, 4, 1, 2]) // Animate to productive time management
       }, 500)
       return () => clearTimeout(timer)
     } else {
-      setAnimateData(poorTimeData)
+      console.log('Setting poor data')
+      setAnimateData([3, 3, 1, 2, 0, 1]) // Reset to poor time management
     }
-  }, [isVisible, productiveTimeData, poorTimeData])
+  }, [isVisible])
 
   useEffect(() => {
     if (mounted && status === "authenticated") {
@@ -114,7 +114,7 @@ export default function Home() {
       {/* Header */}
       <header className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#FF385C]/10 via-[#00A699]/10 to-[#FC642D]/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20">
           {/* Navigation */}
           <nav className="flex items-center justify-between mb-16">
             <div className="flex items-center space-x-3">
@@ -136,7 +136,7 @@ export default function Home() {
 
           {/* Hero Section */}
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-6xl font-bold text-[#222222] mb-6 leading-tight">
+            <h1 className="text-3xl md:text-5xl font-bold text-[#222222] mb-6 leading-tight">
               Personal Time Tracking for <br className="hidden md:block"/>Busy Professionals
             </h1>
             <p className="text-xl md:text-2xl text-[#767676] mb-8 font-medium leading-relaxed">
@@ -149,12 +149,12 @@ export default function Home() {
                 Your Time is your most valuable Asset
               </h2>
               <p className="text-lg text-gray-600 mb-8">
-                Take control of your time.
+                Take control of your time. {isVisible ? '✨ Animating!' : '📊 Scroll to see transformation'}
               </p>
-              <div className="max-w-3xl mx-auto mb-6">
-                <Bar data={data} options={options} />
-              </div>
-              <div className="flex justify-around max-w-3xl mx-auto text-gray-700">
+                          <div className="max-w-2xl mx-auto mb-6">
+              <Bar data={data} options={options} />
+            </div>
+            <div className="flex justify-around max-w-2xl mx-auto text-gray-700">
                 <div className="flex flex-col items-center text-sm"><Youtube />YouTube</div>
                 <div className="flex flex-col items-center text-sm"><Smartphone />TikTok</div>
                 <div className="flex flex-col items-center text-sm"><Zap />Side Project</div>
