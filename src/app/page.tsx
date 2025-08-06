@@ -4,16 +4,50 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Clock, Edit3, BarChart3, Zap, ArrowRight } from "lucide-react"
+import { Clock, Edit3, BarChart3, Zap, ArrowRight, BookOpen, Youtube, Heart, Briefcase, Smartphone } from "lucide-react"
+import { useScrollAnimation } from "@/hooks/useScrollAnimation"
+import { Bar } from "react-chartjs-2"
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js"
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 export default function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
+  
+  // Scroll animation hook for the chart
+  const { elementRef, isVisible } = useScrollAnimation()
+  
+  // Chart data - starts with poor time management, animates to productive time management
+  const poorTimeData = [3, 3, 1, 2, 0, 1] // YouTube, TikTok, Side Project, Focused Work, Reading, Self Care
+  const productiveTimeData = [1, 1, 3, 4, 1, 2] // Improved productivity
+  
+  const [animateData, setAnimateData] = useState(poorTimeData)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Trigger chart animation when it comes into view
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        setAnimateData(productiveTimeData)
+      }, 500)
+      return () => clearTimeout(timer)
+    } else {
+      setAnimateData(poorTimeData)
+    }
+  }, [isVisible, productiveTimeData, poorTimeData])
 
   useEffect(() => {
     if (mounted && status === "authenticated") {
@@ -21,7 +55,39 @@ export default function Home() {
     }
   }, [mounted, status, router])
 
-  // Show loading only if not mounted yet or if session is actually loading
+  const data = {
+    labels: ["YouTube", "TikTok", "Side Project", "Focused Work", "Reading", "Self Care"],
+    datasets: [
+      {
+        label: "Time Spent",
+        data: animateData,
+        backgroundColor: ["#FF0000", "#FF9900", "#4285F4", "#34A853", "#9C27B0", "#FF4081"],
+      },
+    ],
+  }
+
+  const options = {
+    responsive: true,
+    animation: {
+      duration: 2000,
+      easing: "easeInOutQuart" as const,
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx: any) => `${ctx.parsed.y} hours`,
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 5,
+      },
+    },
+  }
+
   if (!mounted || (status === "loading" && mounted)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB] flex items-center justify-center">
@@ -32,6 +98,7 @@ export default function Home() {
       </div>
     )
   }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#F7F7F7] to-[#EBEBEB] relative">
       {/* Noise Texture Background */}
@@ -75,11 +142,30 @@ export default function Home() {
             <p className="text-xl md:text-2xl text-[#767676] mb-8 font-medium leading-relaxed">
               See where your time really goes and turn it into measurable progress toward your goals.
             </p>
-            
 
+            {/* Chart Section - Shows transformation from poor to productive time management */}
+            <div ref={elementRef}>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#222222] mb-4">
+                Your Time is your most valuable Asset
+              </h2>
+              <p className="text-lg text-gray-600 mb-8">
+                Take control of your time.
+              </p>
+              <div className="max-w-3xl mx-auto mb-6">
+                <Bar data={data} options={options} />
+              </div>
+              <div className="flex justify-around max-w-3xl mx-auto text-gray-700">
+                <div className="flex flex-col items-center text-sm"><Youtube />YouTube</div>
+                <div className="flex flex-col items-center text-sm"><Smartphone />TikTok</div>
+                <div className="flex flex-col items-center text-sm"><Zap />Side Project</div>
+                <div className="flex flex-col items-center text-sm"><Briefcase />Focused Work</div>
+                <div className="flex flex-col items-center text-sm"><BookOpen />Reading</div>
+                <div className="flex flex-col items-center text-sm"><Heart />Self Care</div>
+              </div>
+            </div>
 
             {/* CTA Section */}
-            <div className="space-y-4">
+            <div className="space-y-4 mt-12">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link 
                   href="/api/auth/signin/google"
@@ -96,8 +182,6 @@ export default function Home() {
                   <span>Sign up with Email</span>
                 </Link>
               </div>
-              
-
             </div>
           </div>
         </div>
