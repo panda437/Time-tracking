@@ -361,7 +361,7 @@ export default function Home() {
                 <p>
                   That's when I discovered the power of time tracking. What started as a simple 
                   habit <b>transformed</b> how I approached my days. I began to see patterns, understand 
-                  my energy levels, and most importantly – stay grounded in the present moment.
+                  my energy levels, and most importantly, stay grounded in the present moment.
                 </p>
                 <p>
                   Hopefully, you feel that when you use it and it helps you as much as it helped me.

@@ -21,6 +21,7 @@
     "@types/bcryptjs": "^3.0.0",
     "@types/nodemailer": "^6.4.17",
     "bcryptjs": "^3.0.2",
+    "chart.js": "^4.5.0",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.1",
     "lucide-react": "^0.523.0",
@@ -31,6 +32,7 @@
     "nodemailer": "^6.10.1",
     "openai": "^5.8.2",
     "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",
     "recharts": "^3.0.0"
   },
