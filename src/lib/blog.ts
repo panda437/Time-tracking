@@ -112,6 +112,83 @@ Remember: you're not a news aggregator. You're a human being with limited time a
     coverImage: "🧠",
     author: "Asif Akbar",
     tags: ["productivity", "mental health", "time management", "digital wellness"]
+  },
+  {
+    title: "What Daniel Kahneman Can Teach You About Using Your Time Better",
+    date: "2025-01-05",
+    slug: "what-daniel-kahneman-can-teach-you-about-using-your-time-better",
+    excerpt: "System 1 vs System 2, the cognitive traps that waste your time, and how Roozi helps you make better decisions with real data.",
+    content: `
+# What Daniel Kahneman Can Teach You About Using Your Time Better
+
+If you've ever ended a week thinking, "What did I even do?"—congrats, you're human. Your brain wasn't designed to track time accurately. It was designed to keep you alive, which is great for spotting tigers, but not so great for choosing between "start proposal" and "open Slack for the 47th time."
+
+Psychologist Daniel Kahneman (the "Thinking, Fast and Slow" guy) explains why: we have two operating modes—\"System 1\" (fast, intuitive, impulsive) and \"System 2\" (slow, deliberate, rational). You need both. But if you don't set things up right, System 1 runs your day—and your calendar—on autopilot.
+
+This isn't a book summary. It's a field guide for better time use.
+
+## System 1 vs System 2 (Why your calendar lies to you)
+
+- **System 1**: quick reactions, habits, snap judgments. It's why you open email without thinking.
+- **System 2**: careful thinking. It's why you can plan a project—if you actually sit down and do it.
+
+The tension: System 1 runs your reflexes. System 2 sets your direction. And most days, reflexes win.
+
+## Why you misjudge how you spend time (no, it's not just you)
+
+Your brain doesn't save a perfect audit log. It saves highlights. That means your memory is a story, not a spreadsheet. Three biases sabotage your time:
+
+### 1) Present bias: "Now" always feels more important than "later"
+You know you should work on the strategy doc. But the dopamine hit from responding to a ping? Immediate. Present You keeps stealing from Future You. (Future You is tired of your bullshit.)
+
+### 2) Peak-end rule: You remember the spike, not the curve
+If your day had one exciting meeting at 4 PM, you'll think the day was "busy"—even if you spent five hours wandering through tabs and Slack threads.
+
+### 3) Hindsight bias: You think you "knew" how you spent time
+Ask someone how they spent the week and they'll guess. Confidently. Then compare it to actual tracked data and—surprise—reality doesn't match the story.
+
+## The Roozi connection: Train your System 2
+
+Kahneman's work isn't motivational fluff. It's a systems upgrade. Roozi helps in three specific ways:
+
+- **Roozi as a System 2 coach**: It adds just enough friction to move you from impulse (System 1) to intention (System 2). Tiny check-ins. Gentle prompts. Clean structure.
+- **Replace guesswork with facts**: You track real time. Not vibes. Not memory. Not "I felt busy." Actual entries.
+- **Counter present bias with AI**: Roozi highlights where your hours actually go and suggests small shifts with big payoff (e.g., "Mornings = deep work. Slack after 11 AM.")
+
+This isn't about judging yourself. It's about seeing clearly and adjusting.
+
+## What this looks like in real life
+
+- You planned to write for an hour. Instead, you checked email six times. Roozi shows you the pattern in black and white.
+- You think you're "bad at focus." Actually, you focus great from 9:30–11:00. You just keep booking meetings on top of that.
+- You swear social media is "just five minutes." It's not. Roozi catches the truth—kindly—and helps you cap it.
+
+## Try this for one week
+
+1. **Track without changing anything.** No heroics. Just record honestly.
+2. **Review the week.** Compare your expectations vs reality. What surprised you? What stole your time? What energized you?
+3. **Set one micro-goal.** Not a life overhaul. One lever. Examples:
+   - "No Slack before 11 AM."
+   - "90 minutes of deep work before lunch."
+   - "Scroll after 8 PM only."
+4. **Use Roozi to reinforce it.** Capture the session. Label it. Let the data nudge you forward.
+
+## System 2 isn't about effort. It's about design.
+
+If you rely on willpower, System 1 wins. If you design your day—guardrails, prompts, quick reviews—System 2 wins quietly. That's the game.
+
+## The takeaway
+
+Kahneman showed us that our brains are wired for shortcuts. Roozi gives you the dashboard to spot them—and fix them. Track your time. Review the truth. Adjust one thing. Repeat.
+
+You'll waste less energy guessing. You'll make better calls. And you'll actually feel momentum.
+
+### Ready to train your System 2?
+Start free with Roozi today and put your time to work—on purpose.
+    `,
+    coverImage: "📘",
+    author: "Asif Akbar",
+    tags: ["productivity", "decision-making", "behavioral science", "time management"]
   }
 ]
 
