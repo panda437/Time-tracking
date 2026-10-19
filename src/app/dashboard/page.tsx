@@ -148,7 +148,7 @@ export default function Dashboard() {
         if (goals.length === 0) {
           // Check if user has any entries to determine if they're truly new
           try {
-            const entriesResponse = await fetch("/api/entries", {
+            const entriesResponse = await fetch("/api/entries?period=all", {
               headers: {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
@@ -252,7 +252,6 @@ export default function Dashboard() {
     refreshUserStats()
   }
 
-  const isFirstEntry = entries.length === 0 && userGoals.length > 0
 
   const handleEntryUpdated = (updatedEntry: TimeEntry) => {
     setEntries(entries.map(entry => 
@@ -425,7 +424,6 @@ export default function Dashboard() {
                   <TimeEntryForm 
                     onEntryAdded={handleEntryAdded} 
                     showExpandedByDefault={entries.length === 0 && userGoals.length === 0}
-                    isFirstEntry={isFirstEntry}
                   />
                 )}
               </div>

@@ -36,7 +36,7 @@ export async function trackServerEvent(
           user_id: userId,
           events: events.map(event => ({
             name: event.name,
-            parameters: {
+            params: {
               engagement_time_msec: 100,
               ...event.parameters
             }
