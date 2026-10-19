@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { useRouter } from "next/navigation"
 import { subMinutes } from "date-fns"
 import TimePicker from "./TimePicker"
 import ScrollPicker from "./ScrollPicker"
@@ -27,7 +26,6 @@ interface TimeEntry {
 interface TimeEntryFormProps {
   onEntryAdded: (entry: TimeEntry) => void
   showExpandedByDefault?: boolean
-  isFirstEntry?: boolean
 }
 
 const categories = [
@@ -53,14 +51,15 @@ const durationOptions = [
   { value: 180, label: "3 hours", description: "Deep work" },
 ]
 
-export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = false, isFirstEntry = false }: TimeEntryFormProps) {
-  const router = useRouter()
+export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = false }: TimeEntryFormProps) {
   const { categories, refreshCategories } = useUserCategories()
   const [activity, setActivity] = useState("")
   const [description, setDescription] = useState("")
   const [duration, setDuration] = useState(60)
   const [category, setCategory] = useState("Work")
   const [mood, setMood] = useState("")
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [savedActivity, setSavedActivity] = useState("")
   const [loading, setLoading] = useState(false)
   const [isExpanded, setIsExpanded] = useState(showExpandedByDefault)
 
@@ -99,6 +98,7 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setSaveError(null)
 
     try {
       // Always use the selected start time from the form
@@ -128,16 +128,9 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
         trackFormInteraction('submit', 'time_entry_form')
         
         // Show success message
+        setSavedActivity(activity)
         setShowSuccess(true)
         setTimeout(() => setShowSuccess(false), 5000)
-        
-        // If this is the first entry, redirect to reflection page
-        if (isFirstEntry) {
-          setTimeout(() => {
-            router.push('/reflection')
-          }, 2000)
-          return
-        }
         
         // Reset form
         setActivity("")
@@ -147,10 +140,10 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
         setMood("")
         setIsExpanded(false) // Collapse form after success
       } else {
-        console.error("Failed to create entry")
+        setSaveError(response.status === 401 ? "Your session expired. Sign in again, then retry saving this entry." : "Could not save your entry. Your details are still here; please try again.")
       }
     } catch (error) {
-      console.error("Error creating entry:", error)
+      setSaveError("Could not reach the server. Check your connection and try again.")
     } finally {
       setLoading(false)
     }
@@ -189,6 +182,7 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
   return (
     <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden animate-slide-up">
       <form onSubmit={handleSubmit} className="p-2 md:p-6 space-y-4">
+        {saveError && <p role="alert" className="text-red-700">{saveError}</p>}
         {/* What did you accomplish? */}
         <div className="space-y-2">
           <label className="flex items-center space-x-2 text-base font-medium text-[#222222]">
@@ -534,7 +528,7 @@ export default function TimeEntryForm({ onEntryAdded, showExpandedByDefault = fa
                 Beautiful! Your moment is captured ✓
               </h3>
               <p className="text-white/90 text-sm mb-3">
-                "{activity}" has been added to your story. {selectedMood ? `Love that energy! ` : ''}
+                "{savedActivity}" has been added to your story. {selectedMood ? `Love that energy! ` : ''}
               </p>
               <p className="text-white/80 text-sm">
                 💡 <span className="font-medium">Keep the momentum going!</span> What else made your day meaningful?

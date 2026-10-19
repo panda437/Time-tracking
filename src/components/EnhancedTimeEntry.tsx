@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { Clock, Calendar, Send, CheckCircle } from 'lucide-react'
+import { trackTimeEntry } from './GoogleAnalytics'
 import { useUserCategories } from '@/hooks/useUserCategories'
 
 interface TimeSlot {
@@ -27,6 +28,7 @@ interface EnhancedTimeEntryProps {
 export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryProps) {
   const { data: session } = useSession()
   const { categories } = useUserCategories()
+  const [saveErrors, setSaveErrors] = useState<Record<string, string>>({})
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
   const [entries, setEntries] = useState<{ [key: string]: EntryData }>({})
   const [submittedSlots, setSubmittedSlots] = useState<Set<string>>(new Set())
@@ -122,6 +124,7 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
     if (!entryData.activity.trim()) return
 
     setSubmitting(prev => ({ ...prev, [slot.id]: true }))
+    setSaveErrors(prev => ({ ...prev, [slot.id]: '' }))
 
     try {
       const response = await fetch('/api/entries', {
@@ -141,6 +144,7 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
       })
 
       if (response.ok) {
+        trackTimeEntry('create', entryData.category, 120)
         setSubmittedSlots(prev => new Set([...prev, slot.id]))
         // Clear the entry
         setEntries(prev => ({
@@ -153,9 +157,11 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
         }))
         // Notify parent component
         onEntryAdded?.()
+      } else {
+        setSaveErrors(prev => ({ ...prev, [slot.id]: response.status === 401 ? "Your session expired. Sign in again and retry." : "Could not save this slot. Your details are still here; please retry." }))
       }
     } catch (error) {
-      console.error('Failed to submit entry:', error)
+      setSaveErrors(prev => ({ ...prev, [slot.id]: 'Could not reach the server. Check your connection and retry.' }))
     } finally {
       setSubmitting(prev => ({ ...prev, [slot.id]: false }))
     }
@@ -189,6 +195,7 @@ export default function EnhancedTimeEntry({ onEntryAdded }: EnhancedTimeEntryPro
               isSubmitted ? 'bg-green-50' : 'md:hover:bg-gray-50'
             }`}
           >
+            {saveErrors[slot.id] && <p role="alert" className="p-3 text-red-700">{saveErrors[slot.id]}</p>}
             {/* Mobile Layout */}
             <div className="md:hidden p-4 space-y-4">
               {/* Time Window - Mobile */}
